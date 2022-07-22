@@ -1,0 +1,201 @@
+0|
+0||----------------------------------------------------------------------|
+0||                                                                      |
+0||      @@@@@@ @@@@@@@@@@@@@@ @@@@                                      |
+0||   @@@@@@@@@ @@@@@@@@@@@@@@ @@@@                                      |
+0||  @@@@            @@@@      @@@@                                      |
+0||  @@@             @@@@      @@@@      cosin Tire and Road Interface   |
+0||  @@@@            @@@@      @@@@           connecting FTire and RGR   |
+0||   @@@@@@@@@@     @@@@      @@@@                             2021-4   |
+0||     @@@@@@@@@@   @@@@      @@@@                 r25682, 2021-10-25   |
+0||                                                                      |
+0||                                                                      |
+0||  installation directory:                               D:\OneDrive   |
+0||   - ANSYS, Inc\Win10_Data\        \cosin.2021-4-25682.x86_64\cosin   |
+0||  license agreement:        www.cosin.eu/contact/license-terms-eula   |
+0||  documentation and software updates:                  www.cosin.eu   |
+0||  in any support case, please read:       Help -> Support checklist   |
+0||                                                                      |
+0||  (c) 1997-2022       cosin scientific software AG, Munich, Germany   |
+0||                                                                      |
+0||----------------------------------------------------------------------|
+0|
+4|FTIRE CO-SIMULATION DRIVEN BY CTI
+0|started at July 13, 2022, 14:06, on platform win64
+0|cosin software will use status of version 2021-4 at July 13, 2022
+0|
+4|CALLING SOLVER
+0|Ansys Motion
+0|
+1|RESTRICTED USE OF COSIN LICENSE FEATURE ftire
+1|for 3rd-party interface development only.
+1|Must not be used for any other purposes!
+0|
+4|TIRE MODEL MESSAGES
+0|opening tire data file pass_car_235_45R17_94W.tir
+0|model type FTire, file format TeimOrbit
+0|
+4|FTIRE RUN-TIME CONFIGURATION
+0|- standard speed mode, set by run_time_mode in section [MODEL] of tir-file
+0|  note: this speed mode might be changed under CTI control at run-time
+0|- using latest FTire version available at day of execution (see above)
+0|BTW: you seem to be 2 versions behind the actual cosin software version; upgrade recommended
+0|
+2|data read in input file are regularly pre-processed
+0|
+4|MASS AND INERTIA CORRECTION IN MBS MODEL
+0|Either *add* the following mass properties to the *rim* in your suspension model ('rim-fixed' tire
+0|parts which are not accounted for in the tire model):
+0|  m =           4.410 kg
+0|  Ixx = Izz =   0.177 kgm^2
+0|  Iyy =         0.240 kgm^2  (y-axis = wheel spin axis)
+0|
+0|or *subtract* the following mass properties from the *wheel* (=rim+tire) in your suspension model
+0|('free' tire parts which are accounted for in the tire model):
+0|  m =           8.190 kg
+0|  Ixx = Izz =   0.398 kgm^2
+0|  Iyy =         0.796 kgm^2  (y-axis = wheel spin axis)
+0|
+0|Estimated wheel moment of inertia about spin axis is 1.369 kgm^2.
+0|
+0|If this value differs from the respective value in your MBS model, adjust the rim moment of inertia
+0|in the tire data file accordingly. This is only necessary in real-time mode, to ensure numerical
+0|stability.
+0|
+4|FTIRE ANIMATION CONFIGURATION
+0|settings taken from tir-file
+0|animation from 0 s to 999 s with step size 1 ms
+0|
+4|ROAD MODEL MESSAGES
+0|inspecting road data file oval_belgian_block.rgr
+0|tire instance 1 uses road model type Regular Grid (rgr) with center-line
+0|rgr data file D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Roads\oval_belgian_block.rgr loaded
+0|nodes: 1001 x 372
+0|resolution: 10 x 10 mm
+0|compression ratio: 4.44 %
+0|bounding box rgr grid in curvi-linear coordinates: [0,10] x [-1.9,1.9] x [-23,120.8] m x m x mm
+0|file format: header ascii, data single precision binary little endian, z data, compressed
+0|
+0|loading RGR patch # 1: D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Roads\oval_belgian_block.rgr
+0|
+4|FTIRE RUN-TIME CONFIGURATION
+0|- standard speed mode, set by run_time_mode in section [MODEL] of tir-file
+0|  note: this speed mode might be changed under CTI control at run-time
+0|- using latest FTire version available at day of execution (see above)
+0|BTW: you seem to be 2 versions behind the actual cosin software version; upgrade recommended
+0|
+2|data read in input file are regularly pre-processed
+0|
+1|ERROR
+1|variable rgr center-line friction not yet supported for modification
+0|
+3|BTW: you seem to be 2 versions behind the actual cosin software version;
+3|please consider to update in case of a support request related to the error message above
+0|
+3|potential instability of tire 2 at t = -0.0280s, x = 0.2325m, y = 0.7600m recognized when computing
+3|structural forces/moments
+3|potential instability of tire 2 at t = -0.0230s, x = 0.1908m, y = 0.7600m recognized when computing
+3|structural forces/moments
+0|
+0|
+4|CTI AND FTIRE STATISTICS
+0|statistics tire 1
+0|number of tire initializations: 1
+0|number of steps: 3199
+0|number of repeated steps: 9
+0|number of state array saves: 0
+0|number of state array retrieves: 0
+0|number of resets: 0
+0|no recognized issues with input signals
+0|
+0|statistics tire 2
+0|number of tire initializations: 3
+0|number of steps: 3354
+0|number of repeated steps: 9
+0|number of state array saves: 0
+0|number of state array retrieves: 0
+0|number of resets: 0
+0|no recognized issues with input signals
+0|
+0|statistics tire 3
+0|number of tire initializations: 1
+0|number of steps: 3178
+0|number of repeated steps: 9
+0|number of state array saves: 0
+0|number of state array retrieves: 0
+0|number of resets: 0
+0|no recognized issues with input signals
+0|
+0|statistics tire 4
+0|number of tire initializations: 1
+0|number of steps: 3134
+0|number of repeated steps: 9
+0|number of state array saves: 0
+0|number of state array retrieves: 0
+0|number of resets: 0
+0|no recognized issues with input signals
+0|
+0|last speed mode of all tires: 0
+0|total elapsed time: 4m 3s
+0|real-time factor vehicle model + FTire: 77.009
+0|number of road evaluations: 367.4 mio (exactly: 367375511)
+0|2 warning messages:
+3|potential instability of tire 2 at t = -0.0280s, x = 0.2325m, y = 0.7600m recognized when computing
+3|structural forces/moments
+3|potential instability of tire 2 at t = -0.0230s, x = 0.1908m, y = 0.7600m recognized when computing
+3|structural forces/moments
+0|4 error messages:
+1|variable rgr center-line friction not yet supported for modification
+0|(several times)
+0|
+4|FILES AND RESOURCES
+0|(i)=input file  (o)=output file  (r)=resource file
+0|(l)=library  (e)=executable  (f)=folder  (n)=option
+0|
+2|in cosin installation directory
+0|D:\OneDrive - ANSYS, Inc\Win10_Data\        \cosin.2021-4-25682.x86_64\cosin
+9|D:\OneDrive - ANSYS, Inc\Win10_Data\        \cosin.2021-4-25682.x86_64\cosin
+0|(l) cosin library:              lib\win64\cti.dll
+9|D:\OneDrive - ANSYS, Inc\Win10_Data\        \cosin.2021-4-25682.x86_64\cosin\lib\win64\cti.dll
+0|(r) graphics resources:         share\cosingl.mat
+9|D:\OneDrive - ANSYS, Inc\Win10_Data\        \cosin.2021-4-25682.x86_64\cosin\share\cosingl.mat
+0|
+2|in output folder
+0|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies
+0|(i) texture image in animation: VM_Demo_Vehicle_lt_ftire004.png
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies\VM_Demo_Vehicle_lt_ftire004.png
+0|(o) diagnosis file:             VM_Demo_Vehicle_lt_ftire_diagnosis.txt
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies\VM_Demo_Vehicle_lt_ftire_diagnosis.txt
+0|(o) log file:                   VM_Demo_Vehicle_lt_ftire.log
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies\VM_Demo_Vehicle_lt_ftire.log
+0|(o) png file:                   VM_Demo_Vehicle_lt_ftire001.png
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies\VM_Demo_Vehicle_lt_ftire001.png
+0|(o) png file:                   VM_Demo_Vehicle_lt_ftire002.png
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies\VM_Demo_Vehicle_lt_ftire002.png
+0|(o) png file:                   VM_Demo_Vehicle_lt_ftire003.png
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies\VM_Demo_Vehicle_lt_ftire003.png
+0|(o) png file:                   VM_Demo_Vehicle_lt_ftire004.png
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Assemblies\VM_Demo_Vehicle_lt_ftire004.png
+0|
+2|in home directory
+0|C:\Users\hjun
+9|C:\Users\hjun
+0|(r) cosin ini file:             cosin.ini
+9|C:\Users\hjun\cosin.ini
+0|
+2|in other directories (or resource other than file)
+0|(e) calling solver:             C:\Program Files\ANSYS Inc\v221\Motion\Solver\Windows\rundfs.exe
+9|C:\Program Files\ANSYS Inc\v221\Motion\Solver\Windows\rundfs.exe
+0|(i) FTire data file:            D:\OneDrive - ANSYS, Inc\Desktop\Standard
+0|                                Work_2\Tires\pass_car_235_45R17_94W.tir
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Tires\pass_car_235_45R17_94W.tir
+0|(i) road data file:             D:\OneDrive - ANSYS, Inc\Desktop\Standard
+0|                                Work_2\Roads\oval_belgian_block.rgr
+9|D:\OneDrive - ANSYS, Inc\Desktop\Standard Work_2\Roads\oval_belgian_block.rgr
+0|(n) cosin license server:       seow19molic01:80 (defined in cosin ini file)
+9|seow19molic01:80 (defined in cosin ini file)
+0|
+0|all cosin licenses returned, if used any. Bye.
+0|
+e|
