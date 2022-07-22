@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionDurability xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0" description="This is the pendulum model." generationTool="ANSYSMotion" generationDateAndTime="2022-07-07T05:38:47Z">
+  <Configuration>
+    <Types>
+      <Type name="Bodies">
+        <Body name="Body_01">
+          <Entity name="Bush_01" type="force"/>
+          <Entity name="Bush_02" type="force"/>
+          <Entity name="BJ_01" type="contraints"/>
+          <Entity name="Displacement" type="motion"/>
+          <Entity name="Velocity" type="motion"/>
+          <Entity name="Acceleration" type="motion"/>
+        </Body>
+        <Body name="Body_02">
+          <Entity name="Bush_03" type="force"/>
+          <Entity name="Bush_04" type="force"/>
+          <Entity name="BJ_02" type="contraints"/>
+          <Entity name="Displacement" type="motion"/>
+          <Entity name="Velocity" type="motion"/>
+          <Entity name="Acceleration" type="motion"/>
+        </Body>
+      </Type>
+      <Type name="Forces">
+        <Force name="jounce_bumper">
+          <Entity name="Force"/>
+          <Entity name="Relative Displacement"/>
+          <Entity name="Relative Velocity"/>
+          <Entity name="Relative Acceleration"/>
+        </Force>
+      </Type>
+      <Type name="User defined functions">
+        <Function name="Half shaft torques"/>
+        <Function name="Steering wheel angle (deg)"/>
+      </Type>
+      <Type name="Flexible Bodies">
+        <FBody name="vehicle_body"/>
+      </Type>
+    </Types>
+    <ReferenceFrames>
+      <ReferenceFrame name="VehicleBody"/>
+      <ReferenceFrame name="Global"/>
+    </ReferenceFrames>
+    <UnitDefinitions>
+      <Unit type="force" name="N">
+        <DisplayUnit name="kgf" factor="0.1019716212977928"/>
+      </Unit>
+      <Unit type="force" name="kgf">
+        <DisplayUnit name="N" factor="9.80665"/>
+      </Unit>
+      <Unit type="length" name="mm">
+        <DisplayUnit name="m" factor="0.001"/>
+      </Unit>
+      <Unit type="length" name="m">
+        <DisplayUnit name="mm" factor="1000"/>
+      </Unit>
+      <Unit type="angle" name="deg">
+        <DisplayUnit name="rad" factor="0.0174532925"/>
+      </Unit>
+      <Unit type="angle" name="rad">
+        <DisplayUnit name="deg" factor="57.295779513"/>
+      </Unit>
+      <Unit type="time" name="sec">
+        <DisplayUnit name="min" factor="0.0166666667"/>
+      </Unit>
+      <Unit type="time" name="min">
+        <DisplayUnit name="sec" factor="60"/>
+      </Unit>
+    </UnitDefinitions>
+  </Configuration>
+  <UserDefinedItems>
+    <Item name="Forces">
+        <Force name="VMT_Front_Suspension/dam_ride_damper:L">
+          <Entity name="Force"/>
+          <Entity name="Relative Displacement"/>
+          <Entity name="Relative Velocity"/>
+          <Entity name="Relative Acceleration"/>
+        </Force>
+        <Force name="VMT_Front_Suspension/spr_ride_spring:L">
+          <Entity name="Force"/>
+          <Entity name="Relative Displacement"/>
+          <Entity name="Relative Velocity"/>
+          <Entity name="Relative Acceleration"/>
+        </Force>
+        <Force name="VMT_Front_Suspension/bump_jounce_stop:L">
+          <Entity name="Force"/>
+          <Entity name="Relative Displacement"/>
+          <Entity name="Relative Velocity"/>
+          <Entity name="Relative Acceleration"/>
+        </Force>
+        <Force name="VMT_Front_Tires/wheel_force:L">
+          <Entity name="Force"/>
+          <Entity name="Relative Displacement"/>
+          <Entity name="Relative Velocity"/>
+          <Entity name="Relative Acceleration"/>
+        </Force>
+        <Force name="Powertrain_lt/bush_front_engine_mount:L">
+          <Entity name="Force"/>
+          <Entity name="Relative Displacement"/>
+          <Entity name="Relative Velocity"/>
+          <Entity name="Relative Acceleration"/>
+        </Force>
+    </Item>
+    <Unit force="N" length="mm" angle="rad" time="sec"/>
+    <Stepsize value="0.01"/>
+  </UserDefinedItems>
+</MotionDurability>

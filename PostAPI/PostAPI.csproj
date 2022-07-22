@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+	  <OutputPath>$(SolutionDir)bin\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+	<!--<ItemGroup>
+		<PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
+	</ItemGroup>-->
+
+	<ItemGroup>
+		<Reference Include="WindowsBase">
+		  <Private>false</Private>
+		</Reference>
+		<Reference Include="PresentationCore" />
+		<Reference Include="PresentationFramework" />
+		<Reference Include="VM.Post.API.OutputReader">
+			<HintPath>$(SolutionDir)RPC\VM.Post.API.OutputReader.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VM.Models.Post">
+			<HintPath>$(SolutionDir)RPC\VM.Models.Post.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VM.Enums.Post">
+			<HintPath>$(SolutionDir)RPC\VM.Enums.Post.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VM.Models.OutputReader">
+			<HintPath>$(SolutionDir)RPC\VM.Models.OutputReader.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VM">
+			<HintPath>$(SolutionDir)RPC\VM.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VM.Extensions">
+			<HintPath>$(SolutionDir)RPC\VM.Extensions.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VM.Localization">
+			<HintPath>$(SolutionDir)RPC\VM.Localization.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VM.Models">
+			<HintPath>$(SolutionDir)RPC\VM.Models.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="IF NOT EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot; mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot;&#xD;&#xA;IF EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot; copy &quot;$(SolutionDir)RPC\Resources\&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot;&#xD;&#xA;copy &quot;$(SolutionDir)RPC\&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\&quot;" />
+	</Target>
+</Project>

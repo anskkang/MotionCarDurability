@@ -1,0 +1,73 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using VM.Enums.Post;
+using VM.Models;
+using VM.Models.OutputReader;
+using VM.Post.API.OutputReader;
+
+namespace PostAPI
+{
+    public class PostAPI
+    {
+        public PostAPI()
+        {
+        }
+
+        public PostAPI(string filepath)
+        {
+            OutputReader = new OutputReader(filepath);
+        }
+
+        private OutputReader OutputReader { get; set; }
+
+        public IDictionary<string, IList<Point>> GetCurves(IPlotParameters parameters)
+        {
+            return this.OutputReader.GetCurves(parameters);
+        }
+
+        public IList<(BodyType, string)> GetBodies(BodyType type)
+        {
+            return this.OutputReader.GetBodies(type);
+        }
+
+        public IList<(ConnectorType, ActionType, string)> GetConnectors(string name)
+        {
+            return this.OutputReader.GetConnectors(name);
+        }
+
+        public IList<double[]> GetMarkerInfo(string name)
+        {
+            return this.OutputReader.GetMarkerInfo(name);
+        }
+
+        public Dictionary<string, KeyValuePair<string, double>> GetUnits()
+        {
+            return this.OutputReader.GetUnits();
+        }
+
+        public IDictionary<string, IVectorDisplayAnimatinoData> GetVector(string target, string path)
+        {
+            return this.OutputReader.GetVector(target, path);
+        }
+
+        public IDictionary<string, IVectorDisplayAnimatinoData> GetVector(string target, string path, AnalysisModelType analysisModelType = AnalysisModelType.Dynamics)
+        {
+            return this.OutputReader.GetVector(target, path, analysisModelType);
+        }
+
+        public (VM.Enums.Post.ResultType, double[], double[]) InterpolationAkimaSpline(double[] X, double[] Y, int NoOfPnt,
+            int NoOfDesiredPnt, double StartPnt, double EndPnt)
+        {
+            return this.OutputReader.InterpolationAkimaSpline(X, Y, NoOfPnt, NoOfDesiredPnt, StartPnt, EndPnt);
+        }
+
+        public void Close()
+        {
+            this.OutputReader.Close();
+        }
+    }
+}
