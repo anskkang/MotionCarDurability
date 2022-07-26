@@ -35,12 +35,9 @@ namespace Motion.Durability
 
     public enum ForceTypeofForce
     {
-        Spring = 0,
-        Damper = 1,
-        Bump = 2,
-        Rebound = 3,
-        Bush = 4,
-        Tire = 5
+        TSpringDamper = 0,
+        Bush = 1,
+        Tire = 2
     }
 
     public enum ResultValueType
@@ -73,7 +70,7 @@ namespace Motion.Durability
         }
 
         private string str_name;
-        private double m_dUnitScale;
+        private double[] m_dUnitScale;
         private ConnectionTypeForBody enum_typeForBody;
         private bool b_rotation_flag;
         private BaseOrActionForce enum_appliedForcetype;
@@ -93,7 +90,7 @@ namespace Motion.Durability
 
         }
 
-        public double UnitScaleFactor
+        public double[] UnitScaleFactor
         {
             get { return m_dUnitScale; }
             set { m_dUnitScale = value; }
@@ -166,6 +163,7 @@ namespace Motion.Durability
             lst_position = new List<double[]>();
             lst_orientation = new List<double[]>();
             lst_result_name = new List<string>();
+            m_dUnitScale = new double[2];
         }
 
     }
@@ -255,22 +253,28 @@ namespace Motion.Durability
 
     public class EntityForForce
     {
-        public EntityForForce(string _name, ForceTypeofForce _typeofForce)
+        public EntityForForce()
+        {
+            Initialize();
+        }
+
+        public EntityForForce(string _name)
         {
             name = _name;
-            typeofForce = _typeofForce;
-            lst_oriValue = new List<double[]>();
-            lst_fixedstepValue = new List<double[]>();
-            lst_transValue = new List<double[]>();
+
+            Initialize();
         }
 
         private string name;
-        private double m_dUnitScale;
-        private ForceTypeofForce typeofForce;
+        private double[] m_dUnitScale;
+        
+        private ReferenceFrameOfMotion enum_rf_type;
 
         private List<double[]> lst_oriValue;
         private List<double[]> lst_fixedstepValue;
         private List<double[]> lst_transValue;
+        private List<string> lst_result_name;
+
 
         public string Name
         {
@@ -278,16 +282,22 @@ namespace Motion.Durability
             set { name = value; }
         }
 
-        public double UnitScaleFactor
+        public double[] UnitScaleFactor
         {
             get { return m_dUnitScale; }
             set { m_dUnitScale = value; }
         }
 
-        public ForceTypeofForce TypeofForce
+        public ReferenceFrameOfMotion ReferenceFrame
         {
-            get { return typeofForce; }
-            set { typeofForce = value; }
+            get { return enum_rf_type; }
+            set { enum_rf_type = value; }
+        }
+
+        public List<string> ResultNames
+        {
+            get { return lst_result_name; }
+            set { lst_result_name = value; }
         }
 
         public List<double[]> OrinalValue
@@ -308,6 +318,15 @@ namespace Motion.Durability
             set { lst_transValue = value; }
         }
 
+        void Initialize()
+        {
+            lst_oriValue = new List<double[]>();
+            lst_fixedstepValue = new List<double[]>();
+            lst_transValue = new List<double[]>();
+            lst_result_name = new List<string>();
+            m_dUnitScale = new double[2];
+        }
+
     }
 
     public class Force
@@ -319,6 +338,9 @@ namespace Motion.Durability
             lst_Base_orientation = new List<double[]>();
             lst_Action_position = new List<double[]>();
             lst_Action_orientation = new List<double[]>();
+            BaseBody = "";
+            ActionBody = "";
+
         }
         public Force(string _name)
         {
@@ -328,14 +350,18 @@ namespace Motion.Durability
             lst_Base_orientation = new List<double[]>();
             lst_Action_position = new List<double[]>();
             lst_Action_orientation = new List<double[]>();
+            BaseBody = "";
+            ActionBody = "";
         }
 
         private string name;
         private List<EntityForForce> lst_entity;
+        private ForceTypeofForce typeofForce;
         private List<double[]> lst_Base_position;
         private List<double[]> lst_Base_orientation;
         private List<double[]> lst_Action_position;
         private List<double[]> lst_Action_orientation;
+
 
         public string Name
         {
@@ -347,6 +373,12 @@ namespace Motion.Durability
         {
             get { return lst_entity; }
             set { lst_entity = value; }
+        }
+
+        public ForceTypeofForce TypeofForce
+        {
+            get { return typeofForce; }
+            set { typeofForce = value; }
         }
 
         public List<double[]> Base_Positions
@@ -372,6 +404,12 @@ namespace Motion.Durability
             get { return lst_Action_orientation; }
             set { lst_Action_orientation = value; }
         }
+
+        public string BaseBody { get; set; }
+
+        public string ActionBody { get; set; }
+
+
     }
 
     public class DurabilityData
@@ -384,6 +422,7 @@ namespace Motion.Durability
             m_scale_displacement = 1.0;
             m_scale_angle = 1.0;
             m_scale_time = 1.0;
+            Precision = "e8";
         }
         //public DurabilityData(Category _type, double _d_unit_force, double _d_unit_displacement, double _d_unit_angle, double _d_unit_time, double _dStepsize)
         //{
@@ -430,6 +469,8 @@ namespace Motion.Durability
             get { return type; }
             set { type = value; }
         }
+
+        public string Precision { get; set; }
 
         public string Unit_Force
         {
