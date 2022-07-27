@@ -69,32 +69,8 @@
   </Configuration>
   <UserDefinedItems>
     <Item name="Forces">
-        <Force name="VMT_Front_Suspension/dam_ride_damper:L">
-          <Entity name="Force"/>
-          <Entity name="Relative Displacement"/>
-          <Entity name="Relative Velocity"/>
-          <Entity name="Relative Acceleration"/>
-        </Force>
-        <Force name="VMT_Front_Suspension/spr_ride_spring:L">
-          <Entity name="Force"/>
-          <Entity name="Relative Displacement"/>
-          <Entity name="Relative Velocity"/>
-          <Entity name="Relative Acceleration"/>
-        </Force>
-        <Force name="VMT_Front_Suspension/bump_jounce_stop:L">
-          <Entity name="Force"/>
-          <Entity name="Relative Displacement"/>
-          <Entity name="Relative Velocity"/>
-          <Entity name="Relative Acceleration"/>
-        </Force>
         <Force name="VMT_Front_Tires/wheel_force:L">
           <Entity name="Force"/>
-        </Force>
-        <Force name="Powertrain_lt/bush_front_engine_mount:L">
-          <Entity name="Force"/>
-          <Entity name="Relative Displacement"/>
-          <Entity name="Relative Velocity"/>
-          <Entity name="Relative Acceleration"/>
         </Force>
     </Item>
     <Unit force="N" length="mm" angle="rad" time="sec"/>

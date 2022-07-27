@@ -64,9 +64,13 @@ namespace Motion.Durability
         {
             if (bDebugging)
             {
-                m_open_motionresult.FileName = @"D:\Development\2023\Force Export for durability\Code\MotionDurability\Example\Results\VM_Demo_Vehicle_lt.dfr";
-                m_open_map.FileName = @"D:\Development\2023\Force Export for durability\Code\MotionDurability\Example\Map\Body_LCA_export.xml";
-                m_save_file.FileName = @"D:\Development\2023\Force Export for durability\Code\MotionDurability\Example\Output\Body_LCA.csv";
+                m_open_motionresult.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Results\VM_Demo_Vehicle_lt.dfr");
+                //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Body_LCA_export.xml");
+                //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_force_FrontLeft_export.xml");
+                m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_Tire.xml");
+
+                m_save_file.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Output");
+                m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.csv");
             }
 
             if (m_open_map.FileName == "")
@@ -104,6 +108,9 @@ namespace Motion.Durability
             {
                 m_functions = new Functions();
                 m_durability = m_functions.BuildDataFromMap(m_open_motionresult.FileName, m_open_map.FileName);
+
+                if (m_durability == null)
+                    return;
 
                 if(false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability))
                 {

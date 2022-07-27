@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using System.Windows;
+using System.Windows.Forms;
 using System.IO;
 using PostAPI;
 using VM.Post.API.OutputReader;
@@ -15,11 +16,16 @@ namespace Motion.Durability
 {
     public class Functions
     {
+        string m_strResultPath;
+        string m_strMapPath;
         public Functions() { }
 
         public DurabilityData BuildDataFromMap(string _strResultPath, string _strMapPath)
         {
             int i;
+            m_strResultPath = _strResultPath;
+            m_strMapPath = _strMapPath;
+
             XmlDocument dom = new XmlDocument();
             dom.Load(_strMapPath);
 
@@ -34,10 +40,13 @@ namespace Motion.Durability
 
             durability.StepSize = Convert.ToDouble(node_Stepsize.Attributes.GetNamedItem("value").Value);
             if (durability.StepSize <= 0.0)
+            {
+                MessageBox.Show("The step size must be greater than zero", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
+            }
 
             // Get Unit Conversion Factor
-            if (false == Conversion_Unit_For_Bodies(postAPI, node_Unit, ref durability))
+            if (false == Conversion_Unit(postAPI, node_Unit, ref durability))
                 return null;
 
             // Get Chassis data info
@@ -64,6 +73,16 @@ namespace Motion.Durability
             else if (str_Category == "Forces")
             {
                 durability.Type = Category.Forces;
+                if (false == BuildForceFromMap(node_Item, postAPI, ref durability))
+                    return null;
+
+                // Translate data in the each reference frame
+                if (false == Translate_Data_For_Forces(postAPI, ref durability))
+                    return null;
+
+                // Interpolation given step size
+                if (false == Interpolation_For_Force(postAPI, ref durability))
+                    return null;
             }
             else if (str_Category == "User defined functions")
             {
@@ -77,12 +96,6 @@ namespace Motion.Durability
             {
                 return null;
             }
-
-            
-
-
-            
-
 
             return durability;
         }
@@ -112,6 +125,14 @@ namespace Motion.Durability
             #region Set Body CM Info
 
             IList<double[]> CMInfo = _postAPI.GetMarkerInfo(body.Name + "/CM");
+            if (CMInfo == null || CMInfo.Count == 0)
+            {
+                string str_result = Path.GetFileName(m_strResultPath);
+                string str_error = string.Format("The target body does not exist in “{0}”. . The “{1}” result cannot be exported", str_result, body.Name);
+                MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
             foreach(double[] tmp in CMInfo)
             {
                 body.RF_Positions.Add(new double[3] { tmp[0], tmp[1], tmp[2] });
@@ -233,34 +254,48 @@ namespace Motion.Durability
 
                 entity.UseRotationFlag = Convert.ToBoolean(n.Attributes.GetNamedItem("rotation_flag").Value);
 
-                for (i = 0; i < connectors.Count; i++)
+                if (entity.ConnectionType != ConnectionTypeForBody.motion)
                 {
-                    if(connectors[i].Item3 == entity.Name)
+                    for (i = 0; i < connectors.Count; i++)
                     {
-                        if (connectors[i].Item2 == VM.Enums.Post.ActionType.Base)
-                            entity.AppliedForceType = BaseOrActionForce.Base;
+                        if (connectors[i].Item3 == entity.Name)
+                        {
+                            if (connectors[i].Item2 == VM.Enums.Post.ActionType.Base)
+                                entity.AppliedForceType = BaseOrActionForce.Base;
+                            else
+                                entity.AppliedForceType = BaseOrActionForce.Action;
+                        }
                         else
-                            entity.AppliedForceType = BaseOrActionForce.Action;
+                        {
+                            //if( i == (connectors.Count -1) )
+                            //{
+                            //    string str_result = Path.GetFileName(m_strResultPath);
+                            //    string str_error = string.Format("Force( {2} ) is not an element connected with Body in “{0}”. The “{1}” : Force result cannot be exported", str_result, body.Name, entity.Name);
+                            //    MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            //    return false;
+                            //}
+                        }
                     }
                 }
+
                 #region Motion
                 if (entity.ConnectionType == ConnectionTypeForBody.motion)
                 {
                     result_name = body.Name + seperator;
                     if (entity.Name == "Displacement")
                     {
-                        entity.UnitScaleFactor = durability.Scale_Length;
+                        entity.UnitScaleFactor[0] = durability.Scale_Length;
                         unit_entity = durability.Unit_Length;
                        
                     }
                     else if (entity.Name == "Velocity")
                     {
-                        entity.UnitScaleFactor = durability.Scale_Length / durability.Scale_Time;
+                        entity.UnitScaleFactor[0] = durability.Scale_Length / durability.Scale_Time;
                         unit_entity = durability.Unit_Length + "/" + durability.Unit_Time;
                     }
                     else
                     {
-                        entity.UnitScaleFactor = durability.Scale_Length / (durability.Scale_Time * durability.Scale_Time);
+                        entity.UnitScaleFactor[0] = durability.Scale_Length / (durability.Scale_Time * durability.Scale_Time);
                         unit_entity = durability.Unit_Length + "/" + durability.Unit_Time + "^2";
                     }
 
@@ -294,7 +329,7 @@ namespace Motion.Durability
                     {
                         if(entity.Name == "Displacement")
                         {
-                            entity.UnitScaleFactor = durability.Scale_Angle;
+                            entity.UnitScaleFactor[1] = durability.Scale_Angle;
                             unit_entity = durability.Unit_Angle;
                             if (entity.ReferenceFrame == ReferenceFrameOfMotion.vehiclebody)
                             {
@@ -356,7 +391,7 @@ namespace Motion.Durability
                         }
                         else if (entity.Name == "Velocity")
                         {
-                            entity.UnitScaleFactor = durability.Scale_Angle / durability.Scale_Time;
+                            entity.UnitScaleFactor[1] = durability.Scale_Angle / durability.Scale_Time;
                             unit_entity = durability.Unit_Angle + "/" + durability.Unit_Time;
 
                             if (entity.ReferenceFrame == ReferenceFrameOfMotion.vehiclebody)
@@ -413,7 +448,7 @@ namespace Motion.Durability
                         }
                         else
                         {
-                            entity.UnitScaleFactor = durability.Scale_Angle / (durability.Scale_Time * durability.Scale_Time);
+                            entity.UnitScaleFactor[1] = durability.Scale_Angle / (durability.Scale_Time * durability.Scale_Time);
                             unit_entity = durability.Unit_Angle + "/" + durability.Unit_Time +"^2"; 
                             if (entity.ReferenceFrame == ReferenceFrameOfMotion.vehiclebody)
                             {
@@ -505,7 +540,7 @@ namespace Motion.Durability
                 #region Others
                 else
                 {
-                    entity.UnitScaleFactor = durability.Scale_Force;
+                    entity.UnitScaleFactor[0] = durability.Scale_Force;
                     unit_entity = durability.Unit_Force;
                     
                     entity.ResultNames.Add(entity.Name + seperator + "FX(" + unit_entity + ")");
@@ -531,8 +566,8 @@ namespace Motion.Durability
 
                     if(true == entity.UseRotationFlag)
                     {
-                        entity.UnitScaleFactor = durability.Scale_Force * durability.Scale_Length;
-                        unit_entity = durability.Unit_Force + "*" + durability.Unit_Length;
+                        entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
+                        unit_entity = durability.Unit_Force + durability.Unit_Length;
 
                         entity.ResultNames.Add(entity.Name + seperator + "TX(" + unit_entity + ")");
                         entity.ResultNames.Add(entity.Name + seperator + "TY(" + unit_entity + ")");
@@ -865,7 +900,1610 @@ namespace Motion.Durability
             return true;
         }
 
-        private bool Conversion_Unit_For_Bodies(PostAPI.PostAPI _postAPI, XmlNode node_Unit, ref DurabilityData durability)
+        private bool Interpolation_For_Body(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        {
+            int i, j, k;
+            double[] xarray = null;
+            double[] yarray = null;
+
+            if (false == Determine_Result_Step(ref durability))
+                return false; 
+           
+
+            int nSize_list = durability.Body.Entities[0].TransformValue.Count;
+            int nSize_arr = 6;
+            k = 0;
+            xarray = durability.OriginalTimes.ToArray();
+            yarray = new double[nSize_list];
+
+            foreach (EntityForBody entity in durability.Body.Entities)
+            {
+                nSize_arr = entity.TransformValue[0].Length;
+                //entity.FixedStepValue.Clear();
+
+                for (i = 0; i < nSize_arr; i++)
+                {
+                    for (j = 0; j < nSize_list; j++)
+                    {
+                        yarray[j] = entity.TransformValue[j][i];
+
+                        //if (i == 0)
+                        //    entity.FixedStepValue.Add(new double[nSize_arr]);
+                    }
+
+                    var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nSize_list, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+                    if(i == 0 && k == 0 && result.Item1 == ResultType.SUCCESS)
+                    {
+                        durability.FixedTimes.Clear();
+                        for (j = 0; j < durability.ResultStep; j++)
+                            durability.FixedTimes.Add(result.Item2[j]);
+                    }
+
+                    for (j = 0; j < nSize_list; j++)
+                    {
+                        entity.FixedStepValue[j][i] = result.Item3[j];
+                    }
+                }
+
+                k++;
+            }
+
+
+            return true;
+        }
+
+        private bool GetBodyCMInfo(PostAPI.PostAPI postAPI, string str_Target_body, List<string> path, int nStartIndexOfPath, ref List<double[]> lst_arry)
+        {
+            int i, j, k;
+            IList<(BodyType, string)> bodies = postAPI.GetBodies(VM.Enums.Post.BodyType.RIGID);
+            IList<double[]> bodyCMinfo = null;
+            //List<string> str_curve_path = new List<string>();
+            IDictionary<string, IList<Point>> curve = null;
+            IList<Point> curve_point = null;
+            double[] yarray = null;
+
+            for (i = 0; i < bodies.Count; i++)
+            {
+                if (bodies[i].Item2.Contains(str_Target_body) == true)
+                {
+                    bodyCMinfo = postAPI.GetMarkerInfo(bodies[i].Item2 + "/CM");
+
+
+                    PlotParameters parameters = new PlotParameters();
+                    parameters.Target = bodies[i].Item2;
+
+                    for (j = nStartIndexOfPath; j < nStartIndexOfPath + 3; j++)
+                        parameters.Paths.Add(path[j]);
+
+                    curve = postAPI.GetCurves(parameters);
+
+                    if (curve == null)
+                        return false;
+
+                    lst_arry.Clear();
+                    for (j = 0; j < 3; j++)
+                    {
+                        curve_point = curve[str_Target_body + "/" + path[j + nStartIndexOfPath]];
+                        yarray = curve_point.Select(s => s.Y).ToArray();
+
+                        k = 0;
+                        foreach (double dv in yarray)
+                        {
+                            if (lst_arry.Count < yarray.Length)
+                                lst_arry.Add(new double[3] { 0.0, 0.0, 0.0 });
+
+                            lst_arry[k][j] = dv;
+
+                            k++;
+                        }
+                    }
+
+
+
+
+
+                    break;
+                }
+            }
+            return true;
+        }
+
+        private bool GetChassisInfo(PostAPI.PostAPI postAPI, ref DurabilityData durability)
+        {
+            int i, j, k;
+            IList<(BodyType, string)> bodies = postAPI.GetBodies(VM.Enums.Post.BodyType.RIGID);
+            IList<double[]> chassisCMinfo = null;
+            List<string> str_curve_path = new List<string>();
+            IDictionary<string, IList<Point>> curve = null;
+            IList<Point> curve_point = null;
+            double[] yarray = null;
+
+            str_curve_path.Add("Velocity/X");
+            str_curve_path.Add("Velocity/Y");
+            str_curve_path.Add("Velocity/Z");
+
+            str_curve_path.Add("Angular Velocity/X");
+            str_curve_path.Add("Angular Velocity/Y");
+            str_curve_path.Add("Angular Velocity/Z");
+
+            str_curve_path.Add("Acceleration/X");
+            str_curve_path.Add("Acceleration/Y");
+            str_curve_path.Add("Acceleration/Z");
+
+            str_curve_path.Add("Angular Acceleration/X");
+            str_curve_path.Add("Angular Acceleration/Y");
+            str_curve_path.Add("Angular Acceleration/Z");
+
+            for (i = 0; i < bodies.Count; i++)
+            {
+                if (bodies[i].Item2.Contains("chassis") == true)
+                {
+                    durability.ExistChassis = true;
+                    chassisCMinfo = postAPI.GetMarkerInfo(bodies[i].Item2 + "/CM");
+                    foreach (double[] tmp in chassisCMinfo)
+                    {
+                        durability.PositionOfChassis.Add(new double[3] { tmp[0], tmp[1], tmp[2] });
+                        durability.OrientationOfChassis.Add(new double[9] { tmp[3], tmp[4], tmp[5], tmp[6], tmp[7], tmp[8], tmp[9], tmp[10], tmp[11] });
+                    }
+
+                    PlotParameters parameters = new PlotParameters();
+                    parameters.Target = bodies[i].Item2;
+
+                    for (j = 0; j < str_curve_path.Count; j++)
+                        parameters.Paths.Add(str_curve_path[j]);
+
+                    curve = postAPI.GetCurves(parameters);
+
+                    if (curve == null)
+                        return false;
+
+                    str_curve_path.Clear();
+                    string bd_name = bodies[i].Item2;
+
+                    str_curve_path.Add(bd_name + "/Velocity/X");
+                    str_curve_path.Add(bd_name + "/Velocity/Y");
+                    str_curve_path.Add(bd_name + "/Velocity/Z");
+
+                    str_curve_path.Add(bd_name + "/Angular Velocity/X");
+                    str_curve_path.Add(bd_name + "/Angular Velocity/Y");
+                    str_curve_path.Add(bd_name + "/Angular Velocity/Z");
+
+                    str_curve_path.Add(bd_name + "/Acceleration/X");
+                    str_curve_path.Add(bd_name + "/Acceleration/Y");
+                    str_curve_path.Add(bd_name + "/Acceleration/Z");
+
+                    str_curve_path.Add(bd_name + "/Angular Acceleration/X");
+                    str_curve_path.Add(bd_name + "/Angular Acceleration/Y");
+                    str_curve_path.Add(bd_name + "/Angular Acceleration/Z");
+
+                    // T-Vel
+                    for (j = 0; j < 3; j++)
+                    {
+                        curve_point = curve[str_curve_path[j]];
+                        yarray = curve_point.Select(s => s.Y).ToArray();
+
+                        k = 0;
+                        foreach (double dv in yarray)
+                        {
+                            if (j == 0)
+                                durability.TranslationalVelocity.Add(new double[3] { 0.0, 0.0, 0.0 });
+
+                            durability.TranslationalVelocity[k][j] = dv;
+
+                            k++;
+                        }
+                    }
+
+                    // R-Vel
+                    for (j = 0; j < 3; j++)
+                    {
+                        curve_point = curve[str_curve_path[j + 3]];
+                        yarray = curve_point.Select(s => s.Y).ToArray();
+
+                        k = 0;
+                        foreach (double dv in yarray)
+                        {
+                            if (j == 0)
+                                durability.RotationalVelocity.Add(new double[3] { 0.0, 0.0, 0.0 });
+
+                            durability.RotationalVelocity[k][j] = dv;
+
+                            k++;
+                        }
+                    }
+
+                    // T-Acc
+                    for (j = 0; j < 3; j++)
+                    {
+                        curve_point = curve[str_curve_path[j + 6]];
+                        yarray = curve_point.Select(s => s.Y).ToArray();
+
+                        k = 0;
+                        foreach (double dv in yarray)
+                        {
+                            if (j == 0)
+                                durability.TranslationalAcceleration.Add(new double[3] { 0.0, 0.0, 0.0 });
+
+                            durability.TranslationalAcceleration[k][j] = dv;
+
+                            k++;
+                        }
+                    }
+
+                    // R-Acc
+                    for (j = 0; j < 3; j++)
+                    {
+                        curve_point = curve[str_curve_path[j + 9]];
+                        yarray = curve_point.Select(s => s.Y).ToArray();
+
+                        k = 0;
+                        foreach (double dv in yarray)
+                        {
+                            if (j == 0)
+                                durability.RotationalAcceleration.Add(new double[3] { 0.0, 0.0, 0.0 });
+
+                            durability.RotationalAcceleration[k][j] = dv;
+
+                            k++;
+                        }
+                    }
+
+
+
+                    break;
+                }
+            }
+            return true;
+        }
+
+        #endregion
+
+        #region Forces
+
+        private bool BuildForceFromMap(XmlNode _node_Item, PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        {
+            int i, j, nNode_force;
+            double[] xarray = null;
+            double[] yarray = null;
+            List<double[]> lst_arry = new List<double[]>();
+            IList<double[]> MKInfo = null;
+
+            string str_type = "";
+            List<string> str_curve_path = new List<string>();
+            string unit_entity = "";
+            char seperator = '/';
+            string result_name = "";
+
+            PlotParameters parameters = null;
+            Force force_data = null;
+            EntityForForce entity = null;
+            
+            IList<Point> curve_point = null;
+            IDictionary<string, IList<Point>> curve = null;
+           
+
+            List<Force> lst_data_force = durability.Forces;
+            XmlNodeList lst_node_force = _node_Item.SelectNodes("Force");
+
+            IList<(BodyType, string)> bodies = _postAPI.GetBodies(BodyType.RIGID);
+            nNode_force = -1;
+            foreach (XmlNode force_node in lst_node_force)
+            {
+                nNode_force++;
+
+                force_data = new Force();
+                force_data.Name = force_node.Attributes.GetNamedItem("name").Value;
+
+                #region Set Marker Info
+
+                // BaseMarker
+                MKInfo = _postAPI.GetMarkerInfo(force_data.Name + "/BaseMarker");
+                foreach (double[] tmp in MKInfo)
+                {
+                    force_data.Base_Positions.Add(new double[3] { tmp[0], tmp[1], tmp[2] });
+                    force_data.Base_Orientations.Add(new double[9] { tmp[3], tmp[4], tmp[5], tmp[6], tmp[7], tmp[8], tmp[9], tmp[10], tmp[11] });
+                }
+
+                // ActionMarker
+                MKInfo = _postAPI.GetMarkerInfo(force_data.Name + "/ActionMarker");
+                foreach (double[] tmp in MKInfo)
+                {
+                    force_data.Action_Positions.Add(new double[3] { tmp[0], tmp[1], tmp[2] });
+                    force_data.Action_Orientations.Add(new double[9] { tmp[3], tmp[4], tmp[5], tmp[6], tmp[7], tmp[8], tmp[9], tmp[10], tmp[11] });
+                }
+
+                #endregion
+
+                #region Find Body
+
+                bool bFindBodies = false;
+                for (i = 0; i < bodies.Count; i++)
+                {
+                    var connectors = _postAPI.GetConnectors(bodies[i].Item2);
+
+                    for (j = 0; j < connectors.Count; j++)
+                    {
+                        if (connectors[j].Item3 == force_data.Name)
+                        {
+                            if (force_data.BaseBody == "" || force_data.ActionBody == "")
+                            {
+                                if (connectors[j].Item2 == VM.Enums.Post.ActionType.Base)
+                                    force_data.BaseBody = bodies[i].Item2;
+                                else
+                                    force_data.ActionBody = bodies[i].Item2;
+
+                                if (connectors[j].Item1 == ConnectorType.Tire)
+                                {
+                                    force_data.TypeofForce = ForceTypeofForce.Tire;
+                                    bFindBodies = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                bFindBodies = true;
+
+                                if (connectors[j].Item1 == ConnectorType.Bush)
+                                    force_data.TypeofForce = ForceTypeofForce.Bush;
+                                else if (connectors[j].Item1 == ConnectorType.TSpringDamper)
+                                    force_data.TypeofForce = ForceTypeofForce.TSpringDamper;
+
+                                break;
+
+                            }
+
+                            
+                        }
+                    }
+
+                    if (bFindBodies == true)
+                        break;
+                }
+
+                if(bFindBodies == false)
+                {
+                    string str_result = Path.GetFileName(m_strResultPath);
+                    string str_error = string.Format("The target force does not exist in “{0}”. . The “{1}” result cannot be exported", str_result, force_data.Name);
+                    MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    continue;
+                    //return false;
+                }
+
+                #endregion
+
+                #region Set Original time history
+                if (nNode_force == 0)
+                {
+                    parameters = new PlotParameters();
+                    parameters.Target = force_data.ActionBody;
+                    parameters.Paths.Add("Displacement/X");
+                    curve = _postAPI.GetCurves(parameters);
+                    if (curve == null)
+                        return false;
+                    curve_point = curve[force_data.ActionBody + "/Displacement/X"];
+                    xarray = curve_point.Select(s => s.X).ToArray();
+                    foreach (double _dtime in xarray)
+                        durability.OriginalTimes.Add(_dtime);
+                }
+
+                #endregion
+
+                #region Entities
+
+                foreach (XmlNode entity_node in force_node.ChildNodes)
+                {
+                    parameters = new PlotParameters();
+                    entity = new EntityForForce();
+                    entity.Name = entity_node.Attributes.GetNamedItem("name").Value;
+                    result_name = force_data.Name + seperator;
+                    if (entity.Name.Contains("Force"))
+                    {
+                        entity.UnitScaleFactor[0] = durability.Scale_Force;
+                        unit_entity = durability.Unit_Force;
+
+                        if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
+                        {
+                            entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+
+                            str_type = "Force on Action Marker";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Target = force_data.Name;
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[force_data.Name + "/" + str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[3] { 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[1] { 0.0 });
+                                        entity.FixedStepValue.Add(new double[1] { 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+                        else if (force_data.TypeofForce == ForceTypeofForce.Bush)
+                        {
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FX(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FY(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FZ(" + unit_entity + ")");
+
+                            entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
+                            unit_entity = durability.Unit_Force + durability.Unit_Length;
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TX(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TY(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TZ(" + unit_entity + ")");
+
+                            str_type = "Force on Action Marker Measured in Base Marker";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Target = force_data.Name;
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            str_type = "Torque on Action Marker Measured in Base Marker";
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[force_data.Name + "/" + str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.FixedStepValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Global(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Global(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Global(" + unit_entity + ")");
+
+                            entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
+                            unit_entity = durability.Unit_Force + durability.Unit_Length;
+
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Global(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Global(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Global(" + unit_entity + ")");
+
+                            unit_entity = durability.Unit_Force;
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Vehicle(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle(" + unit_entity + ")");
+
+                            unit_entity = durability.Unit_Force + durability.Unit_Length;
+
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Vehicle(" + unit_entity + ")");
+
+                            str_type = "Tire Force";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/Longitudinal");
+                            str_curve_path.Add(str_type + "/Lateral");
+                            str_curve_path.Add(str_type + "/Vertical");
+
+                            parameters.Target = force_data.Name;
+                            parameters.Paths.Add(str_type + "/Longitudinal");
+                            parameters.Paths.Add(str_type + "/Lateral");
+                            parameters.Paths.Add(str_type + "/Vertical");
+
+                            str_type = "Tire Torque";
+                            str_curve_path.Add(str_type + "/Overturning");
+                            str_curve_path.Add(str_type + "/Rolling resistance");
+                            str_curve_path.Add(str_type + "/Aligning");
+
+                            parameters.Paths.Add(str_type + "/Overturning");
+                            parameters.Paths.Add(str_type + "/Rolling resistance");
+                            parameters.Paths.Add(str_type + "/Aligning");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[force_data.Name + "/" + str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.FixedStepValue.Add(new double[12] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+
+                    }
+                    else if (entity.Name.Contains("Displacement"))
+                    {
+                        entity.UnitScaleFactor[0] = durability.Scale_Length;
+                        unit_entity = durability.Unit_Length;
+
+                        if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
+                        {
+                            entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+
+                            str_type = force_data.Name + "/BaseMarker/Displacement";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Target = force_data.Name + "/BaseMarker";
+                            str_type = "Displacement";
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[1] { 0.0 });
+                                        entity.FixedStepValue.Add(new double[1] { 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+
+
+                            str_type = force_data.Name + "/ActionMarker/Displacement";
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters = new PlotParameters();
+                            parameters.Target = force_data.Name + "/ActionMarker";
+                            str_type = "Displacement";
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    entity.OrinalValue[j][i+3] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+                        else if (force_data.TypeofForce == ForceTypeofForce.Bush)
+                        {
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "X(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "Y(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "Z(" + unit_entity + ")");
+
+                            entity.UnitScaleFactor[1] = durability.Scale_Angle;
+                            unit_entity = durability.Unit_Angle ;
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AX(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AY(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AZ(" + unit_entity + ")");
+
+                            str_type = "Translational Deformation";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Target = force_data.Name;
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            str_type = "AX AY AZ Projection Angle";
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[force_data.Name + "/" + str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.FixedStepValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+                        
+                    }
+                    else if (entity.Name.Contains("Velocity"))
+                    {
+                        entity.UnitScaleFactor[0] = durability.Scale_Length / durability.Scale_Time;
+                        unit_entity = durability.Unit_Length + "/" + durability.Unit_Time;
+
+                        if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
+                        {
+                            entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+
+                            str_type = force_data.Name + "/BaseMarker/Velocity";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Target = force_data.Name + "/BaseMarker";
+                            str_type = "Velocity";
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[1] { 0.0 });
+                                        entity.FixedStepValue.Add(new double[1] { 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+
+
+                            str_type = force_data.Name + "/ActionMarker/Velocity";
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters = new PlotParameters();
+                            parameters.Target = force_data.Name + "/ActionMarker";
+                            str_type = "Velocity";
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    entity.OrinalValue[j][i + 3] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+                        else if (force_data.TypeofForce == ForceTypeofForce.Bush)
+                        {
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VX(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VY(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VZ(" + unit_entity + ")");
+
+                            entity.UnitScaleFactor[1] = durability.Scale_Angle;
+                            unit_entity = durability.Unit_Angle;
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WX(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WY(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WZ(" + unit_entity + ")");
+
+                            str_type = "Relative Translational Velocity";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Target = force_data.Name;
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            str_type = "Relative Angular Velocity";
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[force_data.Name + "/" + str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.FixedStepValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        entity.UnitScaleFactor[0] = durability.Scale_Length / (durability.Scale_Time * durability.Scale_Time);
+                        unit_entity = durability.Unit_Length + "/" + durability.Unit_Time + "^2";
+
+                        if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
+                        {
+                            entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+
+                            str_type = force_data.Name + "/BaseMarker/Acceleration";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Target = force_data.Name + "/BaseMarker";
+                            str_type = "Acceleration";
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[1] { 0.0 });
+                                        entity.FixedStepValue.Add(new double[1] { 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+
+
+                            str_type = force_data.Name + "/ActionMarker/Angular Acceleration";
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters = new PlotParameters();
+                            parameters.Target = force_data.Name + "/ActionMarker";
+                            str_type = "Angular Acceleration";
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    entity.OrinalValue[j][i + 3] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+                        else if (force_data.TypeofForce == ForceTypeofForce.Bush)
+                        {
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VX_dot(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VY_dot(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VZ_dot(" + unit_entity + ")");
+
+                            entity.UnitScaleFactor[1] = durability.Scale_Angle;
+                            unit_entity = durability.Unit_Angle;
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WX_dot(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WY_dot(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WZ_dot(" + unit_entity + ")");
+
+                            str_type = "Relative Translational Acceleration";
+
+                            str_curve_path.Clear();
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Target = force_data.Name;
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            str_type = "Relative Angular Acceleration";
+                            str_curve_path.Add(str_type + "/X");
+                            str_curve_path.Add(str_type + "/Y");
+                            str_curve_path.Add(str_type + "/Z");
+
+                            parameters.Paths.Add(str_type + "/X");
+                            parameters.Paths.Add(str_type + "/Y");
+                            parameters.Paths.Add(str_type + "/Z");
+
+                            curve = _postAPI.GetCurves(parameters);
+                            if (curve == null)
+                                return false;
+
+                            for (i = 0; i < str_curve_path.Count; i++)
+                            {
+                                curve_point = curve[force_data.Name + "/" + str_curve_path[i]];
+                                yarray = curve_point.Select(s => s.Y).ToArray();
+
+                                j = 0;
+                                foreach (double yvalue in yarray)
+                                {
+                                    if (i == 0)
+                                    {
+                                        entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.TransformValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        entity.FixedStepValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+
+                                        if (j == 0)
+                                        {
+                                            xarray = curve_point.Select(s => s.X).ToArray();
+                                            durability.EndTime = xarray[yarray.Length - 1];
+                                        }
+                                    }
+
+                                    entity.OrinalValue[j][i] = yvalue;
+                                    j++;
+                                }
+                            }
+                        }
+                    }
+
+                    force_data.Entities.Add(entity);
+
+                }
+                
+
+
+                #endregion
+
+                lst_data_force.Add(force_data);
+
+            }
+
+            return true;
+        }
+
+        private bool Translate_Data_For_Forces(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        {
+            int i, j, k, nlength, ierror = 0;
+            int nRow = 0, nColumn = 0;
+            double[] Fi = new double[3] { 0.0, 0.0, 0.0 };
+            double[] Ti = new double[3] { 0.0, 0.0, 0.0 };
+            double[] rij = new double[3] { 0.0, 0.0, 0.0 };
+            double[] rij_dot = new double[3] { 0.0, 0.0, 0.0 };
+            double[] rij_ddot = new double[3] { 0.0, 0.0, 0.0 };
+            double[] Aj = new double[9] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            double[] Cj = new double[9] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+            for (i = 0; i < 9; i++)
+                Cj[i] = durability.OrientationOfChassis[0][i];
+
+            foreach (Force force in durability.Forces)
+            {
+                foreach(EntityForForce entity in force.Entities)
+                {
+                    if(entity.Name.Contains("Force"))
+                    {
+                        if(force.TypeofForce == ForceTypeofForce.TSpringDamper)
+                        {
+                            nlength = force.Base_Positions.Count;
+                            double value_force = 0.0;
+
+                            for(i = 0; i < nlength; i++)
+                            {
+                                for (j = 0; j < 3; j++)
+                                {
+                                    rij[j] = force.Action_Positions[i][j] - force.Base_Positions[i][j];
+                                    Fi[j] = entity.OrinalValue[i][j];
+                                }
+
+                                // rij -> uij
+                                lib_math.normalization_vec(ref rij, ref ierror);
+                                if (ierror == 1)
+                                    return false;
+
+                                lib_math.vectrvec(rij, Fi, ref value_force);
+
+                                entity.TransformValue[i][0] = value_force;
+                            }
+                           
+                        }
+                        else if (force.TypeofForce == ForceTypeofForce.Bush)
+                        {
+                            double[] Fi_2prime = new double[3] { 0.0, 0.0, 0.0 };
+                            double[] Ti_2prime = new double[3] { 0.0, 0.0, 0.0 };
+
+                            nlength = entity.OrinalValue.Count;
+
+                            for (i = 0; i < nlength; i++)
+                            {
+                                for (j = 0; j < 3; j++)
+                                {
+                                    Fi[j] = entity.OrinalValue[i][j];
+                                    Ti[j] = entity.OrinalValue[i][j + 3];
+
+                                    Aj[j] = durability.OrientationOfChassis[i][j];
+                                    Aj[j + 3] = durability.OrientationOfChassis[i][j + 3];
+                                    Aj[j + 6] = durability.OrientationOfChassis[i][j + 6];
+                                }
+
+                                lib_math.mattrvec(Aj, Fi, ref Fi_2prime);
+                                lib_math.mattrvec(Aj, Ti, ref Ti_2prime);
+
+                                for (j = 0; j < 3; j++)
+                                {
+                                    entity.TransformValue[i][j] = Fi_2prime[j];
+                                    entity.TransformValue[i][j + 3] = Ti_2prime[j];
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            double[] Fi_prime = new double[3] { 0.0, 0.0, 0.0 };
+                            double[] Ti_prime = new double[3] { 0.0, 0.0, 0.0 };
+
+                            nlength = entity.OrinalValue.Count;
+
+                            for (i = 0; i < nlength; i++)
+                            {
+                                for (j = 0; j < 3; j++)
+                                {
+                                    Fi[j] = entity.OrinalValue[i][j];
+                                    Ti[j] = entity.OrinalValue[i][j + 3];
+
+                                    Aj[j] = durability.OrientationOfChassis[i][j];
+                                    Aj[j + 3] = durability.OrientationOfChassis[i][j + 3];
+                                    Aj[j + 6] = durability.OrientationOfChassis[i][j + 6];
+                                }
+
+                                lib_math.matmattrvec(Cj, Aj, Fi, ref Fi_prime);
+                                lib_math.matmattrvec(Cj, Aj, Ti, ref Ti_prime);
+
+                                for (j = 0; j < 3; j++)
+                                {
+                                    entity.TransformValue[i][j] = Fi_prime[j];
+                                    entity.TransformValue[i][j + 3] = Ti_prime[j];
+                                }
+                            }
+                        }
+                    }
+                    else if (entity.Name.Contains("Displacement"))
+                    {
+                        if (force.TypeofForce == ForceTypeofForce.TSpringDamper)
+                        {
+                            nlength = force.Base_Positions.Count;
+                            double value_1 = 0.0, value_2 = 0.0;
+
+                            for (i = 0; i < nlength; i++)
+                            {
+                                for (j = 0; j < 3; j++)
+                                {
+                                    rij[j] = force.Action_Positions[i][j] - force.Base_Positions[i][j];
+                                }
+
+                                lib_math.vectrvec(rij, rij, ref value_1);
+                                value_2 = Math.Sqrt(value_1);
+
+                                entity.TransformValue[i][0] = value_2;
+                            }
+                        }
+                        else if (force.TypeofForce == ForceTypeofForce.Bush)
+                        {
+                            nRow = entity.OrinalValue.Count;
+                            nColumn = entity.OrinalValue[0].Length;
+
+                            for(i = 0; i < nRow; i++)
+                            {
+                                for (j = 0; j < nColumn; j++)
+                                    entity.TransformValue[i][j] = entity.OrinalValue[i][j];
+                            }
+
+                        }
+                    }
+                    else if (entity.Name.Contains("Velocity"))
+                    {
+                        nRow = entity.OrinalValue.Count;
+                        nColumn = entity.OrinalValue[0].Length;
+                        if (force.TypeofForce == ForceTypeofForce.TSpringDamper)
+                        {
+                            double value_v = 0.0;
+                            for (i = 0; i <nRow; i++)
+                            {
+                                for(j = 0; j < 3; j++)
+                                {
+                                    rij_dot[j] = entity.OrinalValue[i][j] - entity.OrinalValue[i][j + 3];
+                                    rij[j] = force.Action_Positions[i][j] - force.Base_Positions[i][j];
+                                }
+
+                                // rij -> uij
+                                lib_math.normalization_vec(ref rij, ref ierror);
+                                if (ierror == 1)
+                                    return false;
+
+                                lib_math.vectrvec(rij_dot, rij, ref value_v);
+
+                                entity.TransformValue[i][0] = value_v;
+                            }
+                        }
+                        else if (force.TypeofForce == ForceTypeofForce.Bush)
+                        {
+                            for (i = 0; i < nRow; i++)
+                            {
+                                for (j = 0; j < nColumn; j++)
+                                    entity.TransformValue[i][j] = entity.OrinalValue[i][j];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        nRow = entity.OrinalValue.Count;
+                        nColumn = entity.OrinalValue[0].Length;
+
+                        if (force.TypeofForce == ForceTypeofForce.TSpringDamper)
+                        {
+                            double value_a= 0.0;
+                            for (i = 0; i < nRow; i++)
+                            {
+                                for (j = 0; j < 3; j++)
+                                {
+                                    rij_ddot[j] = entity.OrinalValue[i][j] - entity.OrinalValue[i][j + 3];
+                                    rij[j] = force.Action_Positions[i][j] - force.Base_Positions[i][j];
+                                }
+
+                                // rij -> uij
+                                lib_math.normalization_vec(ref rij, ref ierror);
+                                if (ierror == 1)
+                                    return false;
+
+                                lib_math.vectrvec(rij_ddot, rij, ref value_a);
+
+                                entity.TransformValue[i][0] = value_a;
+                            }
+                        }
+                        else if (force.TypeofForce == ForceTypeofForce.Bush)
+                        {
+                            for (i = 0; i < nRow; i++)
+                            {
+                                for (j = 0; j < nColumn; j++)
+                                    entity.TransformValue[i][j] = entity.OrinalValue[i][j];
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+
+            return true;
+        }
+
+        private bool Interpolation_For_Force(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        {
+            int i, j, k;
+            int nRow = 0, nColumn = 0;
+            double[] xarray = null;
+            double[] yarray = null;
+
+            if (false == Determine_Result_Step(ref durability))
+                return false;
+
+            k = 0;
+            xarray = durability.OriginalTimes.ToArray();
+            yarray = new double[xarray.Length];
+
+            foreach(Force force_data in durability.Forces)
+            {
+                foreach(EntityForForce entity in force_data.Entities)
+                {
+                    nRow = entity.TransformValue.Count;
+                    nColumn = entity.TransformValue[0].Length;
+                    if(entity.Name.Contains("Force") && force_data.TypeofForce == ForceTypeofForce.Tire)
+                    {
+                        // in Inertia reference frame
+                        for(i = 0; i < nColumn; i++)
+                        {
+                            for (j = 0; j < nRow; j++)
+                            {
+                                yarray[j] = entity.OrinalValue[j][i];
+                            }
+
+                            var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+                            if (i == 0 && k == 0 && result.Item1 == ResultType.SUCCESS)
+                            {
+                                durability.FixedTimes.Clear();
+                                for (j = 0; j < durability.ResultStep; j++)
+                                    durability.FixedTimes.Add(result.Item2[j]);
+                            }
+
+                            for (j = 0; j < nRow; j++)
+                            {
+                                entity.FixedStepValue[j][i] = result.Item3[j];
+                            }
+                        }
+
+                        // in Vehicle body reference frame
+                        for (i = 0; i < nColumn; i++)
+                        {
+                            for (j = 0; j < nRow; j++)
+                            {
+                                yarray[j] = entity.TransformValue[j][i];
+                            }
+
+                            var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+
+                            for (j = 0; j < nRow; j++)
+                            {
+                                entity.FixedStepValue[j][i + 6] = result.Item3[j];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (i = 0; i < nColumn; i++)
+                        {
+                            for (j = 0; j < nRow; j++)
+                            {
+                                yarray[j] = entity.OrinalValue[j][i];
+                            }
+
+                            var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+                            if (i == 0 && k == 0 && result.Item1 == ResultType.SUCCESS)
+                            {
+                                durability.FixedTimes.Clear();
+                                for (j = 0; j < durability.ResultStep; j++)
+                                    durability.FixedTimes.Add(result.Item2[j]);
+                            }
+
+                            for (j = 0; j < nRow; j++)
+                            {
+                                entity.FixedStepValue[j][i] = result.Item3[j];
+                            }
+                        }
+                    }
+
+                    k++;
+                }
+            }
+
+
+            return true;
+        }
+
+        #endregion
+
+
+        #region Write
+
+        private bool WriteMap()
+        {
+            return true;
+        }
+
+
+        public bool WriteResultToFile(FileFormat fileFormat, ResultValueType resulttype, string path, DurabilityData durability)
+        {
+            if (fileFormat == FileFormat.CSV)
+            {
+                if (false == WriteToCSV(resulttype, path, durability))
+                    return false;
+            }
+            else if (fileFormat == FileFormat.RPC)
+            {
+
+            }
+
+            return true;
+        }
+
+        private bool WriteToCSV(ResultValueType resulttype, string path, DurabilityData durability)
+        {
+            Category category = durability.Type;
+            StringBuilder sb = new StringBuilder();
+            //String[] arr_str = null;
+            string str_Header = "time(" + durability.Unit_Time + ")";
+            string seperator = " , ";
+            string str_precision = durability.Precision;
+            int i,j;
+            //double dScalefactor = 0.0;
+            double dScaleTime = 0.0;
+
+            int nRowCount = durability.OriginalTimes.Count;
+            int nColumnCount = 1;
+            #region Bodies
+            if (category == Category.Bodies)
+            {
+                Body body = durability.Body;
+                
+                if(resulttype == ResultValueType.Original)
+                {
+                    foreach(EntityForBody entity in body.Entities)
+                    {
+                        foreach(string str in entity.ResultNames)
+                        {
+                            str_Header = str_Header + seperator + str;
+                            nColumnCount++;
+                        }
+                    }
+                    sb.AppendLine(str_Header);
+
+                    for (i = 0; i < nRowCount; i++)
+                    {
+                        str_Header = "";
+                        str_Header = durability.OriginalTimes[i].ToString("F8");
+                        foreach (EntityForBody entity in body.Entities)
+                        {
+                            for(j = 0; j < entity.OrinalValue[i].Length; j++)
+                            {
+                                str_Header = str_Header + seperator + entity.OrinalValue[i][j].ToString(str_precision);
+                            }
+                        }
+                        sb.AppendLine(str_Header);
+                    }
+
+                }
+                else if(resulttype == ResultValueType.Transform)
+                {
+                    foreach (EntityForBody entity in body.Entities)
+                    {
+                        foreach (string str in entity.ResultNames)
+                        {
+                            str_Header = str_Header + seperator + str;
+                            nColumnCount++;
+                        }
+                    }
+                    sb.AppendLine(str_Header);
+
+                    for (i = 0; i < nRowCount; i++)
+                    {
+                        str_Header = "";
+                        str_Header = durability.OriginalTimes[i].ToString("F8");
+                        foreach (EntityForBody entity in body.Entities)
+                        {
+                            for (j = 0; j < entity.TransformValue[i].Length; j++)
+                            {
+                                str_Header = str_Header + seperator + entity.TransformValue[i][j].ToString(str_precision);
+                            }
+                        }
+                        sb.AppendLine(str_Header);
+                    }
+                }
+                else
+                {
+                    dScaleTime = durability.Scale_Time;
+                    nRowCount = durability.FixedTimes.Count;
+
+                    foreach (EntityForBody entity in body.Entities)
+                    {
+                        foreach (string str in entity.ResultNames)
+                        {
+                            str_Header = str_Header + seperator + str;
+                            nColumnCount++;
+                        }
+                    }
+                    sb.AppendLine(str_Header);
+
+                    for (i = 0; i < nRowCount; i++)
+                    {
+                        str_Header = "";
+                        str_Header = (durability.FixedTimes[i] * dScaleTime).ToString("F8");
+                        foreach (EntityForBody entity in body.Entities)
+                        {
+                            for (j = 0; j < entity.FixedStepValue[i].Length; j++)
+                            {
+                                if(j < 3)
+                                    str_Header = str_Header + seperator + (entity.FixedStepValue[i][j] * entity.UnitScaleFactor[0]).ToString(str_precision);
+                                else
+                                    str_Header = str_Header + seperator + (entity.FixedStepValue[i][j] * entity.UnitScaleFactor[1]).ToString(str_precision);
+                            }
+                        }
+                        sb.AppendLine(str_Header);
+                    }
+                }
+                
+
+            }
+            #endregion
+            else if (category == Category.Forces)
+            {
+                foreach(Force force_data in durability.Forces)
+                {
+                    foreach(EntityForForce entity in force_data.Entities)
+                    {
+                        if (resulttype != ResultValueType.FixedStep && force_data.TypeofForce == ForceTypeofForce.Tire)
+                        {
+                            if(resulttype == ResultValueType.Original)
+                            {
+                                for(i = 0; i < 6; i++)
+                                    str_Header = str_Header + seperator + entity.ResultNames[i];
+                            }
+                            else
+                            {
+                                for (i = 6; i < 12; i++)
+                                    str_Header = str_Header + seperator + entity.ResultNames[i];
+                            }
+                        }
+                        else
+                        {
+                            foreach (string str in entity.ResultNames)
+                            {
+                                str_Header = str_Header + seperator + str;
+                            }
+                        }
+                    }
+                }
+                sb.AppendLine(str_Header);
+
+                if(resulttype == ResultValueType.FixedStep)
+                {
+                    dScaleTime = durability.Scale_Time;
+                    nRowCount = durability.FixedTimes.Count;
+
+                    for (i = 0; i < nRowCount; i++)
+                    {
+                        str_Header = "";
+                        str_Header = (durability.FixedTimes[i] * dScaleTime).ToString("F8");
+                        foreach (Force force_data in durability.Forces)
+                        {
+                            foreach (EntityForForce entity in force_data.Entities)
+                            {
+                                for (j = 0; j < entity.FixedStepValue[i].Length; j++)
+                                {
+                                    if (j < 3 || (5< j && j < 9))
+                                        str_Header = str_Header + seperator + (entity.FixedStepValue[i][j] * entity.UnitScaleFactor[0]).ToString(str_precision);
+                                    else
+                                        str_Header = str_Header + seperator + (entity.FixedStepValue[i][j] * entity.UnitScaleFactor[1]).ToString(str_precision);
+                                }
+                            }
+                                
+                        }
+                        sb.AppendLine(str_Header);
+                    }
+
+                }
+                else
+                {
+                    for (i = 0; i < nRowCount; i++)
+                    {
+                        str_Header = "";
+                        str_Header = durability.OriginalTimes[i].ToString("F8");
+                        foreach (Force force_data in durability.Forces)
+                        {
+                            foreach (EntityForForce entity in force_data.Entities)
+                            {
+                               if(resulttype == ResultValueType.Original)
+                                {
+                                    for (j = 0; j < entity.OrinalValue[i].Length; j++)
+                                    {
+                                        str_Header = str_Header + seperator + entity.OrinalValue[i][j].ToString(str_precision);
+                                    }
+                                }
+                                else
+                                {
+                                    for (j = 0; j < entity.TransformValue[i].Length; j++)
+                                    {
+                                        str_Header = str_Header + seperator + entity.TransformValue[i][j].ToString(str_precision);
+                                    }
+                                }
+                            }
+
+                        }
+                        sb.AppendLine(str_Header);
+                    }
+                }
+
+
+            }
+            else if (category == Category.FEBodies)
+            {
+
+            }
+            else
+            {
+
+            }
+
+            File.WriteAllText(path, sb.ToString());
+
+            return true;
+        }
+
+        #endregion
+
+        #region Calculation
+
+        private bool Conversion_Unit(PostAPI.PostAPI _postAPI, XmlNode node_Unit, ref DurabilityData durability)
         {
             double dForce_factor = 0.0;
             double dLength_factor = 0.0;
@@ -906,220 +2544,6 @@ namespace Motion.Durability
 
             return true;
         }
-
-        private bool Interpolation_For_Body(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
-        {
-            int i, j, k, nConut;
-            double[] xarray = null;
-            double[] yarray = null;
-
-            nConut = (int)(durability.EndTime / durability.StepSize);
-            durability.EndTime_Modify = nConut * durability.StepSize;
-
-            if (durability.EndTime_Modify > durability.EndTime)
-            {
-                nConut = nConut - 1;
-                durability.EndTime_Modify = nConut * durability.StepSize;
-            }
-
-            durability.ResultStep = nConut + 1;
-
-            int nSize_list = durability.Body.Entities[0].TransformValue.Count;
-            int nSize_arr = 6;
-            k = 0;
-            xarray = durability.OriginalTimes.ToArray();
-            yarray = new double[nSize_list];
-
-            foreach (EntityForBody entity in durability.Body.Entities)
-            {
-                nSize_arr = entity.TransformValue[0].Length;
-                entity.FixedStepValue.Clear();
-
-                for (i = 0; i < nSize_arr; i++)
-                {
-                    for (j = 0; j < nSize_list; j++)
-                    {
-                        yarray[j] = entity.TransformValue[j][i];
-
-                        if (i == 0)
-                            entity.FixedStepValue.Add(new double[nSize_arr]);
-                    }
-
-                    var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nSize_list, durability.ResultStep, xarray[0], durability.EndTime_Modify);
-
-                    if(i == 0 && k == 0 && result.Item1 == ResultType.SUCCESS)
-                    {
-                        durability.FixedTimes.Clear();
-                        for (j = 0; j < durability.ResultStep; j++)
-                            durability.FixedTimes.Add(result.Item2[j]);
-                    }
-
-                    for (j = 0; j < nSize_list; j++)
-                    {
-                        entity.FixedStepValue[j][i] = result.Item3[j];
-                    }
-                }
-
-                k++;
-            }
-
-
-            return true;
-        }
-
-        #endregion
-
-        #region Forces
-
-
-        #endregion
-
-
-        #region Write
-
-        private bool WriteMap()
-        {
-            return true;
-        }
-
-
-        public bool WriteResultToFile(FileFormat fileFormat, ResultValueType resulttype, string path, DurabilityData durability)
-        {
-            if (fileFormat == FileFormat.CSV)
-            {
-                if (false == WriteToCSV(resulttype, path, durability))
-                    return false;
-            }
-            else if (fileFormat == FileFormat.RPC)
-            {
-
-            }
-
-            return true;
-        }
-
-        private bool WriteToCSV(ResultValueType resulttype, string path, DurabilityData durability)
-        {
-            Category category = durability.Type;
-            StringBuilder sb = new StringBuilder();
-            //String[] arr_str = null;
-            string str_Header = "time(" + durability.Unit_Time + ")";
-            string seperator = " , ";
-            int i,j;
-            //double dScalefactor = 0.0;
-            double dScaleTime = 0.0;
-
-            int nRowCount = durability.OriginalTimes.Count;
-            int nColumnCount = 1;
-            if(category == Category.Bodies)
-            {
-                Body body = durability.Body;
-                
-                if(resulttype == ResultValueType.Original)
-                {
-                    foreach(EntityForBody entity in body.Entities)
-                    {
-                        foreach(string str in entity.ResultNames)
-                        {
-                            str_Header = str_Header + seperator + str;
-                            nColumnCount++;
-                        }
-                    }
-                    sb.AppendLine(str_Header);
-
-                    for (i = 0; i < nRowCount; i++)
-                    {
-                        str_Header = "";
-                        str_Header = durability.OriginalTimes[i].ToString();
-                        foreach (EntityForBody entity in body.Entities)
-                        {
-                            for(j = 0; j < entity.OrinalValue[i].Length; j++)
-                            {
-                                str_Header = str_Header + seperator + entity.OrinalValue[i][j].ToString();
-                            }
-                        }
-                        sb.AppendLine(str_Header);
-                    }
-
-                }
-                else if(resulttype == ResultValueType.Transform)
-                {
-                    foreach (EntityForBody entity in body.Entities)
-                    {
-                        foreach (string str in entity.ResultNames)
-                        {
-                            str_Header = str_Header + seperator + str;
-                            nColumnCount++;
-                        }
-                    }
-                    sb.AppendLine(str_Header);
-
-                    for (i = 0; i < nRowCount; i++)
-                    {
-                        str_Header = "";
-                        str_Header = durability.OriginalTimes[i].ToString();
-                        foreach (EntityForBody entity in body.Entities)
-                        {
-                            for (j = 0; j < entity.TransformValue[i].Length; j++)
-                            {
-                                str_Header = str_Header + seperator + entity.TransformValue[i][j].ToString();
-                            }
-                        }
-                        sb.AppendLine(str_Header);
-                    }
-                }
-                else
-                {
-                    dScaleTime = durability.Scale_Time;
-                    nRowCount = durability.FixedTimes.Count;
-
-                    foreach (EntityForBody entity in body.Entities)
-                    {
-                        foreach (string str in entity.ResultNames)
-                        {
-                            str_Header = str_Header + seperator + str;
-                            nColumnCount++;
-                        }
-                    }
-                    sb.AppendLine(str_Header);
-
-                    for (i = 0; i < nRowCount; i++)
-                    {
-                        str_Header = "";
-                        str_Header = (durability.FixedTimes[i] * dScaleTime).ToString();
-                        foreach (EntityForBody entity in body.Entities)
-                        {
-                            for (j = 0; j < entity.FixedStepValue[i].Length; j++)
-                            {
-                                str_Header = str_Header + seperator + (entity.FixedStepValue[i][j] * entity.UnitScaleFactor).ToString();
-                            }
-                        }
-                        sb.AppendLine(str_Header);
-                    }
-                }
-                
-
-            }
-            else if (category == Category.Forces)
-            {
-
-            }
-            else if (category == Category.FEBodies)
-            {
-
-            }
-            else
-            {
-
-            }
-
-            File.WriteAllText(path, sb.ToString());
-
-            return true;
-        }
-
-        #endregion
-
 
         private bool UnitConversion(string fromUnit, string toUnit, ref double _dFactor)
         {
@@ -1250,209 +2674,34 @@ namespace Motion.Durability
             }
         }
 
-        private bool GetBodyCMInfo(PostAPI.PostAPI postAPI,string str_Target_body ,List<string> path, int nStartIndexOfPath, ref List<double[]> lst_arry)
+        private bool Determine_Result_Step(ref DurabilityData durability)
         {
-            int i, j, k;
-            IList<(BodyType, string)> bodies = postAPI.GetBodies(VM.Enums.Post.BodyType.RIGID);
-            IList<double[]> bodyCMinfo = null;
-            //List<string> str_curve_path = new List<string>();
-            IDictionary<string, IList<Point>> curve = null;
-            IList<Point> curve_point = null;
-            double[] yarray = null;
+            int nCount;
 
-            for (i = 0; i < bodies.Count; i++)
+            if (durability.StepSize > durability.EndTime)
             {
-                if (bodies[i].Item2.Contains(str_Target_body) == true)
-                {
-                    bodyCMinfo = postAPI.GetMarkerInfo(bodies[i].Item2 + "/CM");
-                   
-
-                    PlotParameters parameters = new PlotParameters();
-                    parameters.Target = bodies[i].Item2;
-
-                    for (j = nStartIndexOfPath; j < nStartIndexOfPath + 3; j++)
-                        parameters.Paths.Add(path[j]);
-
-                    curve = postAPI.GetCurves(parameters);
-
-                    if (curve == null)
-                        return false;
-
-                    lst_arry.Clear();
-                    for (j = 0; j < 3; j++)
-                    {
-                        curve_point = curve[str_Target_body + "/" + path[j + nStartIndexOfPath]];
-                        yarray = curve_point.Select(s => s.Y).ToArray();
-
-                        k = 0;
-                        foreach (double dv in yarray)
-                        {
-                            if (lst_arry.Count < yarray.Length)
-                                lst_arry.Add(new double[3] { 0.0, 0.0, 0.0 });
-
-                            lst_arry[k][j] = dv;
-
-                            k++;
-                        }
-                    }
-
-                  
-
-
-
-                    break;
-                }
+                MessageBox.Show("The step size is greater than the end time of result", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
+
+            nCount = (int)(durability.EndTime / durability.StepSize);
+            durability.EndTime_Modify = nCount * durability.StepSize;
+
+            if (durability.EndTime_Modify > durability.EndTime)
+            {
+                nCount = nCount - 1;
+                durability.EndTime_Modify = nCount * durability.StepSize;
+            }
+
+            durability.ResultStep = nCount + 1;
+
+
             return true;
         }
 
-        private bool GetChassisInfo(PostAPI.PostAPI postAPI, ref DurabilityData durability)
-        {
-            int i,j, k;
-            IList<(BodyType, string)> bodies = postAPI.GetBodies(VM.Enums.Post.BodyType.RIGID);
-            IList<double[]> chassisCMinfo = null;
-            List<string> str_curve_path = new List<string>();
-            IDictionary<string, IList<Point>> curve = null;
-            IList <Point> curve_point = null;
-            double[] yarray = null;
+        #endregion
 
-            str_curve_path.Add("Velocity/X");
-            str_curve_path.Add("Velocity/Y");
-            str_curve_path.Add("Velocity/Z");
-
-            str_curve_path.Add("Angular Velocity/X");
-            str_curve_path.Add("Angular Velocity/Y");
-            str_curve_path.Add("Angular Velocity/Z");
-
-            str_curve_path.Add("Acceleration/X");
-            str_curve_path.Add("Acceleration/Y");
-            str_curve_path.Add("Acceleration/Z");
-
-            str_curve_path.Add("Angular Acceleration/X");
-            str_curve_path.Add("Angular Acceleration/Y");
-            str_curve_path.Add("Angular Acceleration/Z");
-
-            for (i = 0; i < bodies.Count; i++)
-            {
-                if (bodies[i].Item2.Contains("chassis") == true)
-                {
-                    durability.ExistChassis = true;
-                    chassisCMinfo = postAPI.GetMarkerInfo(bodies[i].Item2 + "/CM");
-                    foreach (double[] tmp in chassisCMinfo)
-                    {
-                        durability.PositionOfChassis.Add(new double[3] { tmp[0], tmp[1], tmp[2] });
-                        durability.OrientationOfChassis.Add(new double[9] { tmp[3], tmp[4], tmp[5], tmp[6], tmp[7], tmp[8], tmp[9], tmp[10], tmp[11] });
-                    }
-
-                    PlotParameters parameters = new PlotParameters();
-                    parameters.Target = bodies[i].Item2;
-
-                    for(j = 0; j < str_curve_path.Count; j++)
-                        parameters.Paths.Add(str_curve_path[j]);
-                    
-                    curve = postAPI.GetCurves(parameters);
-
-                    if (curve == null)
-                        return false;
-
-                    str_curve_path.Clear();
-                    string bd_name = bodies[i].Item2;
-
-                    str_curve_path.Add(bd_name + "/Velocity/X");
-                    str_curve_path.Add(bd_name + "/Velocity/Y");
-                    str_curve_path.Add(bd_name + "/Velocity/Z");
-
-                    str_curve_path.Add(bd_name + "/Angular Velocity/X");
-                    str_curve_path.Add(bd_name + "/Angular Velocity/Y");
-                    str_curve_path.Add(bd_name + "/Angular Velocity/Z");
-
-                    str_curve_path.Add(bd_name + "/Acceleration/X");
-                    str_curve_path.Add(bd_name + "/Acceleration/Y");
-                    str_curve_path.Add(bd_name + "/Acceleration/Z");
-
-                    str_curve_path.Add(bd_name + "/Angular Acceleration/X");
-                    str_curve_path.Add(bd_name + "/Angular Acceleration/Y");
-                    str_curve_path.Add(bd_name + "/Angular Acceleration/Z");
-
-                    // T-Vel
-                    for (j = 0; j < 3; j++)
-                    {
-                        curve_point = curve[str_curve_path[j]];
-                        yarray = curve_point.Select(s => s.Y).ToArray();
-
-                        k = 0;
-                        foreach(double dv in yarray)
-                        {
-                            if(j == 0)
-                                durability.TranslationalVelocity.Add(new double[3] { 0.0, 0.0, 0.0 });
-
-                            durability.TranslationalVelocity[k][j] = dv;
-
-                            k++;
-                        }
-                    }
-
-                    // R-Vel
-                    for (j = 0; j < 3; j++)
-                    {
-                        curve_point = curve[str_curve_path[j+3]];
-                        yarray = curve_point.Select(s => s.Y).ToArray();
-
-                        k = 0;
-                        foreach (double dv in yarray)
-                        {
-                            if (j == 0)
-                                durability.RotationalVelocity.Add(new double[3] { 0.0, 0.0, 0.0 });
-
-                            durability.RotationalVelocity[k][j] = dv;
-
-                            k++;
-                        }
-                    }
-
-                    // T-Acc
-                    for (j = 0; j < 3; j++)
-                    {
-                        curve_point = curve[str_curve_path[j + 6]];
-                        yarray = curve_point.Select(s => s.Y).ToArray();
-
-                        k = 0;
-                        foreach (double dv in yarray)
-                        {
-                            if (j == 0)
-                                durability.TranslationalAcceleration.Add(new double[3] { 0.0, 0.0, 0.0 });
-
-                            durability.TranslationalAcceleration[k][j] = dv;
-
-                            k++;
-                        }
-                    }
-
-                    // R-Acc
-                    for (j = 0; j < 3; j++)
-                    {
-                        curve_point = curve[str_curve_path[j + 9]];
-                        yarray = curve_point.Select(s => s.Y).ToArray();
-
-                        k = 0;
-                        foreach (double dv in yarray)
-                        {
-                            if (j == 0)
-                                durability.RotationalAcceleration.Add(new double[3] { 0.0, 0.0, 0.0 });
-
-                            durability.RotationalAcceleration[k][j] = dv;
-
-                            k++;
-                        }
-                    }
-
-
-
-                    break;
-                }
-            }
-            return true;
-        }
+       
 
        
     }
