@@ -285,31 +285,42 @@ namespace Motion.Durability
                     if (entity.Name == "Displacement")
                     {
                         entity.UnitScaleFactor[0] = durability.Scale_Length;
-                        unit_entity = durability.Unit_Length;
-                       
+                        entity.Unit1 = durability.Unit_Length;
+                        //unit_entity = durability.Unit_Length;
+
                     }
                     else if (entity.Name == "Velocity")
                     {
                         entity.UnitScaleFactor[0] = durability.Scale_Length / durability.Scale_Time;
-                        unit_entity = durability.Unit_Length + "/" + durability.Unit_Time;
+                        entity.Unit1 = durability.Unit_Length + "/" + durability.Unit_Time;
+                        //unit_entity = durability.Unit_Length + "/" + durability.Unit_Time;
                     }
                     else
                     {
                         entity.UnitScaleFactor[0] = durability.Scale_Length / (durability.Scale_Time * durability.Scale_Time);
-                        unit_entity = durability.Unit_Length + "/" + durability.Unit_Time + "^2";
+                        entity.Unit1 = durability.Unit_Length + "/" + durability.Unit_Time + "^2";
+                        //unit_entity = durability.Unit_Length + "/" + durability.Unit_Time + "^2";
                     }
 
                     if (entity.ReferenceFrame == ReferenceFrameOfMotion.vehiclebody)
                     {
-                        entity.ResultNames.Add(result_name + entity.Name + seperator + "X_RF_Vehicle(" + unit_entity + ")");
-                        entity.ResultNames.Add(result_name + entity.Name + seperator + "Y_RF_Vehicle(" + unit_entity + ")");
-                        entity.ResultNames.Add(result_name + entity.Name + seperator + "Z_RF_Vehicle(" + unit_entity + ")");
+                        //entity.ResultNames.Add(result_name + entity.Name + seperator + "X_RF_Vehicle(" + unit_entity + ")");
+                        //entity.ResultNames.Add(result_name + entity.Name + seperator + "Y_RF_Vehicle(" + unit_entity + ")");
+                        //entity.ResultNames.Add(result_name + entity.Name + seperator + "Z_RF_Vehicle(" + unit_entity + ")");
+
+                        entity.ResultNames.Add(result_name + entity.Name + seperator + "X_RF_Vehicle");
+                        entity.ResultNames.Add(result_name + entity.Name + seperator + "Y_RF_Vehicle");
+                        entity.ResultNames.Add(result_name + entity.Name + seperator + "Z_RF_Vehicle");
                     }
                     else
                     {
-                        entity.ResultNames.Add(result_name + entity.Name + seperator + "X_RF_Global(" + unit_entity + ")");
-                        entity.ResultNames.Add(result_name + entity.Name + seperator + "Y_RF_Global(" + unit_entity + ")");
-                        entity.ResultNames.Add(result_name + entity.Name + seperator + "Z_RF_Global(" + unit_entity + ")");
+                        //entity.ResultNames.Add(result_name + entity.Name + seperator + "X_RF_Global(" + unit_entity + ")");
+                        //entity.ResultNames.Add(result_name + entity.Name + seperator + "Y_RF_Global(" + unit_entity + ")");
+                        //entity.ResultNames.Add(result_name + entity.Name + seperator + "Z_RF_Global(" + unit_entity + ")");
+
+                        entity.ResultNames.Add(result_name + entity.Name + seperator + "X_RF_Global");
+                        entity.ResultNames.Add(result_name + entity.Name + seperator + "Y_RF_Global");
+                        entity.ResultNames.Add(result_name + entity.Name + seperator + "Z_RF_Global");
                     }
 
 
@@ -330,18 +341,27 @@ namespace Motion.Durability
                         if(entity.Name == "Displacement")
                         {
                             entity.UnitScaleFactor[1] = durability.Scale_Angle;
-                            unit_entity = durability.Unit_Angle;
+                            entity.Unit2 = durability.Unit_Angle;
+                            //unit_entity = durability.Unit_Angle;
                             if (entity.ReferenceFrame == ReferenceFrameOfMotion.vehiclebody)
                             {
-                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Roll_RF_Vehicle(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Pitch_RF_Vehicle(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Yaw_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angle" + seperator + "Roll_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angle" + seperator + "Pitch_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angle" + seperator + "Yaw_RF_Vehicle(" + unit_entity + ")");
+
+                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Roll_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Pitch_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Yaw_RF_Vehicle");
                             }
                             else
                             {
-                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Roll_RF_Global(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Pitch_RF_Global(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Yaw_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angle" + seperator + "Roll_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angle" + seperator + "Pitch_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angle" + seperator + "Yaw_RF_Global(" + unit_entity + ")");
+
+                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Roll_RF_Global");
+                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Pitch_RF_Global");
+                                entity.ResultNames.Add(result_name + "Angle" + seperator + "Yaw_RF_Global");
                             }
 
 
@@ -392,19 +412,28 @@ namespace Motion.Durability
                         else if (entity.Name == "Velocity")
                         {
                             entity.UnitScaleFactor[1] = durability.Scale_Angle / durability.Scale_Time;
-                            unit_entity = durability.Unit_Angle + "/" + durability.Unit_Time;
+                            entity.Unit2 = durability.Unit_Angle + "/" + durability.Unit_Time;
+                            //unit_entity = durability.Unit_Angle + "/" + durability.Unit_Time;
 
                             if (entity.ReferenceFrame == ReferenceFrameOfMotion.vehiclebody)
                             {
-                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "X_RF_Vehicle(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Y_RF_Vehicle(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Z_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "X_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Y_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Z_RF_Vehicle(" + unit_entity + ")");
+
+                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "X_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Y_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Z_RF_Vehicle");
                             }
                             else
                             {
-                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "X_RF_Global(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Y_RF_Global(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Z_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "X_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Y_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Z_RF_Global(" + unit_entity + ")");
+
+                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "X_RF_Global");
+                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Y_RF_Global");
+                                entity.ResultNames.Add(result_name + "Angular_Velocity" + seperator + "Z_RF_Global");
                             }
 
                             // In own reference frame
@@ -449,18 +478,28 @@ namespace Motion.Durability
                         else
                         {
                             entity.UnitScaleFactor[1] = durability.Scale_Angle / (durability.Scale_Time * durability.Scale_Time);
-                            unit_entity = durability.Unit_Angle + "/" + durability.Unit_Time +"^2"; 
+                            entity.Unit2 = durability.Unit_Angle + "/" + durability.Unit_Time + "^2";
+                            //unit_entity = durability.Unit_Angle + "/" + durability.Unit_Time +"^2";
+                            
                             if (entity.ReferenceFrame == ReferenceFrameOfMotion.vehiclebody)
                             {
-                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "X_RF_Vehicle(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Y_RF_Vehicle(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Z_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "X_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Y_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Z_RF_Vehicle(" + unit_entity + ")");
+
+                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "X_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Y_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Z_RF_Vehicle");
                             }
                             else
                             {
-                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "X_RF_Global(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Y_RF_Global(" + unit_entity + ")");
-                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Z_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "X_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Y_RF_Global(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Z_RF_Global(" + unit_entity + ")");
+
+                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "X_RF_Global");
+                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Y_RF_Global");
+                                entity.ResultNames.Add(result_name + "Angular_Acceleration" + seperator + "Z_RF_Global");
                             }
 
                             // In own reference frame
@@ -541,11 +580,16 @@ namespace Motion.Durability
                 else
                 {
                     entity.UnitScaleFactor[0] = durability.Scale_Force;
-                    unit_entity = durability.Unit_Force;
-                    
-                    entity.ResultNames.Add(entity.Name + seperator + "FX(" + unit_entity + ")");
-                    entity.ResultNames.Add(entity.Name + seperator + "FY(" + unit_entity + ")");
-                    entity.ResultNames.Add(entity.Name + seperator + "FZ(" + unit_entity + ")");
+                    entity.Unit1 = durability.Unit_Force;
+                    //unit_entity = durability.Unit_Force;
+
+                    //entity.ResultNames.Add(entity.Name + seperator + "FX(" + unit_entity + ")");
+                    //entity.ResultNames.Add(entity.Name + seperator + "FY(" + unit_entity + ")");
+                    //entity.ResultNames.Add(entity.Name + seperator + "FZ(" + unit_entity + ")");
+
+                    entity.ResultNames.Add(entity.Name + seperator + "FX");
+                    entity.ResultNames.Add(entity.Name + seperator + "FY");
+                    entity.ResultNames.Add(entity.Name + seperator + "FZ");
 
                     parameters = new PlotParameters();
 
@@ -567,11 +611,16 @@ namespace Motion.Durability
                     if(true == entity.UseRotationFlag)
                     {
                         entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
-                        unit_entity = durability.Unit_Force + durability.Unit_Length;
+                        entity.Unit2 = durability.Unit_Force + durability.Unit_Length;
+                        //unit_entity = durability.Unit_Force + durability.Unit_Length;
 
-                        entity.ResultNames.Add(entity.Name + seperator + "TX(" + unit_entity + ")");
-                        entity.ResultNames.Add(entity.Name + seperator + "TY(" + unit_entity + ")");
-                        entity.ResultNames.Add(entity.Name + seperator + "TZ(" + unit_entity + ")");
+                        //entity.ResultNames.Add(entity.Name + seperator + "TX(" + unit_entity + ")");
+                        //entity.ResultNames.Add(entity.Name + seperator + "TY(" + unit_entity + ")");
+                        //entity.ResultNames.Add(entity.Name + seperator + "TZ(" + unit_entity + ")");
+
+                        entity.ResultNames.Add(entity.Name + seperator + "TX");
+                        entity.ResultNames.Add(entity.Name + seperator + "TY");
+                        entity.ResultNames.Add(entity.Name + seperator + "TZ");
 
                         if (entity.AppliedForceType == BaseOrActionForce.Base)
                             str_type = "Torque on Base Marker";
@@ -905,6 +954,8 @@ namespace Motion.Durability
             int i, j, k;
             double[] xarray = null;
             double[] yarray = null;
+            double err_tol = 1.0e-10;
+            double y_value = 0.0, y_max = 0.0;
 
             if (false == Determine_Result_Step(ref durability))
                 return false; 
@@ -942,8 +993,23 @@ namespace Motion.Durability
 
                     for (j = 0; j < nSize_list; j++)
                     {
-                        entity.FixedStepValue[j][i] = result.Item3[j];
+                        y_value = result.Item3[j];
+                        if (err_tol > Math.Abs(y_value))
+                            y_value = 0.0;
+
+                        if (j == 0)
+                            y_max = Math.Abs(y_value);
+                        else
+                        {
+                            if (Math.Abs(y_value) > y_max)
+                                y_max = Math.Abs(y_value);
+
+                        }
+
+                        entity.FixedStepValue[j][i] = y_value;
                     }
+
+                    entity.MaxValues.Add(y_max);
                 }
 
                 k++;
@@ -1300,11 +1366,13 @@ namespace Motion.Durability
                     if (entity.Name.Contains("Force"))
                     {
                         entity.UnitScaleFactor[0] = durability.Scale_Force;
-                        unit_entity = durability.Unit_Force;
+                        //unit_entity = durability.Unit_Force;
+                        entity.Unit1 = durability.Unit_Force;
 
                         if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
-                            entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name);
 
                             str_type = "Force on Action Marker";
 
@@ -1350,16 +1418,25 @@ namespace Motion.Durability
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FX(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FY(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FZ(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "FX(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "FY(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "FZ(" + unit_entity + ")");
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FX");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FY");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "FZ");
 
                             entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
-                            unit_entity = durability.Unit_Force + durability.Unit_Length;
+                            entity.Unit2 = durability.Unit_Force + durability.Unit_Length;
+                            //unit_entity = durability.Unit_Force + durability.Unit_Length;
 
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TX(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TY(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TZ(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "TX(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "TY(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "TZ(" + unit_entity + ")");
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TX");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TY");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "TZ");
 
                             str_type = "Force on Action Marker Measured in Base Marker";
 
@@ -1414,27 +1491,45 @@ namespace Motion.Durability
                         }
                         else
                         {
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Global(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Global(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Global(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Global(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Global(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Global(" + unit_entity + ")");
+
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Global");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Global");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Global");
 
                             entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
-                            unit_entity = durability.Unit_Force + durability.Unit_Length;
+                            entity.Unit2 = durability.Unit_Force + durability.Unit_Length;
+                            //unit_entity = durability.Unit_Force + durability.Unit_Length;
 
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Global(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Global(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Global(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Global(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Global(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Global(" + unit_entity + ")");
 
-                            unit_entity = durability.Unit_Force;
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Vehicle(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Global");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Global");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Global");
 
-                            unit_entity = durability.Unit_Force + durability.Unit_Length;
+                            // unit_entity = durability.Unit_Force;
+                            
+                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Vehicle(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle(" + unit_entity + ")");
 
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Vehicle(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Vehicle");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle");
+                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle");
+
+                            //unit_entity = durability.Unit_Force + durability.Unit_Length;
+
+                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Vehicle(" + unit_entity + ")");
+
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle");
+                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Vehicle");
 
                             str_type = "Tire Force";
 
@@ -1492,7 +1587,8 @@ namespace Motion.Durability
                     else if (entity.Name.Contains("Displacement"))
                     {
                         entity.UnitScaleFactor[0] = durability.Scale_Length;
-                        unit_entity = durability.Unit_Length;
+                        entity.Unit1 = durability.Unit_Length;
+                        //unit_entity = durability.Unit_Length;
 
                         if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
@@ -1574,16 +1670,25 @@ namespace Motion.Durability
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "X(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "Y(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "Z(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "X(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "Y(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "Z(" + unit_entity + ")");
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "X");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "Y");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "Z");
 
                             entity.UnitScaleFactor[1] = durability.Scale_Angle;
-                            unit_entity = durability.Unit_Angle ;
+                            entity.Unit2 = durability.Unit_Angle;
+                            //unit_entity = durability.Unit_Angle ;
 
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AX(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AY(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AZ(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "AX(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "AY(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "AZ(" + unit_entity + ")");
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AX");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AY");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "AZ");
 
                             str_type = "Translational Deformation";
 
@@ -1641,11 +1746,13 @@ namespace Motion.Durability
                     else if (entity.Name.Contains("Velocity"))
                     {
                         entity.UnitScaleFactor[0] = durability.Scale_Length / durability.Scale_Time;
-                        unit_entity = durability.Unit_Length + "/" + durability.Unit_Time;
+                        entity.Unit1 = durability.Unit_Length + "/" + durability.Unit_Time;
+                        //unit_entity = durability.Unit_Length + "/" + durability.Unit_Time;
 
                         if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
-                            entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name);
 
                             str_type = force_data.Name + "/BaseMarker/Velocity";
 
@@ -1723,16 +1830,25 @@ namespace Motion.Durability
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VX(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VY(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VZ(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "VX(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "VY(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "VZ(" + unit_entity + ")");
 
-                            entity.UnitScaleFactor[1] = durability.Scale_Angle;
-                            unit_entity = durability.Unit_Angle;
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VX");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VY");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VZ");
 
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WX(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WY(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WZ(" + unit_entity + ")");
+                            entity.UnitScaleFactor[1] = durability.Scale_Angle / durability.Scale_Time;
+                            entity.Unit2 = durability.Unit_Angle + "/" + durability.Unit_Time;
+                            //unit_entity = durability.Unit_Angle;
+
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "WX(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "WY(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "WZ(" + unit_entity + ")");
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WX");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WY");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WZ");
 
                             str_type = "Relative Translational Velocity";
 
@@ -1789,11 +1905,13 @@ namespace Motion.Durability
                     else
                     {
                         entity.UnitScaleFactor[0] = durability.Scale_Length / (durability.Scale_Time * durability.Scale_Time);
-                        unit_entity = durability.Unit_Length + "/" + durability.Unit_Time + "^2";
+                        entity.Unit1 = durability.Unit_Length + "/" + durability.Unit_Time + "^2";
+                        //unit_entity = durability.Unit_Length + "/" + durability.Unit_Time + "^2";
 
                         if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
-                            entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name);
 
                             str_type = force_data.Name + "/BaseMarker/Acceleration";
 
@@ -1871,16 +1989,25 @@ namespace Motion.Durability
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VX_dot(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VY_dot(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VZ_dot(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "VX_dot(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "VY_dot(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "VZ_dot(" + unit_entity + ")");
 
-                            entity.UnitScaleFactor[1] = durability.Scale_Angle;
-                            unit_entity = durability.Unit_Angle;
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VX_dot");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VY_dot");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "VZ_dot");
 
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WX_dot(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WY_dot(" + unit_entity + ")");
-                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WZ_dot(" + unit_entity + ")");
+                            entity.UnitScaleFactor[1] = durability.Scale_Angle / (durability.Scale_Time * durability.Scale_Time); ;
+                            entity.Unit2 = durability.Unit_Angle + "/" + durability.Unit_Time + "^2";
+                            //unit_entity = durability.Unit_Angle + "/" + durability.Unit_Time + "^2";
+
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "WX_dot(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "WY_dot(" + unit_entity + ")");
+                            //entity.ResultNames.Add(result_name + entity.Name + seperator + "WZ_dot(" + unit_entity + ")");
+
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WX_dot");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WY_dot");
+                            entity.ResultNames.Add(result_name + entity.Name + seperator + "WZ_dot");
 
                             str_type = "Relative Translational Acceleration";
 
@@ -2172,10 +2299,12 @@ namespace Motion.Durability
             int nRow = 0, nColumn = 0;
             double[] xarray = null;
             double[] yarray = null;
+            double err_tol = 1.0e-10;
+            double y_value = 0.0, y_max = 0.0;
 
             if (false == Determine_Result_Step(ref durability))
                 return false;
-
+            k = durability.NumOfResult;
             k = 0;
             xarray = durability.OriginalTimes.ToArray();
             yarray = new double[xarray.Length];
@@ -2207,8 +2336,23 @@ namespace Motion.Durability
 
                             for (j = 0; j < nRow; j++)
                             {
-                                entity.FixedStepValue[j][i] = result.Item3[j];
+                                y_value = result.Item3[j];
+                                if (err_tol > Math.Abs(y_value))
+                                    y_value = 0.0;
+
+                                if (j == 0)
+                                    y_max = Math.Abs(y_value);
+                                else
+                                {
+                                    if (Math.Abs(y_value) > y_max)
+                                        y_max = Math.Abs(y_value);
+
+                                }
+
+                                entity.FixedStepValue[j][i] = y_value;
                             }
+
+                            entity.MaxValues.Add(y_max);
                         }
 
                         // in Vehicle body reference frame
@@ -2224,8 +2368,23 @@ namespace Motion.Durability
 
                             for (j = 0; j < nRow; j++)
                             {
-                                entity.FixedStepValue[j][i + 6] = result.Item3[j];
+                                y_value = result.Item3[j];
+                                if (err_tol > Math.Abs(y_value))
+                                    y_value = 0.0;
+
+                                if (j == 0)
+                                    y_max = Math.Abs(y_value);
+                                else
+                                {
+                                    if (Math.Abs(y_value) > y_max)
+                                        y_max = Math.Abs(y_value);
+
+                                }
+
+                                entity.FixedStepValue[j][i + 6] = y_value;
                             }
+
+                            entity.MaxValues.Add(y_max);
                         }
                     }
                     else
@@ -2248,8 +2407,23 @@ namespace Motion.Durability
 
                             for (j = 0; j < nRow; j++)
                             {
-                                entity.FixedStepValue[j][i] = result.Item3[j];
+                                y_value = result.Item3[j];
+                                if (err_tol > Math.Abs(y_value))
+                                    y_value = 0.0;
+
+                                if (j == 0)
+                                    y_max = Math.Abs(y_value);
+                                else
+                                {
+                                    if (Math.Abs(y_value) > y_max)
+                                        y_max = Math.Abs(y_value);
+
+                                }
+
+                                entity.FixedStepValue[j][i] = y_value;
                             }
+
+                            entity.MaxValues.Add(y_max);
                         }
                     }
 
@@ -2321,7 +2495,7 @@ namespace Motion.Durability
                     for (i = 0; i < nRowCount; i++)
                     {
                         str_Header = "";
-                        str_Header = durability.OriginalTimes[i].ToString("F8");
+                        str_Header = durability.OriginalTimes[i].ToString("F6");
                         foreach (EntityForBody entity in body.Entities)
                         {
                             for(j = 0; j < entity.OrinalValue[i].Length; j++)
@@ -2348,7 +2522,7 @@ namespace Motion.Durability
                     for (i = 0; i < nRowCount; i++)
                     {
                         str_Header = "";
-                        str_Header = durability.OriginalTimes[i].ToString("F8");
+                        str_Header = durability.OriginalTimes[i].ToString("F6");
                         foreach (EntityForBody entity in body.Entities)
                         {
                             for (j = 0; j < entity.TransformValue[i].Length; j++)
@@ -2377,7 +2551,7 @@ namespace Motion.Durability
                     for (i = 0; i < nRowCount; i++)
                     {
                         str_Header = "";
-                        str_Header = (durability.FixedTimes[i] * dScaleTime).ToString("F8");
+                        str_Header = (durability.FixedTimes[i] * dScaleTime).ToString("F6");
                         foreach (EntityForBody entity in body.Entities)
                         {
                             for (j = 0; j < entity.FixedStepValue[i].Length; j++)
@@ -2433,7 +2607,7 @@ namespace Motion.Durability
                     for (i = 0; i < nRowCount; i++)
                     {
                         str_Header = "";
-                        str_Header = (durability.FixedTimes[i] * dScaleTime).ToString("F8");
+                        str_Header = (durability.FixedTimes[i] * dScaleTime).ToString("F6");
                         foreach (Force force_data in durability.Forces)
                         {
                             foreach (EntityForForce entity in force_data.Entities)
@@ -2457,7 +2631,7 @@ namespace Motion.Durability
                     for (i = 0; i < nRowCount; i++)
                     {
                         str_Header = "";
-                        str_Header = durability.OriginalTimes[i].ToString("F8");
+                        str_Header = durability.OriginalTimes[i].ToString("F6");
                         foreach (Force force_data in durability.Forces)
                         {
                             foreach (EntityForForce entity in force_data.Entities)

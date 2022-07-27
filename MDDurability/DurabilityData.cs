@@ -82,6 +82,7 @@ namespace Motion.Durability
         private List<double[]> lst_position;
         private List<double[]> lst_orientation;
         private List<string> lst_result_name;
+        private List<double> lst_MaxValue;
 
         public string Name
         {
@@ -117,6 +118,16 @@ namespace Motion.Durability
         {
             get { return enum_appliedForcetype; }
             set { enum_appliedForcetype = value; }
+        }
+
+        public string Unit1 { get; set; }
+
+        public string Unit2 { get; set; }
+
+        public List<double> MaxValues
+        {
+            get { return lst_MaxValue; }
+            set { lst_MaxValue = value; }
         }
 
         public List<double[]> OrinalValue
@@ -164,6 +175,7 @@ namespace Motion.Durability
             lst_orientation = new List<double[]>();
             lst_result_name = new List<string>();
             m_dUnitScale = new double[2];
+            lst_MaxValue = new List<double>();
         }
 
     }
@@ -274,13 +286,16 @@ namespace Motion.Durability
         private List<double[]> lst_fixedstepValue;
         private List<double[]> lst_transValue;
         private List<string> lst_result_name;
-
+        private List<double> lst_MaxValue;
 
         public string Name
         {
             get { return name; }
             set { name = value; }
         }
+
+        public string Unit1 { get; set; }
+        public string Unit2 { get; set; }
 
         public double[] UnitScaleFactor
         {
@@ -298,6 +313,12 @@ namespace Motion.Durability
         {
             get { return lst_result_name; }
             set { lst_result_name = value; }
+        }
+
+        public List<double> MaxValues
+        {
+            get { return lst_MaxValue; }
+            set { lst_MaxValue = value; }
         }
 
         public List<double[]> OrinalValue
@@ -325,6 +346,7 @@ namespace Motion.Durability
             lst_transValue = new List<double[]>();
             lst_result_name = new List<string>();
             m_dUnitScale = new double[2];
+            lst_MaxValue = new List<double>();
         }
 
     }
@@ -422,7 +444,7 @@ namespace Motion.Durability
             m_scale_displacement = 1.0;
             m_scale_angle = 1.0;
             m_scale_time = 1.0;
-            Precision = "e8";
+            Precision = "e6";
         }
         //public DurabilityData(Category _type, double _d_unit_force, double _d_unit_displacement, double _d_unit_angle, double _d_unit_time, double _dStepsize)
         //{
@@ -450,6 +472,7 @@ namespace Motion.Durability
         private double m_endTime;
         private double m_endTime_mod;
         private int m_nResultStep;
+        private int m_nNumofResult;
 
         private Body m_Body;
         private List<Force> m_lstForce;
@@ -544,6 +567,15 @@ namespace Motion.Durability
             set { m_nResultStep = value; }
         }
 
+        public int NumOfResult
+        {
+            get 
+            {
+                Calculate_Num_Of_Result();
+                return m_nNumofResult; 
+            }
+        }
+
         public Body Body
         {
             get { return m_Body; }
@@ -628,7 +660,44 @@ namespace Motion.Durability
             m_chassis_Tacc = new List<double[]>();
             m_chassis_Racc = new List<double[]>();
 
+            m_nNumofResult = 0;
+        }
 
+        void Calculate_Num_Of_Result()
+        {
+            int nCount ;
+
+            if(Type == Category.Bodies)
+            {
+                nCount = 0;
+                foreach (EntityForBody entity in m_Body.Entities)
+                {
+                    nCount = nCount + entity.FixedStepValue[0].Length;
+                }
+
+                m_nNumofResult = nCount;
+            }
+            else if(Type == Category.Forces)
+            {
+                nCount = 0;
+                foreach (Force force_data in m_lstForce)
+                {
+                    foreach(EntityForForce entity in force_data.Entities)
+                    {
+                        nCount = nCount + entity.FixedStepValue[0].Length;
+                    }
+                }
+
+                m_nNumofResult = nCount;
+            }
+            else if(Type == Category.UserDefinedFunctions)
+            {
+                m_nNumofResult = 0;
+            }
+            else
+            {
+                m_nNumofResult = 0;
+            }
         }
 
         #endregion
