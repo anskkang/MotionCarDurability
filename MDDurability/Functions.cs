@@ -567,7 +567,7 @@ namespace Motion.Durability
                     if(true == entity.UseRotationFlag)
                     {
                         entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
-                        unit_entity = durability.Unit_Force + "*" + durability.Unit_Length;
+                        unit_entity = durability.Unit_Force + durability.Unit_Length;
 
                         entity.ResultNames.Add(entity.Name + seperator + "TX(" + unit_entity + ")");
                         entity.ResultNames.Add(entity.Name + seperator + "TY(" + unit_entity + ")");
@@ -1233,23 +1233,27 @@ namespace Motion.Durability
                                 else
                                     force_data.ActionBody = bodies[i].Item2;
 
-                                // ASAP deletion
-                                bFindBodies = true;
+                                if (connectors[j].Item1 == ConnectorType.Tire)
+                                {
+                                    force_data.TypeofForce = ForceTypeofForce.Tire;
+                                    bFindBodies = true;
+                                    break;
+                                }
                             }
                             else
                             {
                                 bFindBodies = true;
-                               
+
+                                if (connectors[j].Item1 == ConnectorType.Bush)
+                                    force_data.TypeofForce = ForceTypeofForce.Bush;
+                                else if (connectors[j].Item1 == ConnectorType.TSpringDamper)
+                                    force_data.TypeofForce = ForceTypeofForce.TSpringDamper;
+
+                                break;
+
                             }
 
-                            if (connectors[j].Item1 == ConnectorType.Bush)
-                                force_data.TypeofForce = ForceTypeofForce.Bush;
-                            else if (connectors[j].Item1 == ConnectorType.Tire)
-                                force_data.TypeofForce = ForceTypeofForce.Tire;
-                            else if (connectors[j].Item1 == ConnectorType.TSpringDamper)
-                                force_data.TypeofForce = ForceTypeofForce.TSpringDamper;
-
-                            break;
+                            
                         }
                     }
 
@@ -1351,7 +1355,7 @@ namespace Motion.Durability
                             entity.ResultNames.Add(result_name + entity.Name + seperator + "FZ(" + unit_entity + ")");
 
                             entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
-                            unit_entity = durability.Unit_Force + "*" + durability.Unit_Length;
+                            unit_entity = durability.Unit_Force + durability.Unit_Length;
 
                             entity.ResultNames.Add(result_name + entity.Name + seperator + "TX(" + unit_entity + ")");
                             entity.ResultNames.Add(result_name + entity.Name + seperator + "TY(" + unit_entity + ")");
@@ -1415,7 +1419,7 @@ namespace Motion.Durability
                             entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Global(" + unit_entity + ")");
 
                             entity.UnitScaleFactor[1] = durability.Scale_Force * durability.Scale_Length;
-                            unit_entity = durability.Unit_Force + "*" + durability.Unit_Length;
+                            unit_entity = durability.Unit_Force + durability.Unit_Length;
 
                             entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Global(" + unit_entity + ")");
                             entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Global(" + unit_entity + ")");
@@ -1426,7 +1430,7 @@ namespace Motion.Durability
                             entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle(" + unit_entity + ")");
                             entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle(" + unit_entity + ")");
 
-                            unit_entity = durability.Unit_Force + "*" + durability.Unit_Length;
+                            unit_entity = durability.Unit_Force + durability.Unit_Length;
 
                             entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle(" + unit_entity + ")");
                             entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle(" + unit_entity + ")");
