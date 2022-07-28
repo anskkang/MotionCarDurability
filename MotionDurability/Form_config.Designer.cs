@@ -257,6 +257,7 @@ namespace Motion.Durability
             this.rb_csv.TabStop = true;
             this.rb_csv.Text = "CSV";
             this.rb_csv.UseVisualStyleBackColor = true;
+            this.rb_csv.CheckedChanged += new System.EventHandler(this.rb_csv_CheckedChanged);
             // 
             // rb_RPC
             // 
@@ -269,6 +270,7 @@ namespace Motion.Durability
             this.rb_RPC.TabStop = true;
             this.rb_RPC.Text = "RPC";
             this.rb_RPC.UseVisualStyleBackColor = true;
+            this.rb_RPC.CheckedChanged += new System.EventHandler(this.rb_RPC_CheckedChanged);
             // 
             // gb_resulttype
             // 

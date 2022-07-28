@@ -29,14 +29,56 @@ namespace Motion.Durability
             InitializeComponent();
         }
 
+        #region Member functions
+
+        private void calculation()
+        {
+            int[] a = new int[5] { 1, 100, 301, 2900, 5000 };
+            int[] b = new int[5];
+            double nValue;
+            // var compare;
+            for (int i = 0; i < 5; i++)
+            {
+                nValue = Math.Log10(a[i]) / Math.Log10(2);
+                b[i] = (int)Math.Ceiling(nValue);
+
+                var compare = Math.Pow(2, b[i]);
+
+                if (a[i] > compare)
+                    b[i] = b[i] + 1;
+            }
+
+
+        }
+
+        private void Operation_File_Format()
+        {
+            if(rb_csv.Checked)
+            {
+                rb_original.Enabled = true;
+                rb_transfrom.Enabled = true;
+            }
+            else if(rb_RPC.Checked)
+            {
+                rb_fixedstep.Checked = true;
+                rb_original.Enabled = false;
+                rb_transfrom.Enabled = false;
+            }
+        }
+
+        #endregion
+
+
+        #region Member Events
+
         private void btn_MotionResult_Click(object sender, EventArgs e)
         {
             m_open_motionresult.Title = "Select the ANSYSMotion result file";
             m_open_motionresult.Multiselect = false;
             m_open_motionresult.RestoreDirectory = true;
             m_open_motionresult.Filter = "DRF file(*.dfr)|*.dfr";
-            
-            if(DialogResult.OK == m_open_motionresult.ShowDialog())
+
+            if (DialogResult.OK == m_open_motionresult.ShowDialog())
             {
                 tb_motionresult.Text = Path.GetFileName(m_open_motionresult.FileName);
             }
@@ -49,7 +91,7 @@ namespace Motion.Durability
             m_open_map.RestoreDirectory = true;
             m_open_map.Filter = "Map file(*.xml)|*.xml";
 
-            if(DialogResult.OK == m_open_map.ShowDialog())
+            if (DialogResult.OK == m_open_map.ShowDialog())
             {
                 tb_map.Text = Path.GetFileName(m_open_map.FileName);
             }
@@ -69,8 +111,8 @@ namespace Motion.Durability
                 //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_force_FrontLeft_export.xml");
                 m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_Tire.xml");
 
-                m_save_file.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Output");
-                m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.csv");
+                m_save_file.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Output\RPC");
+                m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.rsp");
             }
 
             if (m_open_map.FileName == "")
@@ -98,13 +140,13 @@ namespace Motion.Durability
                 m_resultType = ResultValueType.FixedStep;
 
             m_save_file.RestoreDirectory = true;
-            
-            if(m_fileFormat == FileFormat.CSV)
+
+            if (m_fileFormat == FileFormat.CSV)
                 m_save_file.Filter = "CSV (*.csv)|*.csv";
             else
                 m_save_file.Filter = "RPC III (*.rsp)|*.rsp";
 
-            if(DialogResult.OK == m_save_file.ShowDialog())
+            if (DialogResult.OK == m_save_file.ShowDialog())
             {
                 m_functions = new Functions();
                 m_durability = m_functions.BuildDataFromMap(m_open_motionresult.FileName, m_open_map.FileName);
@@ -112,7 +154,7 @@ namespace Motion.Durability
                 if (m_durability == null)
                     return;
 
-                if(false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability))
+                if (false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability))
                 {
                     MessageBox.Show("Failed to export results to file.");
                     TB_savepath.Text = "Fail !!!";
@@ -126,5 +168,20 @@ namespace Motion.Durability
 
 
         }
+
+
+        private void rb_csv_CheckedChanged(object sender, EventArgs e)
+        {
+            Operation_File_Format();
+        }
+
+        private void rb_RPC_CheckedChanged(object sender, EventArgs e)
+        {
+            Operation_File_Format();
+        }
+
+        #endregion
+
+
     }
 }
