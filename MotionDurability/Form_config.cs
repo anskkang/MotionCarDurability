@@ -108,11 +108,15 @@ namespace Motion.Durability
             {
                 m_open_motionresult.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Results\VM_Demo_Vehicle_lt.dfr");
                 //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Body_LCA_export.xml");
-                //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_force_FrontLeft_export.xml");
-                m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_Tire.xml");
+                m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_force_FrontLeft_export.xml");
+                //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_Tire.xml");
 
-                m_save_file.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Output\RPC");
-                m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.rsp");
+                //m_save_file.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Output\RPC");
+
+                if(rb_RPC.Checked)
+                    m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.rsp");
+                else
+                    m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.csv");
             }
 
             if (m_open_map.FileName == "")

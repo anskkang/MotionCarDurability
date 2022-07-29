@@ -495,6 +495,8 @@ namespace Motion.Durability
 
         public string Precision { get; set; }
 
+        public double Full_Scale { get; set; }
+
         public string Unit_Force
         {
             get { return m_unit_force; }
@@ -661,6 +663,8 @@ namespace Motion.Durability
             m_chassis_Racc = new List<double[]>();
 
             m_nNumofResult = 0;
+
+            Full_Scale = 32752.0;
         }
 
         void Calculate_Num_Of_Result()

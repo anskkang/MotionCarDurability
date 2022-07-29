@@ -22,7 +22,7 @@ namespace Motion.Durability
 
         public DurabilityData BuildDataFromMap(string _strResultPath, string _strMapPath)
         {
-            int i;
+            //int i;
             m_strResultPath = _strResultPath;
             m_strMapPath = _strMapPath;
 
@@ -226,7 +226,7 @@ namespace Motion.Durability
             var connectors = _postAPI.GetConnectors(body.Name);
             char seperator = '/';
             string result_name = "";
-            string unit_entity = "";
+            //string unit_entity = "";
             foreach (XmlNode n in lst_Node)
             {
                 str_type = n.Attributes.GetNamedItem("type").Value;
@@ -692,7 +692,7 @@ namespace Motion.Durability
 
         private bool Translate_Data_For_Bodies(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
         {
-            int i,j,k, nlength;
+            int i,j, nlength;
             double[] Ci = new double[9] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
             double[] Ai = new double[9];
             double[] Ai_I = new double[9] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -956,6 +956,7 @@ namespace Motion.Durability
             double[] yarray = null;
             double err_tol = 1.0e-10;
             double y_value = 0.0, y_max = 0.0;
+            //double dFull_Scale = durability.Full_Scale;
 
             if (false == Determine_Result_Step(ref durability))
                 return false; 
@@ -1002,14 +1003,14 @@ namespace Motion.Durability
                         else
                         {
                             if (Math.Abs(y_value) > y_max)
-                                y_max = Math.Abs(y_value);
+                                y_max= Math.Abs(y_value);
 
                         }
 
                         entity.FixedStepValue[j][i] = y_value;
                     }
-
-                    entity.MaxValues.Add(y_max);
+                   
+                    entity.MaxValues.Add((y_max));
                 }
 
                 k++;
@@ -1237,7 +1238,7 @@ namespace Motion.Durability
 
             string str_type = "";
             List<string> str_curve_path = new List<string>();
-            string unit_entity = "";
+            //string unit_entity = "";
             char seperator = '/';
             string result_name = "";
 
@@ -1253,6 +1254,9 @@ namespace Motion.Durability
             XmlNodeList lst_node_force = _node_Item.SelectNodes("Force");
 
             IList<(BodyType, string)> bodies = _postAPI.GetBodies(BodyType.RIGID);
+            //IList<(BodyType, string)> ground = _postAPI.GetBodies(BodyType.GROUND);
+            //var temp = _postAPI.GetConnectors(ground[0].Item2);
+
             nNode_force = -1;
             foreach (XmlNode force_node in lst_node_force)
             {
@@ -1306,7 +1310,8 @@ namespace Motion.Durability
                                     break;
                                 }
                             }
-                            else
+                            
+                            if(force_data.BaseBody.Length > 0 && force_data.ActionBody.Length > 0)
                             {
                                 bFindBodies = true;
 
@@ -1592,7 +1597,7 @@ namespace Motion.Durability
 
                         if (force_data.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
-                            entity.ResultNames.Add(result_name + entity.Name + "(" + unit_entity + ")");
+                            entity.ResultNames.Add(result_name + entity.Name);
 
                             str_type = force_data.Name + "/BaseMarker/Displacement";
 
@@ -2079,7 +2084,7 @@ namespace Motion.Durability
 
         private bool Translate_Data_For_Forces(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
         {
-            int i, j, k, nlength, ierror = 0;
+            int i, j, nlength, ierror = 0;
             int nRow = 0, nColumn = 0;
             double[] Fi = new double[3] { 0.0, 0.0, 0.0 };
             double[] Ti = new double[3] { 0.0, 0.0, 0.0 };
@@ -2301,6 +2306,7 @@ namespace Motion.Durability
             double[] yarray = null;
             double err_tol = 1.0e-10;
             double y_value = 0.0, y_max = 0.0;
+            //double dFull_Scale = durability.Full_Scale;
 
             if (false == Determine_Result_Step(ref durability))
                 return false;
@@ -2340,7 +2346,7 @@ namespace Motion.Durability
                                 if (err_tol > Math.Abs(y_value))
                                     y_value = 0.0;
 
-                                if (j == 0)
+                                if(j == 0)
                                     y_max = Math.Abs(y_value);
                                 else
                                 {
@@ -2352,7 +2358,7 @@ namespace Motion.Durability
                                 entity.FixedStepValue[j][i] = y_value;
                             }
 
-                            entity.MaxValues.Add(y_max);
+                            entity.MaxValues.Add((y_max ));
                         }
 
                         // in Vehicle body reference frame
@@ -2384,7 +2390,7 @@ namespace Motion.Durability
                                 entity.FixedStepValue[j][i + 6] = y_value;
                             }
 
-                            entity.MaxValues.Add(y_max);
+                            entity.MaxValues.Add((y_max ));
                         }
                     }
                     else
@@ -2423,7 +2429,7 @@ namespace Motion.Durability
                                 entity.FixedStepValue[j][i] = y_value;
                             }
 
-                            entity.MaxValues.Add(y_max);
+                            entity.MaxValues.Add((y_max ));
                         }
                     }
 
@@ -2677,16 +2683,17 @@ namespace Motion.Durability
 
         private bool WriteToRPC(ResultValueType resulttype, string path, DurabilityData durability)
         {
-            int i, j, k;
+            int i, j;
             int nRemain, nRow, nColumn;
             int pts_total, pts_per_frame, frame;
 
-            FileStream fs = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
+            FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
             BinaryWriter bw = new BinaryWriter(fs);
 
             List<string> lst_key = new List<string>();
             List<string> lst_value = new List<string>();
             int nCount_Add_Header = 0;
+            Int16 full_scale = 32752;
 
             if (false == Get_RPC_Header(durability, ref lst_key, ref lst_value, ref nCount_Add_Header))
                 return false;
@@ -2701,8 +2708,8 @@ namespace Motion.Durability
             if (false == Get_RPC_Data(durability, ref lst_data, ref lst_max))
                 return false;
 
-            List<int[]> lst_data_New = new List<int[]>();
-            int full_scale = 32752;
+            List<Int16[]> lst_data_New = new List<Int16[]>();
+            
 
             if (false == COnvert_RPC_Data_To_INT_FULL_SCALE(lst_data, lst_max, full_scale, ref lst_data_New))
                 return false;
@@ -2736,18 +2743,24 @@ namespace Motion.Durability
                 //    bw.Write("\0");
             }
 
+            string str_null = "";
+            for (i = 0; i < 128; i++)
+                str_null = str_null + "\0";
+
             for(i = 0; i < nCount_Add_Header; i++)
             {
                 for (j = 0; j < 128; j++)
-                    bw.Write("\0");
+                    bw.Write(str_null[j]);
             }
 
             // Write data
             nRow = lst_data_New.Count;
-            nColumn = lst_data_New[0].Length;
-            nRemain = pts_total - nColumn;
+           
             for(i = 0; i < nRow; i++)
             {
+                nColumn = lst_data_New[i].Length;
+                nRemain = pts_total - nColumn;
+
                 for (j = 0; j < nColumn; j++)
                 {
                     bw.Write(lst_data_New[i][j]);
@@ -2772,6 +2785,8 @@ namespace Motion.Durability
             int pts_per_frame = 0, frames = 0;
             int num_params, num_header_blocks;
             double delta_T;
+            double dFull_Scale = durability.Full_Scale;
+            double dScale = 1.0;
 
             nchannels = durability.NumOfResult;
             nResultStep = durability.ResultStep;
@@ -2779,7 +2794,7 @@ namespace Motion.Durability
 
             num_params = 19 + 6 * nchannels;
             num_header_blocks = (int)Math.Ceiling((double)(num_params / 4));
-            if (num_params >= (4 * num_header_blocks))
+            if (num_params > (4 * num_header_blocks))
                 num_header_blocks = num_header_blocks + 1;
 
             Calculate_NumOfFrame(nResultStep, ref pts_per_frame, ref frames);
@@ -2879,8 +2894,10 @@ namespace Motion.Durability
                         else
                             lst_value.Add(entity.Unit2);
 
+                        dScale = entity.MaxValues[j] / dFull_Scale;
+
                         lst_key.Add("SCALE.CHAN_" + i.ToString());
-                        lst_value.Add(entity.MaxValues[j].ToString("E6"));
+                        lst_value.Add(dScale.ToString("E6"));
 
                         lst_key.Add("UPPER_LIMIT.CHAN_" + i.ToString());
                         lst_value.Add("1.0");
@@ -2915,8 +2932,10 @@ namespace Motion.Durability
                             else
                                 lst_value.Add(entity.Unit2);
 
+                            dScale = entity.MaxValues[j] / dFull_Scale;
+
                             lst_key.Add("SCALE.CHAN_" + i.ToString());
-                            lst_value.Add(entity.MaxValues[j].ToString("E6"));
+                            lst_value.Add(dScale.ToString("E6"));
 
                             lst_key.Add("UPPER_LIMIT.CHAN_" + i.ToString());
                             lst_value.Add("1.0");
@@ -2946,14 +2965,31 @@ namespace Motion.Durability
 
         private bool Get_RPC_Data(DurabilityData durability, ref List<double[]> lst_data, ref List<double> lst_max)
         {
+            int i, j, nRow, nColumn;
+            double[] yarray;
+
             if(durability.Type == Category.Bodies)
             {
                 foreach(EntityForBody entity in durability.Body.Entities)
                 {
-                    foreach (double[] arr in entity.FixedStepValue)
+                    //foreach (double[] arr in entity.FixedStepValue)
+                    //{
+                    //    lst_data.Add(arr);
+                    //}
+                    nRow = entity.FixedStepValue.Count;
+                    nColumn = entity.FixedStepValue[0].Length;
+
+                    for(i = 0; i < nColumn; i++)
                     {
-                        lst_data.Add(arr);
+                        yarray = new double[nRow];
+                        for(j = 0; j < nRow; j++)
+                        {
+                            yarray[j] = entity.FixedStepValue[j][i];
+                        }
+
+                        lst_data.Add(yarray);
                     }
+
 
                     foreach(double dmax in entity.MaxValues)
                     {
@@ -2968,9 +3004,23 @@ namespace Motion.Durability
                 {
                     foreach(EntityForForce entity in force_data.Entities)
                     {
-                        foreach (double[] arr in entity.FixedStepValue)
+                        //foreach (double[] arr in entity.FixedStepValue)
+                        //{
+                        //    lst_data.Add(arr);
+                        //}
+
+                        nRow = entity.FixedStepValue.Count;
+                        nColumn = entity.FixedStepValue[0].Length;
+
+                        for (i = 0; i < nColumn; i++)
                         {
-                            lst_data.Add(arr);
+                            yarray = new double[nRow];
+                            for (j = 0; j < nRow; j++)
+                            {
+                                yarray[j] = entity.FixedStepValue[j][i];
+                            }
+
+                            lst_data.Add(yarray);
                         }
 
                         foreach (double dmax in entity.MaxValues)
@@ -2990,7 +3040,7 @@ namespace Motion.Durability
             return true;
         }
 
-        private bool COnvert_RPC_Data_To_INT_FULL_SCALE(List<double[]> lst_data, List<double> lst_max, int full_scale, ref List<int[]> lst_data_new)
+        private bool COnvert_RPC_Data_To_INT_FULL_SCALE(List<double[]> lst_data, List<double> lst_max, Int16 full_scale, ref List<Int16[]> lst_data_new)
         {
             int i, j;
             int nRow, nColumn ;
@@ -2999,14 +3049,14 @@ namespace Motion.Durability
             nRow = lst_data.Count;
             nColumn = lst_data[0].Length;
 
-            for(i = 0; i < nColumn; i++)
+            for(i = 0; i < nRow; i++)
             {
                 dmax = lst_max[i];
-                lst_data_new.Add(new int[nRow]);
+                lst_data_new.Add(new Int16[nColumn]);
 
-                for (j = 0; j < nRow; j++)
+                for (j = 0; j < nColumn; j++)
                 {
-                    lst_data_new[i][j] = (int)Math.Round((lst_data[j][i] / dmax) * full_scale);
+                    lst_data_new[i][j] = (Int16)Math.Round((lst_data[i][j] / dmax) * full_scale);
                 }
             }
             
