@@ -1962,7 +1962,8 @@ namespace Motion.Durability
                             }
 
 
-                            str_type = force_data.Name + "/ActionMarker/Angular Acceleration";
+                            //str_type = force_data.Name + "/ActionMarker/Angular Acceleration";
+                            str_type = force_data.Name + "/ActionMarker/Acceleration";
                             str_curve_path.Clear();
                             str_curve_path.Add(str_type + "/X");
                             str_curve_path.Add(str_type + "/Y");
@@ -1970,7 +1971,8 @@ namespace Motion.Durability
 
                             parameters = new PlotParameters();
                             parameters.Target = force_data.Name + "/ActionMarker";
-                            str_type = "Angular Acceleration";
+                            //str_type = "Angular Acceleration";
+                            str_type = "Acceleration";
                             parameters.Paths.Add(str_type + "/X");
                             parameters.Paths.Add(str_type + "/Y");
                             parameters.Paths.Add(str_type + "/Z");
@@ -2231,7 +2233,7 @@ namespace Motion.Durability
                             {
                                 for(j = 0; j < 3; j++)
                                 {
-                                    rij_dot[j] = entity.OrinalValue[i][j] - entity.OrinalValue[i][j + 3];
+                                    rij_dot[j] = entity.OrinalValue[i][j+3] - entity.OrinalValue[i][j];
                                     rij[j] = force.Action_Positions[i][j] - force.Base_Positions[i][j];
                                 }
 
@@ -2241,6 +2243,7 @@ namespace Motion.Durability
                                     return false;
 
                                 lib_math.vectrvec(rij_dot, rij, ref value_v);
+                                //lib_math.vectrvec(rij, rij_dot, ref value_v);
 
                                 entity.TransformValue[i][0] = value_v;
                             }
@@ -2266,7 +2269,7 @@ namespace Motion.Durability
                             {
                                 for (j = 0; j < 3; j++)
                                 {
-                                    rij_ddot[j] = entity.OrinalValue[i][j] - entity.OrinalValue[i][j + 3];
+                                    rij_ddot[j] = entity.OrinalValue[i][j+3] - entity.OrinalValue[i][j];
                                     rij[j] = force.Action_Positions[i][j] - force.Base_Positions[i][j];
                                 }
 
@@ -2276,6 +2279,7 @@ namespace Motion.Durability
                                     return false;
 
                                 lib_math.vectrvec(rij_ddot, rij, ref value_a);
+                                //lib_math.vectrvec(rij, rij_ddot, ref value_a);
 
                                 entity.TransformValue[i][0] = value_a;
                             }
@@ -2399,7 +2403,8 @@ namespace Motion.Durability
                         {
                             for (j = 0; j < nRow; j++)
                             {
-                                yarray[j] = entity.OrinalValue[j][i];
+                                //yarray[j] = entity.OrinalValue[j][i];
+                                yarray[j] = entity.TransformValue[j][i];
                             }
 
                             var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);

@@ -22,7 +22,7 @@ namespace Motion.Durability
         FileFormat m_fileFormat;
         ResultValueType m_resultType;
 
-        bool bDebugging = true;
+        bool bDebugging = false;
 
         public Form_config()
         {
@@ -157,6 +157,8 @@ namespace Motion.Durability
 
                 if (m_durability == null)
                     return;
+
+                
 
                 if (false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability))
                 {
