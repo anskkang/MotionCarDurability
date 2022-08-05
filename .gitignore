@@ -108,3 +108,13 @@ Example/Output/CSV/Force/Force_Tire.csv
 Example/Output/CSV/Force/Force_Tire_Fixed.csv
 Example/Output/CSV/Force/Force_Tire_Fixed_mod.csv
 Example/Output/RPC/Force/Force_Tire.rsp
+bin/Debug.7z
+Example/Example.7z
+Example/Map/Force_force_FrontLeft_export - Copy.xml
+Example/Output/RPC/Body/Body_LCA.rsp
+Example/Output/RPC/Force/FrontLeft.rsp
+Example/RSP/tire1.rsp
+Example/
+MDDurability/obj/
+MotionDurability/obj/
+PostAPI/obj/

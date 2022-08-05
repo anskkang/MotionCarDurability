@@ -22,7 +22,7 @@ namespace Motion.Durability
         FileFormat m_fileFormat;
         ResultValueType m_resultType;
 
-        bool bDebugging = true;
+        bool bDebugging = false;
 
         public Form_config()
         {
@@ -48,6 +48,7 @@ namespace Motion.Durability
                     b[i] = b[i] + 1;
             }
 
+            tb_motionresult.Text = Math.Truncate(Math.Log10(9)).ToString() + ", " + Math.Truncate(Math.Log10(10)).ToString() + ", " + Math.Truncate(Math.Log10(100)).ToString();
 
         }
 
@@ -57,11 +58,18 @@ namespace Motion.Durability
             {
                 rb_original.Enabled = true;
                 rb_transfrom.Enabled = true;
+                rb_transfrom.Enabled = true;
             }
             else if(rb_RPC.Checked)
             {
                 rb_fixedstep.Checked = true;
                 rb_original.Enabled = false;
+                rb_transfrom.Enabled = false;
+            }
+            else
+            {
+                rb_fixedstep.Checked = true;
+                rb_original.Enabled = true;
                 rb_transfrom.Enabled = false;
             }
         }
@@ -106,13 +114,22 @@ namespace Motion.Durability
         {
             if (bDebugging)
             {
-                m_open_motionresult.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Results\VM_Demo_Vehicle_lt.dfr");
+                //m_open_motionresult.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Results\VM_Demo_Vehicle_lt.dfr");
+                m_open_motionresult.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\2023\Force Export for durability\model\Work\Result_Simulation_T_Motor_Modified_20202710.dfg.dfr");
+
                 //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Body_LCA_export.xml");
                 //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_force_FrontLeft_export.xml");
-                m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_Tire.xml");
+                //m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Map\Force_Tire.xml");
+                m_open_map.FileName = Path.Combine(Directory.GetCurrentDirectory(), @"D:\Development\Code\MotionCarDurability\Example\Map\FE_body.xml");
 
-                m_save_file.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Output\RPC");
-                m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.rsp");
+                //m_save_file.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\Example\Output\RPC");
+
+                if (rb_RPC.Checked)
+                    m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.rsp");
+                else if(rb_csv.Checked)
+                    m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.csv");
+                else if(rb_MCF.Checked)
+                    m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, Path.GetFileName(m_open_motionresult.FileName)+"_");
             }
 
             if (m_open_map.FileName == "")
@@ -129,8 +146,10 @@ namespace Motion.Durability
 
             if (rb_csv.Checked)
                 m_fileFormat = FileFormat.CSV;
-            else
+            else if (rb_RPC.Checked)
                 m_fileFormat = FileFormat.RPC;
+            else
+                m_fileFormat = FileFormat.MCF;
 
             if (rb_original.Checked)
                 m_resultType = ResultValueType.Original;
@@ -143,8 +162,14 @@ namespace Motion.Durability
 
             if (m_fileFormat == FileFormat.CSV)
                 m_save_file.Filter = "CSV (*.csv)|*.csv";
-            else
+            else if (m_fileFormat == FileFormat.RPC)
                 m_save_file.Filter = "RPC III (*.rsp)|*.rsp";
+            else
+            {
+                m_save_file.Title = "Please write a pre-fixed name for the creation of MCF(ex. pre-fixed name_ )";
+                m_save_file.Filter = "Modal Coordinates File (*.mcf)|*.mcf";
+                m_save_file.FileName = "pre-fixed name_";
+            }
 
             if (DialogResult.OK == m_save_file.ShowDialog())
             {
@@ -153,6 +178,8 @@ namespace Motion.Durability
 
                 if (m_durability == null)
                     return;
+
+                
 
                 if (false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability))
                 {
@@ -176,6 +203,11 @@ namespace Motion.Durability
         }
 
         private void rb_RPC_CheckedChanged(object sender, EventArgs e)
+        {
+            Operation_File_Format();
+        }
+
+        private void rb_MCF_CheckedChanged(object sender, EventArgs e)
         {
             Operation_File_Format();
         }

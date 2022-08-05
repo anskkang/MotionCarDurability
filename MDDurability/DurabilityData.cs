@@ -50,7 +50,8 @@ namespace Motion.Durability
     public enum FileFormat
     {
         RPC = 0,
-        CSV = 1
+        CSV = 1,
+        MCF = 2
     }
 
     public class EntityForBody
@@ -434,6 +435,42 @@ namespace Motion.Durability
 
     }
 
+    public class FEBody
+    {
+        public FEBody()
+        {
+            m_lstOriginStep_MC = new List<double[]>();
+            m_lstFixedStep_MC = new List<double[]>();
+        }
+
+        private string m_strName;
+        private List<double[]> m_lstOriginStep_MC;
+        private List<double[]> m_lstFixedStep_MC;
+
+        public string Name
+        {
+            get { return m_strName; }
+            set { m_strName = value; }
+        }
+
+        public List<double[]> OriginalTime_Modal_Coordinates
+        {
+            get { return m_lstOriginStep_MC; }
+            set { m_lstOriginStep_MC = value; }
+        }
+
+        public List<double[]> FixedTime_Modal_Coordinates
+        {
+            get { return m_lstFixedStep_MC; }
+            set { m_lstFixedStep_MC = value; }
+        }
+
+        
+
+        public int NumofMode { get; set; }
+
+    }
+
     public class DurabilityData
     {
         public DurabilityData()
@@ -475,6 +512,7 @@ namespace Motion.Durability
         private int m_nNumofResult;
 
         private Body m_Body;
+        private List<FEBody> m_lstFEBody;
         private List<Force> m_lstForce;
         private List<double> m_oriTime;
         private List<double> m_fixedTime;
@@ -494,6 +532,10 @@ namespace Motion.Durability
         }
 
         public string Precision { get; set; }
+
+        public double Full_Scale { get; set; }
+
+        public string Version { get; set; }
 
         public string Unit_Force
         {
@@ -582,6 +624,12 @@ namespace Motion.Durability
             set { m_Body = value; }
         }
 
+        public List<FEBody> FEBodies
+        {
+            get { return m_lstFEBody; }
+            set { m_lstFEBody = value; }
+        }
+
         public List<Force> Forces
         {
             get { return m_lstForce; }
@@ -649,6 +697,7 @@ namespace Motion.Durability
         void Initialize()
         {
             m_Body = new Body();
+            m_lstFEBody = new List<FEBody>();
             m_lstForce = new List<Force>();
             m_oriTime = new List<double>();
             m_fixedTime = new List<double>();
@@ -661,6 +710,8 @@ namespace Motion.Durability
             m_chassis_Racc = new List<double[]>();
 
             m_nNumofResult = 0;
+
+            Full_Scale = 32752.0;
         }
 
         void Calculate_Num_Of_Result()
