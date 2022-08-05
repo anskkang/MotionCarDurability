@@ -65,6 +65,17 @@ namespace PostAPI
             return this.OutputReader.InterpolationAkimaSpline(X, Y, NoOfPnt, NoOfDesiredPnt, StartPnt, EndPnt);
         }
 
+        // for Modal
+        public int GetModalModeCount(string target)
+        {
+            return this.OutputReader.GetModalModeCount(target);
+        }
+
+        public string Version
+        {
+            get { return this.OutputReader.Version; }
+        }
+
         public void Close()
         {
             this.OutputReader.Close();

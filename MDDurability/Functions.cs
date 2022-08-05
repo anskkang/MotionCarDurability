@@ -46,12 +46,16 @@ namespace Motion.Durability
             }
 
             // Get Unit Conversion Factor
-            if (false == Conversion_Unit(postAPI, node_Unit, ref durability))
-                return null;
+            if (null != node_Unit)
+            {
+                if (false == Conversion_Unit(postAPI, node_Unit, ref durability))
+                    return null;
 
-            // Get Chassis data info
-            if (false == GetChassisInfo(postAPI, ref durability))
-                return null;
+
+                // Get Chassis data info
+                if (false == GetChassisInfo(postAPI, ref durability))
+                    return null;
+            }
 
             string str_Category = node_Item.Attributes.GetNamedItem("name").Value;
             // Get Data each type
@@ -84,13 +88,19 @@ namespace Motion.Durability
                 if (false == Interpolation_For_Force(postAPI, ref durability))
                     return null;
             }
-            else if (str_Category == "User defined functions")
+            else if (str_Category == "Userdefinedfunctions")
             {
                 durability.Type = Category.UserDefinedFunctions;
             }
-            else if (str_Category == "Flexible Bodies")
+            else if (str_Category == "FlexibleBodies")
             {
                 durability.Type = Category.FEBodies;
+                if (false == BuildFEBodyFromMap(node_Item, postAPI, ref durability))
+                    return null;
+
+                // Interpolation given step size
+                if (false == Interpolation_For_FEBody(postAPI, ref durability))
+                    return null;
             }
             else
             {
@@ -2448,6 +2458,170 @@ namespace Motion.Durability
 
         #endregion
 
+        #region FEBodies
+
+        private bool BuildFEBodyFromMap(XmlNode _node_Item, PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        {
+            int i, j, k;
+            int nFindCount, nBody, nNumofMode, nNumofResultStep = 1;
+            string str_bd_name;
+
+            IList<(BodyType, string)> Mbodies = _postAPI.GetBodies(VM.Enums.Post.BodyType.MODAL);
+            IList<(BodyType, string)> EF_Mbodies = _postAPI.GetBodies(VM.Enums.Post.BodyType.EF_MODAL);
+
+            XmlNodeList lst_Node = _node_Item.SelectNodes("Body");
+
+            nBody = lst_Node.Count;
+            nFindCount = 0;
+            foreach (XmlNode n in lst_Node)
+            {
+                str_bd_name = n.Attributes.GetNamedItem("name").Value;
+
+                for (i = 0; i < Mbodies.Count; i++)
+                {
+                    if (Mbodies[i].Item2.Contains(str_bd_name) == true)
+                    {
+                        FEBody body = new FEBody();
+                        body.Name = str_bd_name;
+                        durability.FEBodies.Add(body);
+                        nFindCount++;
+                    }
+                }
+
+                if(nFindCount < nBody)
+                {
+                    for( i = 0; i < EF_Mbodies.Count; i++)
+                    {
+                        if(EF_Mbodies[i].Item2.Contains(str_bd_name) == true)
+                        {
+                            FEBody body = new FEBody();
+                            body.Name = str_bd_name;
+                            durability.FEBodies.Add(body);
+                            nFindCount++;
+                        }
+                    }
+                }
+            }
+
+            if(nFindCount == 0)
+            {
+                MessageBox.Show("There are not FE body in Motion result. Please confirm the name of FE body", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            nBody = durability.FEBodies.Count;
+
+            // Get Version and Num. of Mode each Modal body.
+            for(i = 0; i < nBody; i++)
+            {
+                if (i == 0)
+                    durability.Version = _postAPI.Version;
+
+                str_bd_name = durability.FEBodies[i].Name;
+                durability.FEBodies[i].NumofMode = _postAPI.GetModalModeCount(str_bd_name);
+            }
+
+            PlotParameters parameters = null;
+            IDictionary<string, IList<Point>> curve = null;
+            List<string> str_curve_path = new List<string>();
+            IList<Point> curve_point = null;
+            double[] xarray = null;
+            double[] yarray = null;
+
+
+            // Get original time and displacement each mode in modal body
+            for(i = 0; i < nBody; i++)
+            {
+                nNumofMode = durability.FEBodies[i].NumofMode;
+                str_bd_name = durability.FEBodies[i].Name;
+                str_curve_path.Clear();
+
+                parameters = new PlotParameters();
+                parameters.Target = str_bd_name;
+
+                for (j = 0; j < nNumofMode; j++)
+                    parameters.Paths.Add("Mode_" + (j+7).ToString() + "/Displacement" );
+
+                curve = _postAPI.GetCurves(parameters);
+
+                if (curve == null)
+                    return false;
+
+                str_curve_path.Clear();
+                for (j = 0; j < nNumofMode; j++)
+                    str_curve_path.Add(str_bd_name + "/Mode_" + (j + 7).ToString() + "/Displacement");
+
+                for (j = 0; j < nNumofMode; j++)
+                {
+                    curve_point = curve[str_curve_path[j]];
+                    if (i == 0 && j == 0)
+                    {
+                        xarray = curve_point.Select(s => s.X).ToArray();
+                        nNumofResultStep = xarray.Length;
+
+                        for (k = 0; k < nNumofResultStep; k++)
+                            durability.OriginalTimes.Add(xarray[k]);
+
+                        durability.EndTime = xarray[nNumofResultStep - 1];
+                    }
+
+                    yarray = curve_point.Select(s => s.Y).ToArray();
+
+                    durability.FEBodies[i].OriginalTime_Modal_Coordinates.Add(new double[nNumofResultStep]);
+                    for (k = 0; k < nNumofResultStep; k++)
+                        durability.FEBodies[i].OriginalTime_Modal_Coordinates[j][k] = yarray[k];
+
+                }
+
+            }
+
+
+            durability.Precision = "E6";
+
+            return true;
+        }
+
+        private bool Interpolation_For_FEBody(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        {
+            int i, j, k, nBody, nNumofMode, nSize_list;
+            double[] xarray;
+            double[] yarray;
+
+            if (false == Determine_Result_Step(ref durability))
+                return false;
+
+            nBody = durability.FEBodies.Count;
+
+            xarray = durability.OriginalTimes.ToArray();
+            nSize_list = xarray.Length;
+
+            
+            for (i = 0; i < nBody; i++)
+            {
+                nNumofMode = durability.FEBodies[i].OriginalTime_Modal_Coordinates.Count;
+
+                for(j = 0; j < nNumofMode; j++)
+                {
+                    yarray = durability.FEBodies[i].OriginalTime_Modal_Coordinates[j];
+
+                    var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nSize_list, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+                    if (i == 0 && j == 0 && result.Item1 == ResultType.SUCCESS)
+                    {
+                        for (k = 0; k < durability.ResultStep; k++)
+                            durability.FixedTimes.Add(result.Item2[k]);
+                    }
+
+                    durability.FEBodies[i].FixedTime_Modal_Coordinates.Add(result.Item3);
+                }
+
+            }
+
+            return true;
+        }
+
+        #endregion
+
 
         #region Write
 
@@ -2467,6 +2641,11 @@ namespace Motion.Durability
             else if (fileFormat == FileFormat.RPC)
             {
                 if (false == WriteToRPC(ResultValueType.FixedStep, path, durability))
+                    return false;
+            }
+            else if(fileFormat == FileFormat.MCF)
+            {
+                if (false == WriteToMCF(resulttype, path, durability))
                     return false;
             }
 
@@ -2681,6 +2860,129 @@ namespace Motion.Durability
             }
 
             File.WriteAllText(path, sb.ToString());
+
+            return true;
+        }
+
+        private bool WriteToMCF(ResultValueType resulttype, string path, DurabilityData durability)
+        {
+            int i, j, k, nBody, nNumofMode, nlog10, nNumofResult;
+            Category category = durability.Type;
+            StringBuilder sb ;
+            string str_precision = durability.Precision;
+            string str_seperator = " ", str_seperator1 = "  ", str_seperator2 = "      ";
+            string[] ar_space = new string[6];
+            nBody = durability.FEBodies.Count;
+            double[] xarray;
+
+            ar_space[0] = "      ";
+            ar_space[1] = "     ";
+            ar_space[2] = "    ";
+            ar_space[3] = "   ";
+            ar_space[4] = "  ";
+            ar_space[5] = " ";
+
+            string str_temp, str_dir, str_filename;
+            double dvalue;
+            if(category == Category.FEBodies)
+            {
+                for (i = 0; i < nBody; i++)
+                {
+                    sb = new StringBuilder();
+                    // Write Headers
+                    sb.AppendLine("Modal Coordinates File - Transient Solution");
+                    sb.AppendLine("ANSYSMotion " + durability.Version);
+
+                    DateTime utcNow = DateTime.UtcNow;
+                    sb.AppendLine(utcNow.Month.ToString("D2") + "/" + utcNow.Day.ToString("D2") + "/" + utcNow.Year.ToString("D4") + "      " + utcNow.Hour.ToString("D2") + ":" + utcNow.Minute.ToString("D2") + ":" + utcNow.Second.ToString("D2"));
+
+                    sb.AppendLine("Title: AnsysMotion_modal_superposition--Transient (C5)");
+                    sb.AppendLine("Number of Modes: " + durability.FEBodies[i].NumofMode);
+
+                    nNumofMode = durability.FEBodies[i].OriginalTime_Modal_Coordinates.Count;
+
+                    str_temp = str_seperator1 + "Mode:        ";
+                    for (j = 0; j < nNumofMode; j++)
+                    {
+                        nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
+                        if( j == (nNumofMode - 1))
+                            str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
+                        else
+                            str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
+                    }
+                    sb.AppendLine(str_temp);
+
+                    str_temp = str_seperator1 + "Frequency:   ";
+                    for (j = 0; j < nNumofMode; j++)
+                    {
+                        nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
+                        if (j == (nNumofMode - 1))
+                            str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
+                        else
+                            str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
+                    }
+                    sb.AppendLine(str_temp);
+
+                    str_temp = str_seperator1 + "    Time     " + str_seperator1 + "Coordinates...";
+                    sb.AppendLine(str_temp);
+
+                    // Write modal coordinate
+                    if(resulttype == ResultValueType.Original)
+                    {
+                        xarray = durability.OriginalTimes.ToArray();
+                        nNumofResult = xarray.Length;
+
+                        for(j = 0; j < nNumofResult; j++)
+                        {
+                            str_temp = str_seperator1 + xarray[j].ToString(str_precision);
+                            for(k = 0; k < nNumofMode; k++)
+                            {
+                                dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k][j];
+                                if(dvalue >= 0.0)
+                                    str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                else
+                                    str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                            }
+                            sb.AppendLine(str_temp);
+                        }
+                    }
+                    else if(resulttype == ResultValueType.FixedStep)
+                    {
+                        xarray = durability.FixedTimes.ToArray();
+                        nNumofResult = xarray.Length;
+
+                        for (j = 0; j < nNumofResult; j++)
+                        {
+                            str_temp = str_seperator1 + xarray[j].ToString(str_precision);
+                            for (k = 0; k < nNumofMode; k++)
+                            {
+                                dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k][j];
+
+                                if (dvalue >= 0.0)
+                                    str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                else
+                                    str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                            }
+
+                            sb.AppendLine(str_temp);
+                        }
+                    }
+
+                    str_filename = Path.GetFileNameWithoutExtension(path);
+                    str_filename = str_filename + durability.FEBodies[i].Name + ".mcf";
+                    str_dir = Path.GetDirectoryName(path);
+                    str_temp = Path.Combine(str_dir, str_filename);
+
+                    File.WriteAllText(str_temp, sb.ToString());
+                }
+            }
+            else
+            {
+                MessageBox.Show("There are not supported type. Please change type", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+
 
             return true;
         }
