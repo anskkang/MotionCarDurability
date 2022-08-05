@@ -114,3 +114,7 @@ Example/Map/Force_force_FrontLeft_export - Copy.xml
 Example/Output/RPC/Body/Body_LCA.rsp
 Example/Output/RPC/Force/FrontLeft.rsp
 Example/RSP/tire1.rsp
+Example/
+MDDurability/obj/
+MotionDurability/obj/
+PostAPI/obj/
