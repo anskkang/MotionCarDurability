@@ -16,7 +16,8 @@ namespace Motion.Durability
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form_config());
+            Application.Run(new Export());
+            //Application.Run(new Form_config());
         }
     }
 }
