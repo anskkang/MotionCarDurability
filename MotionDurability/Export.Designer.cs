@@ -54,16 +54,18 @@ namespace Motion.Durability
             this.listView_type = new System.Windows.Forms.ListView();
             this.tlp_selection_entities1 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
+            this.listView_Entity = new System.Windows.Forms.ListView();
             this.tlp_RF_Unit = new System.Windows.Forms.TableLayoutPanel();
             this.gb_RF = new System.Windows.Forms.GroupBox();
+            this.listView_RF = new System.Windows.Forms.ListView();
             this.gb_Unit = new System.Windows.Forms.GroupBox();
             this.tlp_Unit = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
             this.combo_Force = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.combo_length = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.combo_Angle = new System.Windows.Forms.ComboBox();
             this.combo_Time = new System.Windows.Forms.ComboBox();
             this.tlp_stepsize = new System.Windows.Forms.TableLayoutPanel();
@@ -75,8 +77,6 @@ namespace Motion.Durability
             this.btn_Map_Add = new System.Windows.Forms.Button();
             this.btn_Map_Remove = new System.Windows.Forms.Button();
             this.listView_Map = new System.Windows.Forms.ListView();
-            this.listView_RF = new System.Windows.Forms.ListView();
-            this.listView_Entity = new System.Windows.Forms.ListView();
             this.tlp_main.SuspendLayout();
             this.tlp_resultlist_main.SuspendLayout();
             this.tlp_resultlist_header.SuspendLayout();
@@ -292,7 +292,7 @@ namespace Motion.Durability
             this.btn_Write_CSV.Name = "btn_Write_CSV";
             this.btn_Write_CSV.Size = new System.Drawing.Size(288, 84);
             this.btn_Write_CSV.TabIndex = 2;
-            this.btn_Write_CSV.Text = "Write CSV(MCF)";
+            this.btn_Write_CSV.Text = "Write CSV";
             this.btn_Write_CSV.UseVisualStyleBackColor = false;
             this.btn_Write_CSV.Click += new System.EventHandler(this.btn_Write_CSV_Click);
             // 
@@ -448,6 +448,18 @@ namespace Motion.Durability
             this.label3.Text = "Exported entities";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // listView_Entity
+            // 
+            this.listView_Entity.CheckBoxes = true;
+            this.listView_Entity.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView_Entity.HideSelection = false;
+            this.listView_Entity.Location = new System.Drawing.Point(3, 48);
+            this.listView_Entity.Name = "listView_Entity";
+            this.listView_Entity.Size = new System.Drawing.Size(436, 796);
+            this.listView_Entity.TabIndex = 1;
+            this.listView_Entity.UseCompatibleStateImageBehavior = false;
+            this.listView_Entity.View = System.Windows.Forms.View.List;
+            // 
             // tlp_RF_Unit
             // 
             this.tlp_RF_Unit.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
@@ -476,6 +488,17 @@ namespace Motion.Durability
             this.gb_RF.TabIndex = 0;
             this.gb_RF.TabStop = false;
             this.gb_RF.Text = "Reference frame for Motion";
+            // 
+            // listView_RF
+            // 
+            this.listView_RF.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView_RF.HideSelection = false;
+            this.listView_RF.Location = new System.Drawing.Point(3, 31);
+            this.listView_RF.Name = "listView_RF";
+            this.listView_RF.Size = new System.Drawing.Size(364, 125);
+            this.listView_RF.TabIndex = 0;
+            this.listView_RF.UseCompatibleStateImageBehavior = false;
+            this.listView_RF.View = System.Windows.Forms.View.List;
             // 
             // gb_Unit
             // 
@@ -528,36 +551,6 @@ namespace Motion.Durability
             this.label4.TabIndex = 0;
             this.label4.Text = "Force :";
             // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label6.Location = new System.Drawing.Point(3, 348);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(176, 58);
-            this.label6.TabIndex = 2;
-            this.label6.Text = "Time :";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label5.Location = new System.Drawing.Point(3, 116);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(176, 58);
-            this.label5.TabIndex = 1;
-            this.label5.Text = "Displacement :";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label7.Location = new System.Drawing.Point(3, 232);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(176, 58);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "Angle :";
-            // 
             // combo_Force
             // 
             this.combo_Force.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -572,6 +565,16 @@ namespace Motion.Durability
             this.combo_Force.Size = new System.Drawing.Size(176, 32);
             this.combo_Force.TabIndex = 4;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label5.Location = new System.Drawing.Point(3, 116);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(176, 58);
+            this.label5.TabIndex = 1;
+            this.label5.Text = "Displacement :";
+            // 
             // combo_length
             // 
             this.combo_length.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -585,6 +588,26 @@ namespace Motion.Durability
             this.combo_length.Name = "combo_length";
             this.combo_length.Size = new System.Drawing.Size(176, 32);
             this.combo_length.TabIndex = 5;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label7.Location = new System.Drawing.Point(3, 232);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(176, 58);
+            this.label7.TabIndex = 3;
+            this.label7.Text = "Angle :";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label6.Location = new System.Drawing.Point(3, 348);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(176, 58);
+            this.label6.TabIndex = 2;
+            this.label6.Text = "Time :";
             // 
             // combo_Angle
             // 
@@ -724,29 +747,6 @@ namespace Motion.Durability
             this.listView_Map.TabIndex = 3;
             this.listView_Map.UseCompatibleStateImageBehavior = false;
             this.listView_Map.View = System.Windows.Forms.View.List;
-            // 
-            // listView_RF
-            // 
-            this.listView_RF.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView_RF.HideSelection = false;
-            this.listView_RF.Location = new System.Drawing.Point(3, 31);
-            this.listView_RF.Name = "listView_RF";
-            this.listView_RF.Size = new System.Drawing.Size(364, 125);
-            this.listView_RF.TabIndex = 0;
-            this.listView_RF.UseCompatibleStateImageBehavior = false;
-            this.listView_RF.View = System.Windows.Forms.View.List;
-            // 
-            // listView_Entity
-            // 
-            this.listView_Entity.CheckBoxes = true;
-            this.listView_Entity.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView_Entity.HideSelection = false;
-            this.listView_Entity.Location = new System.Drawing.Point(3, 48);
-            this.listView_Entity.Name = "listView_Entity";
-            this.listView_Entity.Size = new System.Drawing.Size(436, 796);
-            this.listView_Entity.TabIndex = 1;
-            this.listView_Entity.UseCompatibleStateImageBehavior = false;
-            this.listView_Entity.View = System.Windows.Forms.View.List;
             // 
             // Export
             // 

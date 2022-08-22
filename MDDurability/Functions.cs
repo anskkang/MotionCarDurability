@@ -56,12 +56,12 @@ namespace Motion.Durability
             {
                 if (false == Conversion_Unit(postAPI, node_Unit, ref durability))
                     return null;
-
-
-                // Get Chassis data info
-                if (false == GetChassisInfo(postAPI, ref durability))
-                    return null;
             }
+
+            // Get Chassis data info
+            if (false == GetChassisInfo(postAPI, ref durability))
+                return null;
+
 
             string str_Category = node_Item.Attributes.GetNamedItem("name").Value;
             // Get Data each type
@@ -2632,8 +2632,14 @@ namespace Motion.Durability
 
         #region Write
 
-        private bool WriteMap()
+        public bool WriteMap(string path, XmlDocument dom)
         {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+
+            XmlWriter writer = XmlWriter.Create(path, settings);
+            dom.Save(writer);
+
             return true;
         }
 
@@ -3740,43 +3746,78 @@ namespace Motion.Durability
 
                 for(j = 0; j < count_connector; j++)
                 {
-                    if(connectors[j].Item2 == ActionType.Action)
+                    XmlNode node_B_entity = CreateNodeAndAttribute(dom, "Entity", "name", connectors[j].Item3);
+
+                    if (connectors[j].Item1 == ConnectorType.Ball || connectors[j].Item1 == ConnectorType.ConstantVelocity || connectors[j].Item1 == ConnectorType.Cylindrical
+                        || connectors[j].Item1 == ConnectorType.Distance || connectors[j].Item1 == ConnectorType.Fixed || connectors[j].Item1 == ConnectorType.Inline
+                        || connectors[j].Item1 == ConnectorType.Inplane || connectors[j].Item1 == ConnectorType.Orientation || connectors[j].Item1 == ConnectorType.Parallel
+                        || connectors[j].Item1 == ConnectorType.Perpendicular || connectors[j].Item1 == ConnectorType.Plane || connectors[j].Item1 == ConnectorType.Revolute
+                        || connectors[j].Item1 == ConnectorType.Screw || connectors[j].Item1 == ConnectorType.Translational || connectors[j].Item1 == ConnectorType.Universal)
                     {
-                        XmlNode node_B_entity = CreateNodeAndAttribute(dom, "Entity", "name", connectors[j].Item3);
+                        CreateAttributeXML(dom, ref node_B_entity, "type", "contraints");
+                        node_body.AppendChild(node_B_entity);
+                    }
+                    else if (connectors[j].Item1 == ConnectorType.Beam || connectors[j].Item1 == ConnectorType.Bush || connectors[j].Item1 == ConnectorType.Matrix
+                        || connectors[j].Item1 == ConnectorType.RScalar || connectors[j].Item1 == ConnectorType.RSpringDamper || connectors[j].Item1 == ConnectorType.Tire
+                        || connectors[j].Item1 == ConnectorType.TScalar || connectors[j].Item1 == ConnectorType.TSpringDamper || connectors[j].Item1 == ConnectorType.Vector)
+                    {
+                        CreateAttributeXML(dom, ref node_B_entity, "type", "force");
+                        node_body.AppendChild(node_B_entity);
 
-                        if (connectors[j].Item1 == ConnectorType.Ball || connectors[j].Item1 == ConnectorType.ConstantVelocity || connectors[j].Item1 == ConnectorType.Cylindrical
-                            || connectors[j].Item1 == ConnectorType.Distance || connectors[j].Item1 == ConnectorType.Fixed || connectors[j].Item1 == ConnectorType.Inline
-                            || connectors[j].Item1 == ConnectorType.Inplane || connectors[j].Item1 == ConnectorType.Orientation || connectors[j].Item1 == ConnectorType.Parallel
-                            || connectors[j].Item1 == ConnectorType.Perpendicular || connectors[j].Item1 == ConnectorType.Plane || connectors[j].Item1 == ConnectorType.Revolute
-                            || connectors[j].Item1 == ConnectorType.Screw || connectors[j].Item1 == ConnectorType.Translational || connectors[j].Item1 == ConnectorType.Universal)
+                        if (connectors[j].Item1 == ConnectorType.TSpringDamper || connectors[j].Item1 == ConnectorType.Bush || connectors[j].Item1 == ConnectorType.Tire)
                         {
-                            CreateAttributeXML(dom, ref node_B_entity, "type", "contraints");
-                            node_body.AppendChild(node_B_entity);
-                        }
-                        else if (connectors[j].Item1 == ConnectorType.Beam || connectors[j].Item1 == ConnectorType.Bush || connectors[j].Item1 == ConnectorType.Matrix
-                            || connectors[j].Item1 == ConnectorType.RScalar || connectors[j].Item1 == ConnectorType.RSpringDamper || connectors[j].Item1 == ConnectorType.Tire
-                            || connectors[j].Item1 == ConnectorType.TScalar || connectors[j].Item1 == ConnectorType.TSpringDamper || connectors[j].Item1 == ConnectorType.Vector)
-                        {
-                            CreateAttributeXML(dom, ref node_B_entity, "type", "force");
-                            node_body.AppendChild(node_B_entity);
+                            XmlNode node_force = CreateNodeAndAttribute(dom, "Force", "name", connectors[j].Item3);
+                            XmlNode node_E_force = CreateNodeAndAttribute(dom, "Entity", "name", "Force");
+                            XmlNode node_E_Rdisp = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Displacement");
+                            XmlNode node_E_Rvelo = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Velocity");
+                            XmlNode node_E_Racc = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Acceleration");
 
-                            if (connectors[j].Item1 == ConnectorType.TSpringDamper || connectors[j].Item1 == ConnectorType.Bush || connectors[j].Item1 == ConnectorType.Tire)
-                            {
-                                XmlNode node_force = CreateNodeAndAttribute(dom, "Force", "name", connectors[j].Item3);
-                                XmlNode node_E_force = CreateNodeAndAttribute(dom, "Entity", "name", "Force");
-                                XmlNode node_E_Rdisp = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Displacement");
-                                XmlNode node_E_Rvelo = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Velocity");
-                                XmlNode node_E_Racc = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Acceleration");
+                            node_force.AppendChild(node_E_force);
+                            node_force.AppendChild(node_E_Rdisp);
+                            node_force.AppendChild(node_E_Rvelo);
+                            node_force.AppendChild(node_E_Racc);
 
-                                node_force.AppendChild(node_E_force);
-                                node_force.AppendChild(node_E_Rdisp);
-                                node_force.AppendChild(node_E_Rvelo);
-                                node_force.AppendChild(node_E_Racc);
-
-                                node_forces.AppendChild(node_force);
-                            }
+                            node_forces.AppendChild(node_force);
                         }
                     }
+
+                    //if(connectors[j].Item2 == ActionType.Action)
+                    //{
+                    //    XmlNode node_B_entity = CreateNodeAndAttribute(dom, "Entity", "name", connectors[j].Item3);
+
+                    //    if (connectors[j].Item1 == ConnectorType.Ball || connectors[j].Item1 == ConnectorType.ConstantVelocity || connectors[j].Item1 == ConnectorType.Cylindrical
+                    //        || connectors[j].Item1 == ConnectorType.Distance || connectors[j].Item1 == ConnectorType.Fixed || connectors[j].Item1 == ConnectorType.Inline
+                    //        || connectors[j].Item1 == ConnectorType.Inplane || connectors[j].Item1 == ConnectorType.Orientation || connectors[j].Item1 == ConnectorType.Parallel
+                    //        || connectors[j].Item1 == ConnectorType.Perpendicular || connectors[j].Item1 == ConnectorType.Plane || connectors[j].Item1 == ConnectorType.Revolute
+                    //        || connectors[j].Item1 == ConnectorType.Screw || connectors[j].Item1 == ConnectorType.Translational || connectors[j].Item1 == ConnectorType.Universal)
+                    //    {
+                    //        CreateAttributeXML(dom, ref node_B_entity, "type", "contraints");
+                    //        node_body.AppendChild(node_B_entity);
+                    //    }
+                    //    else if (connectors[j].Item1 == ConnectorType.Beam || connectors[j].Item1 == ConnectorType.Bush || connectors[j].Item1 == ConnectorType.Matrix
+                    //        || connectors[j].Item1 == ConnectorType.RScalar || connectors[j].Item1 == ConnectorType.RSpringDamper || connectors[j].Item1 == ConnectorType.Tire
+                    //        || connectors[j].Item1 == ConnectorType.TScalar || connectors[j].Item1 == ConnectorType.TSpringDamper || connectors[j].Item1 == ConnectorType.Vector)
+                    //    {
+                    //        CreateAttributeXML(dom, ref node_B_entity, "type", "force");
+                    //        node_body.AppendChild(node_B_entity);
+
+                    //        if (connectors[j].Item1 == ConnectorType.TSpringDamper || connectors[j].Item1 == ConnectorType.Bush || connectors[j].Item1 == ConnectorType.Tire)
+                    //        {
+                    //            XmlNode node_force = CreateNodeAndAttribute(dom, "Force", "name", connectors[j].Item3);
+                    //            XmlNode node_E_force = CreateNodeAndAttribute(dom, "Entity", "name", "Force");
+                    //            XmlNode node_E_Rdisp = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Displacement");
+                    //            XmlNode node_E_Rvelo = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Velocity");
+                    //            XmlNode node_E_Racc = CreateNodeAndAttribute(dom, "Entity", "name", "Relative Acceleration");
+
+                    //            node_force.AppendChild(node_E_force);
+                    //            node_force.AppendChild(node_E_Rdisp);
+                    //            node_force.AppendChild(node_E_Rvelo);
+                    //            node_force.AppendChild(node_E_Racc);
+
+                    //            node_forces.AppendChild(node_force);
+                    //        }
+                    //    }
+                    //}
                 }
 
 
