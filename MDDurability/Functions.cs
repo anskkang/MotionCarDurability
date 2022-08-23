@@ -2910,9 +2910,9 @@ namespace Motion.Durability
                     sb.AppendLine(utcNow.Month.ToString("D2") + "/" + utcNow.Day.ToString("D2") + "/" + utcNow.Year.ToString("D4") + "      " + utcNow.Hour.ToString("D2") + ":" + utcNow.Minute.ToString("D2") + ":" + utcNow.Second.ToString("D2"));
 
                     sb.AppendLine("Title: AnsysMotion_modal_superposition--Transient (C5)");
-                    sb.AppendLine("Number of Modes: " + durability.FEBodies[i].NumofMode);
+                    sb.AppendLine("Number of Modes: " + (durability.FEBodies[i].NumofMode + 6));
 
-                    nNumofMode = durability.FEBodies[i].OriginalTime_Modal_Coordinates.Count;
+                    nNumofMode = durability.FEBodies[i].OriginalTime_Modal_Coordinates.Count + 6;
 
                     str_temp = str_seperator1 + "Mode:        ";
                     for (j = 0; j < nNumofMode; j++)
@@ -2950,7 +2950,11 @@ namespace Motion.Durability
                             str_temp = str_seperator1 + xarray[j].ToString(str_precision);
                             for (k = 0; k < nNumofMode; k++)
                             {
-                                dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k][j];
+                                if (k < 6)
+                                    dvalue = 0.0;
+                                else
+                                    dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k-6][j];
+
                                 if (dvalue >= 0.0)
                                     str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
                                 else
@@ -2969,7 +2973,10 @@ namespace Motion.Durability
                             str_temp = str_seperator1 + xarray[j].ToString(str_precision);
                             for (k = 0; k < nNumofMode; k++)
                             {
-                                dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k][j];
+                                if (k < 6)
+                                    dvalue = 0.0;
+                                else
+                                    dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k-6][j];
 
                                 if (dvalue >= 0.0)
                                     str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
@@ -2982,7 +2989,7 @@ namespace Motion.Durability
                     }
 
                     str_filename = Path.GetFileNameWithoutExtension(path);
-                    str_filename = str_filename + durability.FEBodies[i].Name + ".mcf";
+                    str_filename = str_filename +"_"+ durability.FEBodies[i].Name + ".mcf";
                     str_dir = Path.GetDirectoryName(path);
                     str_temp = Path.Combine(str_dir, str_filename);
 
@@ -3736,7 +3743,7 @@ namespace Motion.Durability
 
 
 
-
+            // For Rigid body
             for (i = 0; i < count_Rbody; i++)
             {
                 XmlNode node_body = CreateNodeAndAttribute(dom, "Body", "name", Rbodies[i].Item2);
@@ -3835,6 +3842,13 @@ namespace Motion.Durability
                 node_body.AppendChild(node_acc);
 
                 node_bodies.AppendChild(node_body);
+            }
+
+            // For Modal body
+            for(i = 0; i < count_FModal; i++)
+            {
+                XmlNode node_Fbody = CreateNodeAndAttribute(dom, "FBody", "name", Fbodies[i].Item2);
+                node_FEs.AppendChild(node_Fbody);
             }
 
 

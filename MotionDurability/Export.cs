@@ -105,9 +105,11 @@ namespace Motion.Durability
             m_save_map.Title = "Save the map file for ANSYSMotion durability analysis";
             m_save_map.Filter = "ANSYSMotion Durability Analysis File (*.xml)|*.xml";
 
-            if(DialogResult.OK == m_save_map.ShowDialog())
+            Define_Progress(0, 1);
+            if (DialogResult.OK == m_save_map.ShowDialog())
             {
                 m_functions.WriteMap(m_save_map.FileName, m_dom_UserItems);
+                pBar1.PerformStep();
             }
 
         }
@@ -132,9 +134,11 @@ namespace Motion.Durability
 
                 if (0 == tab_main.SelectedIndex)
                 {
-
+                    Define_Progress(0, listView_result_list.Items.Count);
                     foreach (ListViewItem item in listView_result_list.Items)
                     {
+                        pBar1.PerformStep();
+
                         string _output = item.Text + "_" + _userNamed + ".rsp";
                         string _path = Path.Combine(_dir, _output);
 
@@ -161,10 +165,14 @@ namespace Motion.Durability
                 }
                 else
                 {
+                    int nCount = listView_result_list.Items.Count * listView_Map.Items.Count;
+                    Define_Progress(0, nCount - 1);
                     foreach (ListViewItem item in listView_result_list.Items)
                     {
                         foreach (ListViewItem item_map in listView_Map.Items)
                         {
+                            pBar1.PerformStep(); 
+
                             string _output = _userNamed + "_" + item.Text + "_" + item_map.Text + ".rsp";
                             string _path = Path.Combine(_dir, _output);
 
@@ -219,8 +227,13 @@ namespace Motion.Durability
 
                     if (0 == tab_main.SelectedIndex)
                     {
+                        int nCount = listView_result_list.Items.Count ;
+                        Define_Progress(0, nCount);
+
                         foreach (ListViewItem item in listView_result_list.Items)
                         {
+                            pBar1.PerformStep();
+
                             string _output = item.Text + "_" + _userNamed + ".mcf";
                             string _path = Path.Combine(_dir, _output);
 
@@ -240,10 +253,15 @@ namespace Motion.Durability
                     }
                     else
                     {
+                        int nCount = listView_result_list.Items.Count * listView_Map.Items.Count;
+                        Define_Progress(0, nCount);
+
                         foreach (ListViewItem item in listView_result_list.Items)
                         {
                             foreach (ListViewItem item_map in listView_Map.Items)
                             {
+                                pBar1.PerformStep();
+
                                 string _output = _userNamed + "_" + item.Text + "_" + item_map.Text + ".mcf";
                                 string _path = Path.Combine(_dir, _output);
 
@@ -280,8 +298,13 @@ namespace Motion.Durability
 
                     if (0 == tab_main.SelectedIndex)
                     {
+                        int nCount = listView_result_list.Items.Count;
+                        Define_Progress(0, nCount);
+
                         foreach (ListViewItem item in listView_result_list.Items)
                         {
+                            pBar1.PerformStep();
+
                             string _output = item.Text + "_" + _userNamed + ".csv";
                             string _path = Path.Combine(_dir, _output);
 
@@ -308,10 +331,15 @@ namespace Motion.Durability
                     }
                     else
                     {
+                        int nCount = listView_result_list.Items.Count * listView_Map.Items.Count;
+                        Define_Progress(0, nCount );
+
                         foreach (ListViewItem item in listView_result_list.Items)
                         {
                             foreach (ListViewItem item_map in listView_Map.Items)
                             {
+                                pBar1.PerformStep();
+
                                 string _output = _userNamed + "_" + item.Text + "_" + item_map.Text + ".csv";
                                 string _path = Path.Combine(_dir, _output);
 
@@ -375,6 +403,11 @@ namespace Motion.Durability
                 listView_type.MultiSelect = false;
                 listView_RF.Enabled = true;
                 btn_Write_CSV.Text = "Write CSV";
+
+                btn_Export_Map.Visible = true;
+                btn_Write_RPC.Visible = true;
+                btn_Write_CSV.Visible = true;
+                btn_WriteStaticResults.Visible = true;
                 
             }
             else if (1 == combo_Type.SelectedIndex)
@@ -382,12 +415,22 @@ namespace Motion.Durability
                 listView_type.MultiSelect = true;
                 listView_RF.Enabled = false;
                 btn_Write_CSV.Text = "Write CSV";
+
+                btn_Export_Map.Visible = true;
+                btn_Write_RPC.Visible = true;
+                btn_Write_CSV.Visible = true;
+                btn_WriteStaticResults.Visible = true;
             }
             else if (2 == combo_Type.SelectedIndex)
             {
                 listView_type.MultiSelect = true;
                 listView_RF.Enabled = false;
                 btn_Write_CSV.Text = "Write MCF";
+
+                btn_Export_Map.Visible = true;
+                btn_Write_RPC.Visible = false;
+                btn_Write_CSV.Visible = true;
+                btn_WriteStaticResults.Visible = false;
             }
 
             if (listView_result_list.Items.Count > 0)
@@ -566,6 +609,15 @@ namespace Motion.Durability
             }
 
             return true;
+        }
+
+        void Define_Progress(int nMin, int nMax)
+        {
+            pBar1.Visible = true;
+            pBar1.Minimum = nMin;
+            pBar1.Maximum = nMax;
+            pBar1.Value = nMin;
+            pBar1.Step = 1;
         }
 
 
@@ -779,7 +831,7 @@ namespace Motion.Durability
                 // FE Modal bodies
                 node_Item = m_functions.CreateNodeAndAttribute(_dom, "Item", "name", "FlexibleBodies");
                 string str_FB_name = "";
-                foreach (ListViewItem item in listView_Entity.SelectedItems)
+                foreach (ListViewItem item in listView_type.SelectedItems)
                 {
                     str_FB_name = item.Text;
 
