@@ -109,7 +109,7 @@ namespace Motion.Durability
             this.tlp_main.Controls.Add(this.tlp_data_main, 1, 0);
             this.tlp_main.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_main.Location = new System.Drawing.Point(0, 0);
-            this.tlp_main.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_main.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_main.Name = "tlp_main";
             this.tlp_main.RowCount = 2;
             this.tlp_main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -125,7 +125,7 @@ namespace Motion.Durability
             this.tlp_resultlist_main.Controls.Add(this.listView_result_list, 0, 1);
             this.tlp_resultlist_main.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_resultlist_main.Location = new System.Drawing.Point(2, 2);
-            this.tlp_resultlist_main.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_resultlist_main.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_resultlist_main.Name = "tlp_resultlist_main";
             this.tlp_resultlist_main.RowCount = 2;
             this.tlp_resultlist_main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -144,7 +144,7 @@ namespace Motion.Durability
             this.tlp_resultlist_header.Controls.Add(this.btn_Remove, 2, 0);
             this.tlp_resultlist_header.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_resultlist_header.Location = new System.Drawing.Point(2, 2);
-            this.tlp_resultlist_header.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_resultlist_header.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_resultlist_header.Name = "tlp_resultlist_header";
             this.tlp_resultlist_header.RowCount = 1;
             this.tlp_resultlist_header.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -168,7 +168,7 @@ namespace Motion.Durability
             this.btn_Add.BackColor = System.Drawing.Color.Orange;
             this.btn_Add.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Add.Location = new System.Drawing.Point(198, 2);
-            this.btn_Add.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_Add.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Add.Name = "btn_Add";
             this.btn_Add.Size = new System.Drawing.Size(39, 22);
             this.btn_Add.TabIndex = 1;
@@ -181,7 +181,7 @@ namespace Motion.Durability
             this.btn_Remove.BackColor = System.Drawing.Color.Orange;
             this.btn_Remove.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Remove.Location = new System.Drawing.Point(241, 2);
-            this.btn_Remove.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_Remove.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Remove.Name = "btn_Remove";
             this.btn_Remove.Size = new System.Drawing.Size(39, 22);
             this.btn_Remove.TabIndex = 2;
@@ -194,7 +194,7 @@ namespace Motion.Durability
             this.listView_result_list.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView_result_list.HideSelection = false;
             this.listView_result_list.Location = new System.Drawing.Point(2, 32);
-            this.listView_result_list.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listView_result_list.Margin = new System.Windows.Forms.Padding(2);
             this.listView_result_list.Name = "listView_result_list";
             this.listView_result_list.Size = new System.Drawing.Size(282, 422);
             this.listView_result_list.TabIndex = 1;
@@ -210,7 +210,7 @@ namespace Motion.Durability
             this.tlp_Close.Controls.Add(this.pBar1, 0, 0);
             this.tlp_Close.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_Close.Location = new System.Drawing.Point(292, 462);
-            this.tlp_Close.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_Close.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_Close.Name = "tlp_Close";
             this.tlp_Close.RowCount = 1;
             this.tlp_Close.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -222,7 +222,7 @@ namespace Motion.Durability
             this.btn_Close.BackColor = System.Drawing.Color.Orange;
             this.btn_Close.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Close.Location = new System.Drawing.Point(707, 2);
-            this.btn_Close.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_Close.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Close.Name = "btn_Close";
             this.btn_Close.Size = new System.Drawing.Size(158, 42);
             this.btn_Close.TabIndex = 0;
@@ -234,7 +234,7 @@ namespace Motion.Durability
             // 
             this.pBar1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pBar1.Location = new System.Drawing.Point(2, 2);
-            this.pBar1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pBar1.Margin = new System.Windows.Forms.Padding(2);
             this.pBar1.Name = "pBar1";
             this.pBar1.Size = new System.Drawing.Size(701, 42);
             this.pBar1.TabIndex = 1;
@@ -248,7 +248,7 @@ namespace Motion.Durability
             this.tlp_data_main.Controls.Add(this.tab_main, 0, 0);
             this.tlp_data_main.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_data_main.Location = new System.Drawing.Point(292, 2);
-            this.tlp_data_main.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_data_main.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_data_main.Name = "tlp_data_main";
             this.tlp_data_main.RowCount = 1;
             this.tlp_data_main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -266,7 +266,7 @@ namespace Motion.Durability
             this.tlp_export_btn.Controls.Add(this.btn_WriteStaticResults, 0, 7);
             this.tlp_export_btn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_export_btn.Location = new System.Drawing.Point(707, 2);
-            this.tlp_export_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_export_btn.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_export_btn.Name = "tlp_export_btn";
             this.tlp_export_btn.RowCount = 10;
             this.tlp_export_btn.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
@@ -287,7 +287,7 @@ namespace Motion.Durability
             this.btn_Export_Map.BackColor = System.Drawing.Color.Orange;
             this.btn_Export_Map.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Export_Map.Location = new System.Drawing.Point(2, 47);
-            this.btn_Export_Map.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_Export_Map.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Export_Map.Name = "btn_Export_Map";
             this.btn_Export_Map.Size = new System.Drawing.Size(154, 41);
             this.btn_Export_Map.TabIndex = 0;
@@ -300,7 +300,7 @@ namespace Motion.Durability
             this.btn_Write_RPC.BackColor = System.Drawing.Color.Orange;
             this.btn_Write_RPC.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Write_RPC.Location = new System.Drawing.Point(2, 137);
-            this.btn_Write_RPC.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_Write_RPC.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Write_RPC.Name = "btn_Write_RPC";
             this.btn_Write_RPC.Size = new System.Drawing.Size(154, 41);
             this.btn_Write_RPC.TabIndex = 1;
@@ -313,7 +313,7 @@ namespace Motion.Durability
             this.btn_Write_CSV.BackColor = System.Drawing.Color.Orange;
             this.btn_Write_CSV.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Write_CSV.Location = new System.Drawing.Point(2, 227);
-            this.btn_Write_CSV.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_Write_CSV.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Write_CSV.Name = "btn_Write_CSV";
             this.btn_Write_CSV.Size = new System.Drawing.Size(154, 41);
             this.btn_Write_CSV.TabIndex = 2;
@@ -326,7 +326,7 @@ namespace Motion.Durability
             this.btn_WriteStaticResults.BackColor = System.Drawing.Color.Orange;
             this.btn_WriteStaticResults.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_WriteStaticResults.Location = new System.Drawing.Point(2, 317);
-            this.btn_WriteStaticResults.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_WriteStaticResults.Margin = new System.Windows.Forms.Padding(2);
             this.btn_WriteStaticResults.Name = "btn_WriteStaticResults";
             this.btn_WriteStaticResults.Size = new System.Drawing.Size(154, 41);
             this.btn_WriteStaticResults.TabIndex = 3;
@@ -340,7 +340,7 @@ namespace Motion.Durability
             this.tab_main.Controls.Add(this.tabPage_map);
             this.tab_main.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tab_main.Location = new System.Drawing.Point(2, 2);
-            this.tab_main.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tab_main.Margin = new System.Windows.Forms.Padding(2);
             this.tab_main.Name = "tab_main";
             this.tab_main.SelectedIndex = 0;
             this.tab_main.Size = new System.Drawing.Size(701, 452);
@@ -351,9 +351,9 @@ namespace Motion.Durability
             // 
             this.tabPage_selection.Controls.Add(this.tlp_selection);
             this.tabPage_selection.Location = new System.Drawing.Point(4, 22);
-            this.tabPage_selection.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage_selection.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage_selection.Name = "tabPage_selection";
-            this.tabPage_selection.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage_selection.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage_selection.Size = new System.Drawing.Size(693, 426);
             this.tabPage_selection.TabIndex = 0;
             this.tabPage_selection.Text = "By Selection";
@@ -371,11 +371,11 @@ namespace Motion.Durability
             this.tlp_selection.Controls.Add(this.tlp_RF_Unit, 2, 0);
             this.tlp_selection.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_selection.Location = new System.Drawing.Point(2, 2);
-            this.tlp_selection.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_selection.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_selection.Name = "tlp_selection";
             this.tlp_selection.RowCount = 1;
             this.tlp_selection.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlp_selection.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 427F));
+            this.tlp_selection.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 421F));
             this.tlp_selection.Size = new System.Drawing.Size(689, 422);
             this.tlp_selection.TabIndex = 0;
             // 
@@ -387,7 +387,7 @@ namespace Motion.Durability
             this.tlp_selection_type_data.Controls.Add(this.listView_type, 0, 1);
             this.tlp_selection_type_data.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_selection_type_data.Location = new System.Drawing.Point(3, 3);
-            this.tlp_selection_type_data.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_selection_type_data.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_selection_type_data.Name = "tlp_selection_type_data";
             this.tlp_selection_type_data.RowCount = 2;
             this.tlp_selection_type_data.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
@@ -404,11 +404,11 @@ namespace Motion.Durability
             this.tlp_type_header.Controls.Add(this.combo_Type, 1, 0);
             this.tlp_type_header.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_type_header.Location = new System.Drawing.Point(2, 2);
-            this.tlp_type_header.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_type_header.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_type_header.Name = "tlp_type_header";
             this.tlp_type_header.RowCount = 1;
             this.tlp_type_header.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlp_type_header.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlp_type_header.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 18F));
             this.tlp_type_header.Size = new System.Drawing.Size(231, 18);
             this.tlp_type_header.TabIndex = 0;
             // 
@@ -434,7 +434,7 @@ namespace Motion.Durability
             "Force",
             "FE Modal Body"});
             this.combo_Type.Location = new System.Drawing.Point(85, 2);
-            this.combo_Type.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.combo_Type.Margin = new System.Windows.Forms.Padding(2);
             this.combo_Type.Name = "combo_Type";
             this.combo_Type.Size = new System.Drawing.Size(144, 20);
             this.combo_Type.TabIndex = 1;
@@ -445,7 +445,7 @@ namespace Motion.Durability
             this.listView_type.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView_type.HideSelection = false;
             this.listView_type.Location = new System.Drawing.Point(2, 24);
-            this.listView_type.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listView_type.Margin = new System.Windows.Forms.Padding(2);
             this.listView_type.Name = "listView_type";
             this.listView_type.Size = new System.Drawing.Size(231, 390);
             this.listView_type.TabIndex = 1;
@@ -462,7 +462,7 @@ namespace Motion.Durability
             this.tlp_selection_entities1.Controls.Add(this.listView_Entity, 0, 1);
             this.tlp_selection_entities1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_selection_entities1.Location = new System.Drawing.Point(243, 3);
-            this.tlp_selection_entities1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_selection_entities1.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_selection_entities1.Name = "tlp_selection_entities1";
             this.tlp_selection_entities1.RowCount = 2;
             this.tlp_selection_entities1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
@@ -490,7 +490,7 @@ namespace Motion.Durability
             this.listView_Entity.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView_Entity.HideSelection = false;
             this.listView_Entity.Location = new System.Drawing.Point(2, 24);
-            this.listView_Entity.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listView_Entity.Margin = new System.Windows.Forms.Padding(2);
             this.listView_Entity.Name = "listView_Entity";
             this.listView_Entity.Size = new System.Drawing.Size(231, 390);
             this.listView_Entity.TabIndex = 1;
@@ -507,7 +507,7 @@ namespace Motion.Durability
             this.tlp_RF_Unit.Controls.Add(this.tlp_stepsize, 0, 2);
             this.tlp_RF_Unit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_RF_Unit.Location = new System.Drawing.Point(483, 3);
-            this.tlp_RF_Unit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_RF_Unit.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_RF_Unit.Name = "tlp_RF_Unit";
             this.tlp_RF_Unit.RowCount = 3;
             this.tlp_RF_Unit.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20.8805F));
@@ -521,9 +521,9 @@ namespace Motion.Durability
             this.gb_RF.Controls.Add(this.listView_RF);
             this.gb_RF.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gb_RF.Location = new System.Drawing.Point(3, 3);
-            this.gb_RF.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.gb_RF.Margin = new System.Windows.Forms.Padding(2);
             this.gb_RF.Name = "gb_RF";
-            this.gb_RF.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.gb_RF.Padding = new System.Windows.Forms.Padding(2);
             this.gb_RF.Size = new System.Drawing.Size(197, 77);
             this.gb_RF.TabIndex = 0;
             this.gb_RF.TabStop = false;
@@ -534,7 +534,7 @@ namespace Motion.Durability
             this.listView_RF.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView_RF.HideSelection = false;
             this.listView_RF.Location = new System.Drawing.Point(2, 16);
-            this.listView_RF.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listView_RF.Margin = new System.Windows.Forms.Padding(2);
             this.listView_RF.Name = "listView_RF";
             this.listView_RF.Size = new System.Drawing.Size(193, 59);
             this.listView_RF.TabIndex = 0;
@@ -546,9 +546,9 @@ namespace Motion.Durability
             this.gb_Unit.Controls.Add(this.tlp_Unit);
             this.gb_Unit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gb_Unit.Location = new System.Drawing.Point(3, 85);
-            this.gb_Unit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.gb_Unit.Margin = new System.Windows.Forms.Padding(2);
             this.gb_Unit.Name = "gb_Unit";
-            this.gb_Unit.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.gb_Unit.Padding = new System.Windows.Forms.Padding(2);
             this.gb_Unit.Size = new System.Drawing.Size(197, 302);
             this.gb_Unit.TabIndex = 1;
             this.gb_Unit.TabStop = false;
@@ -569,7 +569,7 @@ namespace Motion.Durability
             this.tlp_Unit.Controls.Add(this.combo_Time, 1, 6);
             this.tlp_Unit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_Unit.Location = new System.Drawing.Point(2, 16);
-            this.tlp_Unit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_Unit.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_Unit.Name = "tlp_Unit";
             this.tlp_Unit.RowCount = 10;
             this.tlp_Unit.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
@@ -606,7 +606,7 @@ namespace Motion.Durability
             "kg*f",
             "lbf"});
             this.combo_Force.Location = new System.Drawing.Point(98, 2);
-            this.combo_Force.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.combo_Force.Margin = new System.Windows.Forms.Padding(2);
             this.combo_Force.Name = "combo_Force";
             this.combo_Force.Size = new System.Drawing.Size(93, 20);
             this.combo_Force.TabIndex = 4;
@@ -632,7 +632,7 @@ namespace Motion.Durability
             "m",
             "inch"});
             this.combo_length.Location = new System.Drawing.Point(98, 58);
-            this.combo_length.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.combo_length.Margin = new System.Windows.Forms.Padding(2);
             this.combo_length.Name = "combo_length";
             this.combo_length.Size = new System.Drawing.Size(93, 20);
             this.combo_length.TabIndex = 5;
@@ -668,7 +668,7 @@ namespace Motion.Durability
             "deg",
             "rad"});
             this.combo_Angle.Location = new System.Drawing.Point(98, 114);
-            this.combo_Angle.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.combo_Angle.Margin = new System.Windows.Forms.Padding(2);
             this.combo_Angle.Name = "combo_Angle";
             this.combo_Angle.Size = new System.Drawing.Size(93, 20);
             this.combo_Angle.TabIndex = 6;
@@ -681,7 +681,7 @@ namespace Motion.Durability
             this.combo_Time.Items.AddRange(new object[] {
             "sec"});
             this.combo_Time.Location = new System.Drawing.Point(98, 170);
-            this.combo_Time.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.combo_Time.Margin = new System.Windows.Forms.Padding(2);
             this.combo_Time.Name = "combo_Time";
             this.combo_Time.Size = new System.Drawing.Size(93, 20);
             this.combo_Time.TabIndex = 7;
@@ -695,11 +695,11 @@ namespace Motion.Durability
             this.tlp_stepsize.Controls.Add(this.tb_stepsize, 1, 0);
             this.tlp_stepsize.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_stepsize.Location = new System.Drawing.Point(3, 392);
-            this.tlp_stepsize.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_stepsize.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_stepsize.Name = "tlp_stepsize";
             this.tlp_stepsize.RowCount = 1;
             this.tlp_stepsize.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlp_stepsize.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.tlp_stepsize.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21F));
             this.tlp_stepsize.Size = new System.Drawing.Size(197, 21);
             this.tlp_stepsize.TabIndex = 2;
             // 
@@ -719,7 +719,7 @@ namespace Motion.Durability
             // 
             this.tb_stepsize.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tb_stepsize.Location = new System.Drawing.Point(100, 2);
-            this.tb_stepsize.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tb_stepsize.Margin = new System.Windows.Forms.Padding(2);
             this.tb_stepsize.Name = "tb_stepsize";
             this.tb_stepsize.Size = new System.Drawing.Size(95, 21);
             this.tb_stepsize.TabIndex = 1;
@@ -730,9 +730,9 @@ namespace Motion.Durability
             // 
             this.tabPage_map.Controls.Add(this.tlp_map_main);
             this.tabPage_map.Location = new System.Drawing.Point(4, 22);
-            this.tabPage_map.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage_map.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage_map.Name = "tabPage_map";
-            this.tabPage_map.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage_map.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage_map.Size = new System.Drawing.Size(693, 426);
             this.tabPage_map.TabIndex = 1;
             this.tabPage_map.Text = "By Map";
@@ -751,7 +751,7 @@ namespace Motion.Durability
             this.tlp_map_main.Controls.Add(this.listView_Map, 0, 1);
             this.tlp_map_main.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_map_main.Location = new System.Drawing.Point(2, 2);
-            this.tlp_map_main.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tlp_map_main.Margin = new System.Windows.Forms.Padding(2);
             this.tlp_map_main.Name = "tlp_map_main";
             this.tlp_map_main.RowCount = 2;
             this.tlp_map_main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -776,7 +776,7 @@ namespace Motion.Durability
             this.btn_Map_Add.BackColor = System.Drawing.Color.Orange;
             this.btn_Map_Add.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Map_Add.Location = new System.Drawing.Point(424, 2);
-            this.btn_Map_Add.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_Map_Add.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Map_Add.Name = "btn_Map_Add";
             this.btn_Map_Add.Size = new System.Drawing.Size(39, 26);
             this.btn_Map_Add.TabIndex = 1;
@@ -789,7 +789,7 @@ namespace Motion.Durability
             this.btn_Map_Remove.BackColor = System.Drawing.Color.Orange;
             this.btn_Map_Remove.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Map_Remove.Location = new System.Drawing.Point(467, 2);
-            this.btn_Map_Remove.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btn_Map_Remove.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Map_Remove.Name = "btn_Map_Remove";
             this.btn_Map_Remove.Size = new System.Drawing.Size(39, 26);
             this.btn_Map_Remove.TabIndex = 2;
@@ -802,7 +802,7 @@ namespace Motion.Durability
             this.listView_Map.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView_Map.HideSelection = false;
             this.listView_Map.Location = new System.Drawing.Point(2, 32);
-            this.listView_Map.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listView_Map.Margin = new System.Windows.Forms.Padding(2);
             this.listView_Map.Name = "listView_Map";
             this.listView_Map.Size = new System.Drawing.Size(418, 388);
             this.listView_Map.TabIndex = 3;
@@ -816,7 +816,7 @@ namespace Motion.Durability
             this.ClientSize = new System.Drawing.Size(1161, 510);
             this.ControlBox = false;
             this.Controls.Add(this.tlp_main);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Export";
             this.Text = "Vehicle Simulation Result Export";
             this.tlp_main.ResumeLayout(false);

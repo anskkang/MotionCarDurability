@@ -20,19 +20,19 @@ namespace Motion.Durability
         string m_strMapPath;
         public Functions() { }
 
-        public DurabilityData BuildDataFromMap(string _strResultPath, string _strMapPath)
+        public DurabilityData BuildDataFromMap(string _strResultPath, string _strMapPath, AnalysisScenario scenario)
         {
             m_strMapPath = _strMapPath;
 
             XmlDocument dom = new XmlDocument();
             dom.Load(_strMapPath);
 
-            DurabilityData durability = BuildDataFromSelection(dom, _strResultPath);
+            DurabilityData durability = BuildDataFromSelection(dom, _strResultPath, scenario);
 
             return durability;
         }
 
-        public DurabilityData BuildDataFromSelection(XmlDocument dom, string _strResultPath)
+        public DurabilityData BuildDataFromSelection(XmlDocument dom, string _strResultPath, AnalysisScenario scenario)
         {
             m_strResultPath = _strResultPath;
             PostAPI.PostAPI postAPI = new PostAPI.PostAPI(_strResultPath);
@@ -3101,6 +3101,42 @@ namespace Motion.Durability
 
             bw.Close();
             fs.Close();
+
+            return true;
+        }
+
+        public bool WriteToStatic(string path, StaticResult staticResult)
+        {
+            
+            StringBuilder sb = new StringBuilder();
+            string str_Header = "Result Name";
+            string seperator = " , ";
+            string str_precision = "F6";
+            int i, j;
+
+            foreach(string str in staticResult.ForceNames)
+            {
+                str_Header = str_Header + seperator + str;
+            }
+
+            sb.AppendLine(str_Header);
+
+            i = 0;
+            foreach(string str in staticResult.ResultFiles)
+            {
+                str_Header = str;
+
+                double[] ar = staticResult.StaticData[i];
+
+                for (j = 0; j < ar.Length; j++)
+                    str_Header = str_Header + seperator + ar[j].ToString(str_precision);
+
+                sb.AppendLine(str_Header);
+
+                i++;
+            }
+
+            File.WriteAllText(path, sb.ToString());
 
             return true;
         }

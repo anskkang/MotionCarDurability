@@ -119,9 +119,12 @@ namespace Motion.Durability
             if (false == Validation())
                 return;
 
-            m_dom_UserItems = m_functions.CreateDurabilityXML();
-            if (false == CreateNode_UserDefinedItems(m_dom_UserItems, combo_Type.SelectedIndex))
-                return;
+            if (0 == tab_main.SelectedIndex)
+            {
+                m_dom_UserItems = m_functions.CreateDurabilityXML();
+                if (false == CreateNode_UserDefinedItems(m_dom_UserItems, combo_Type.SelectedIndex))
+                    return;
+            }
 
             m_save_rpc = new SaveFileDialog();
             m_save_rpc.Title = "Save the RPC III file for ANSYSMotion durability analysis";
@@ -144,7 +147,7 @@ namespace Motion.Durability
 
                         string _result = item.Tag as string;
 
-                        DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result);
+                        DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisScenario.Dynamics);
                         if (durability == null)
                             continue;
 
@@ -179,7 +182,7 @@ namespace Motion.Durability
                             string _result = item.Tag as string;
                             string _map = item_map.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromMap(_result, _map);
+                            DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisScenario.Dynamics);
                             if (durability == null)
                                 continue;
 
@@ -210,9 +213,12 @@ namespace Motion.Durability
             if (false == Validation())
                 return;
 
-            m_dom_UserItems = m_functions.CreateDurabilityXML();
-            if (false == CreateNode_UserDefinedItems(m_dom_UserItems, combo_Type.SelectedIndex))
-                return;
+            if (0 == tab_main.SelectedIndex)
+            {
+                m_dom_UserItems = m_functions.CreateDurabilityXML();
+                if (false == CreateNode_UserDefinedItems(m_dom_UserItems, combo_Type.SelectedIndex))
+                    return;
+            }
 
             m_save_csv = new SaveFileDialog();
             if(2 == combo_Type.SelectedIndex)
@@ -239,7 +245,7 @@ namespace Motion.Durability
 
                             string _result = item.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result);
+                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisScenario.Dynamics);
                             if (durability == null)
                                 continue;
 
@@ -268,7 +274,7 @@ namespace Motion.Durability
                                 string _result = item.Tag as string;
                                 string _map = item_map.Tag as string;
 
-                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map);
+                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisScenario.Dynamics);
                                 if (durability == null)
                                     continue;
 
@@ -310,7 +316,7 @@ namespace Motion.Durability
 
                             string _result = item.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result);
+                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisScenario.Dynamics);
                             if (durability == null)
                                 continue;
 
@@ -346,7 +352,7 @@ namespace Motion.Durability
                                 string _result = item.Tag as string;
                                 string _map = item_map.Tag as string;
 
-                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map);
+                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisScenario.Dynamics);
                                 if (durability == null)
                                     continue;
 
@@ -376,8 +382,105 @@ namespace Motion.Durability
             if (false == Validation())
                 return;
 
-            m_dom_UserItems = m_functions.CreateDurabilityXML();
+            if (0 == tab_main.SelectedIndex)
+            {
+                m_dom_UserItems = m_functions.CreateDurabilityXML();
+                if (false == CreateNode_UserDefinedItems_for_Static(m_dom_UserItems, combo_Type.SelectedIndex))
+                    return;
+            }
+
             m_save_static = new SaveFileDialog();
+            m_save_static.Title = "Save the static results for ANSYSMotion durability analysis";
+            m_save_static.Filter = "CSV (*.csv)|*.csv";
+
+            if (DialogResult.OK == m_save_static.ShowDialog())
+            {
+                StaticResult staticResult = null;
+                int nSize = 0;
+                if (0 == tab_main.SelectedIndex)
+                {
+                    staticResult = Get_StaticResult(m_dom_UserItems, combo_Type.SelectedIndex);
+
+                    nSize = 1;
+                    Define_Progress(0, nSize);
+
+                    if (false == m_functions.WriteToStatic(m_save_static.FileName, staticResult))
+                        return;
+
+                    pBar1.PerformStep();
+                }
+                else
+                {
+                    string _dir = Path.GetDirectoryName(m_save_static.FileName);
+                    string _userNamed = Path.GetFileNameWithoutExtension(m_save_static.FileName);
+                    string str_path = "";
+                    string str_map_path = "";
+                    XmlDocument dom = null;
+                    XmlNode node_Item = null;
+
+                    nSize = listView_Map.Items.Count;
+                    Define_Progress(0, nSize);
+                    foreach (ListViewItem item in listView_Map.Items)
+                    {
+                        string _output = _userNamed + "_" + item.Text + ".csv";
+                        str_path = Path.Combine(_dir, _output);
+
+                        str_map_path = item.Tag as string;
+
+                        dom = new XmlDocument();
+                        dom.Load(str_map_path);
+
+                        node_Item = dom.DocumentElement.SelectSingleNode("UserDefinedItems/Item");
+                        string str_item_name = node_Item.Attributes.GetNamedItem("name").Value;
+
+                        if("Bodies" == str_item_name)
+                        {
+                            XmlNode node_body = node_Item.SelectSingleNode("Body");
+                            XmlNodeList lst_node_entity = node_body.SelectNodes("Entity");
+
+                            foreach(XmlNode n in lst_node_entity)
+                            {
+                                if("motion" == n.Attributes.GetNamedItem("type").Value)
+                                {
+                                    node_body.RemoveChild(n);
+                                }
+                            }
+                            
+                            staticResult = Get_StaticResult(dom, 0);
+                        }
+                        else if ("Forces" == str_item_name)
+                        {
+                            XmlNodeList lst_node_force = node_Item.SelectNodes("Force");
+
+                            foreach(XmlNode n_force in lst_node_force)
+                            {
+                                XmlNodeList lst_node_entity = n_force.SelectNodes("Entity");
+
+                                foreach(XmlNode n in lst_node_entity)
+                                {
+                                    if (n.Attributes.GetNamedItem("name").Value.Contains("Relative") == true)
+                                        n_force.RemoveChild(n);
+                                }
+                            }
+
+                            staticResult = Get_StaticResult(dom, 1);
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+
+                        if (false == m_functions.WriteToStatic(str_path, staticResult))
+                            return;
+
+                        pBar1.PerformStep();
+
+                    }
+
+
+                }
+            }
         }
 
         #endregion
@@ -408,6 +511,8 @@ namespace Motion.Durability
                 btn_Write_RPC.Visible = true;
                 btn_Write_CSV.Visible = true;
                 btn_WriteStaticResults.Visible = true;
+
+                listView_Entity.CheckBoxes = true;
                 
             }
             else if (1 == combo_Type.SelectedIndex)
@@ -420,6 +525,8 @@ namespace Motion.Durability
                 btn_Write_RPC.Visible = true;
                 btn_Write_CSV.Visible = true;
                 btn_WriteStaticResults.Visible = true;
+
+                listView_Entity.CheckBoxes = false;
             }
             else if (2 == combo_Type.SelectedIndex)
             {
@@ -431,6 +538,8 @@ namespace Motion.Durability
                 btn_Write_RPC.Visible = false;
                 btn_Write_CSV.Visible = true;
                 btn_WriteStaticResults.Visible = false;
+
+                listView_Entity.CheckBoxes = false;
             }
 
             if (listView_result_list.Items.Count > 0)
@@ -613,6 +722,7 @@ namespace Motion.Durability
 
         void Define_Progress(int nMin, int nMax)
         {
+            //pBar1 = new ProgressBar();
             pBar1.Visible = true;
             pBar1.Minimum = nMin;
             pBar1.Maximum = nMax;
@@ -801,7 +911,7 @@ namespace Motion.Durability
 
                 string str_force_name = "";
                 string str_entity_name = "";
-                foreach (ListViewItem item in listView_Entity.SelectedItems)
+                foreach (ListViewItem item in listView_type.SelectedItems)
                 {
                     str_force_name = item.Text;
                     XmlNode node_Force = m_functions.CreateNodeAndAttribute(_dom, "Force", "name", str_force_name);
@@ -853,7 +963,115 @@ namespace Motion.Durability
             return true;
         }
 
-      
+        bool CreateNode_UserDefinedItems_for_Static(XmlDocument _dom, int Type_selectedIndex)
+        {
+            XmlNode node_UserItems = _dom.DocumentElement.SelectSingleNode("UserDefinedItems");
+            XmlNode node_Item = null;
+
+            string[] ar_Unit = new string[4];
+            for (int i = 0; i < 4; i++)
+                ar_Unit[i] = "";
+
+            if (0 == Type_selectedIndex)
+            {
+                // Bodies
+                node_Item = m_functions.CreateNodeAndAttribute(_dom, "Item", "name", "Bodies");
+
+                string str_bd_name = listView_type.SelectedItems[0].Text;
+
+                XmlNode node_body = m_functions.CreateNodeAndAttribute(_dom, "Body", "name", str_bd_name);
+
+                string str_entity_name = "";
+                foreach (ListViewItem item in listView_Entity.SelectedItems)
+                {
+                    str_entity_name = item.Text;
+                    XmlNode node_config_entity = item.Tag as XmlNode;
+                    string str_type = node_config_entity.Attributes.GetNamedItem("type").Value;
+
+                    if (str_type != "motion")
+                    {
+                        XmlNode node_Entity = m_functions.CreateNodeAndAttribute(_dom, "Entity", "name", str_entity_name);
+                        m_functions.CreateAttributeXML(_dom, ref node_Entity, "type", str_type);
+
+                        if (item.Checked == true)
+                        {
+                            m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "true");
+                        }
+                        else
+                        {
+                            m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "false");
+                        }
+                        node_body.AppendChild(node_Entity);
+
+                    }
+                }
+
+                Get_Unit_String(ar_Unit);
+
+                XmlNode node_Unit = m_functions.CreateNodeAndAttribute(_dom, "Unit", "force", ar_Unit[0]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "length", ar_Unit[1]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "angle", ar_Unit[2]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "time", ar_Unit[3]);
+
+                node_Item.AppendChild(node_body);
+                node_UserItems.AppendChild(node_Unit);
+
+            }
+            else if (1 == Type_selectedIndex)
+            {
+                // Forces
+                node_Item = m_functions.CreateNodeAndAttribute(_dom, "Item", "name", "Forces");
+
+                string str_force_name = "";
+                string str_entity_name = "";
+                foreach (ListViewItem item in listView_type.SelectedItems)
+                {
+                    str_force_name = item.Text;
+                    XmlNode node_Force = m_functions.CreateNodeAndAttribute(_dom, "Force", "name", str_force_name);
+
+                    foreach (ListViewItem item_force in listView_Entity.SelectedItems)
+                    {
+                        str_entity_name = item_force.Text;
+                        if (str_entity_name == "Force")
+                        {
+                            XmlNode node_entity = m_functions.CreateNodeAndAttribute(_dom, "Entity", "name", str_entity_name);
+                            node_Force.AppendChild(node_entity);
+                        }
+                    }
+
+                    node_Item.AppendChild(node_Force);
+                }
+
+                Get_Unit_String(ar_Unit);
+
+                XmlNode node_Unit = m_functions.CreateNodeAndAttribute(_dom, "Unit", "force", ar_Unit[0]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "length", ar_Unit[1]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "angle", ar_Unit[2]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "time", ar_Unit[3]);
+
+                node_UserItems.AppendChild(node_Unit);
+
+            }
+            else if (2 == Type_selectedIndex)
+            {
+                // FE Modal bodies
+
+                MessageBox.Show("FE Body is not supported.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+
+
+            }
+
+            //double dStepsize = Convert.ToDouble(tb_stepsize.Text);
+
+            XmlNode node_StepSize = m_functions.CreateNodeAndAttribute(_dom, "Stepsize", "value", tb_stepsize.Text);
+
+            node_UserItems.AppendChild(node_StepSize);
+
+            node_UserItems.AppendChild(node_Item);
+
+            return true;
+        }
 
         bool ChangeDisplay_ListViewType_From_Combo_Type(int selectedIndex)
         {
@@ -1016,28 +1234,99 @@ namespace Motion.Durability
             return true;
         }
 
-        bool Export_Data(string str_FileType, XmlDocument dom)
+        StaticResult Get_StaticResult(XmlDocument dom, int nType)
         {
-            if("Map" == str_FileType)
+            StaticResult staticResult = new StaticResult();
+
+            int nCount = 0;
+            int nResult = 0;
+           
+            int i;
+
+           
+
+            nCount = 0;
+            nResult = 0;
+            foreach (ListViewItem item in listView_result_list.Items)
             {
+               
 
+                string _result = item.Tag as string;
+
+                DurabilityData durability = m_functions.BuildDataFromSelection(dom, _result, AnalysisScenario.Static);
+                if (durability == null)
+                    continue;
+
+                nCount++;
+                staticResult.ResultFiles.Add(item.Text);
+                nResult = durability.NumOfResult;
+
+                if (0 == nType)
+                {
+                    Body body = durability.Body;
+                    if (1 == nCount)
+                    {
+                        foreach (EntityForBody entity in body.Entities)
+                        {
+                            foreach (string str in entity.ResultNames)
+                            {
+                                staticResult.ForceNames.Add(str);
+                            }
+                        }
+                    }
+
+                    List<double> lst_data = new List<double>();
+
+                    foreach (EntityForBody entity in body.Entities)
+                    {
+                        for (i = 0; i < entity.FixedStepValue[nResult - 1].Length; i++)
+                        {
+                            if(i < 3)
+                                lst_data.Add(entity.FixedStepValue[nResult - 1][i] * entity.UnitScaleFactor[0]);
+                            else
+                                lst_data.Add(entity.FixedStepValue[nResult - 1][i] * entity.UnitScaleFactor[1]);
+                        }
+                    }
+
+                    staticResult.StaticData.Add(lst_data.ToArray());
+                }
+                else if (1 == nType)
+                {
+                    if (1 == nCount)
+                    {
+                        foreach (Force force_data in durability.Forces)
+                        {
+                            foreach (EntityForForce entity in force_data.Entities)
+                            {
+                                foreach (string str in entity.ResultNames)
+                                {
+                                    staticResult.ForceNames.Add(str);
+                                }
+                            }
+                        }
+                    }
+
+                    List<double> lst_data = new List<double>();
+
+                    foreach (Force force_data in durability.Forces)
+                    {
+                        foreach (EntityForForce entity in force_data.Entities)
+                        {
+                            for (i = 0; i < entity.FixedStepValue[nResult - 1].Length; i++)
+                            {
+                                if (i < 3 || (5 < i && i < 9))
+                                    lst_data.Add(entity.FixedStepValue[nResult - 1][i] * entity.UnitScaleFactor[0]);
+                                else
+                                    lst_data.Add(entity.FixedStepValue[nResult - 1][i] * entity.UnitScaleFactor[1]);
+                            }
+                        }
+                    }
+
+                    staticResult.StaticData.Add(lst_data.ToArray());
+                }
             }
-            else if ("CSV" == str_FileType)
-            {
 
-            }
-            else if ("RPC" == str_FileType)
-            {
-
-            }
-            else if ("Static" == str_FileType)
-            {
-
-            }
-
-
-
-            return true;
+            return staticResult;
         }
 
         void Get_Unit_String(string[] ar_Unit)

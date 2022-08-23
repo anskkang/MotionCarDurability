@@ -14,6 +14,12 @@ namespace Motion.Durability
         FEBodies = 3
 
     }
+
+    public enum AnalysisScenario
+    {
+        Dynamics = 0,
+        Static = 1
+    }
     public enum ConnectionTypeForBody
     {
         force = 0,
@@ -51,7 +57,8 @@ namespace Motion.Durability
     {
         RPC = 0,
         CSV = 1,
-        MCF = 2
+        MCF = 2, 
+        Static = 3
     }
 
     public class EntityForBody
@@ -752,5 +759,41 @@ namespace Motion.Durability
         }
 
         #endregion
+    }
+
+
+    public class StaticResult
+    {
+        public StaticResult()
+        {
+            m_lstResultFile = new List<string>();
+            m_lstForceName = new List<string>();
+            m_lstData = new List<double[]>();
+        }
+
+        List<string> m_lstResultFile;
+        List<string> m_lstForceName;
+        List<double[]> m_lstData;
+
+
+        public List<string> ResultFiles
+        {
+            get { return m_lstResultFile; }
+            set { m_lstResultFile = value; }
+        }
+
+        public List<string> ForceNames
+        {
+            get { return m_lstForceName; }
+            set { m_lstForceName = value; }
+        }
+
+        public List<double[]> StaticData
+        {
+            get { return m_lstData; }
+            set { m_lstData = value; }
+        }
+
+
     }
 }
