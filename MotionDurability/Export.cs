@@ -485,6 +485,79 @@ namespace Motion.Durability
             }
         }
 
+        private void dgv_Entity_ColumnHeaderMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            int nCount_true = 0;
+            int nCount_false = 0;
+            int nCount_row = dgv_Entity.RowCount;
+
+            if(e.ColumnIndex == 0)
+            {
+                foreach(DataGridViewRow row in dgv_Entity.Rows)
+                {
+                    if ("true" == row.Cells[0].EditedFormattedValue.ToString().ToLower())
+                        nCount_true++;
+                    else
+                        nCount_false++;
+                }
+
+                if(nCount_false == nCount_row || nCount_row > nCount_true)
+                {
+                    foreach (DataGridViewRow row in dgv_Entity.Rows)
+                    {
+                        row.Cells[0].Value = true;
+                    }
+
+                    //foreach (DataGridViewRow row in dgv_Entity.SelectedRows)
+                    //{
+                    //    row.Cells[0].Value = true;
+                    //}
+
+                }
+                else if(nCount_true == nCount_row)
+                {
+                    foreach (DataGridViewRow row in dgv_Entity.Rows)
+                        row.Cells[0].Value = false;
+
+                    //foreach (DataGridViewRow row in dgv_Entity.SelectedRows)
+                    //{
+                    //    row.Cells[0].Value = false;
+                    //}
+                }
+            }
+            else if(e.ColumnIndex == 2)
+            {
+                foreach (DataGridViewRow row in dgv_Entity.Rows)
+                {
+                    if ("true" == row.Cells[2].EditedFormattedValue.ToString().ToLower())
+                        nCount_true++;
+                    else
+                        nCount_false++;
+                }
+
+                if (nCount_false == nCount_row || nCount_row > nCount_true)
+                {
+                    foreach (DataGridViewRow row in dgv_Entity.Rows)
+                        row.Cells[2].Value = true;
+
+                    //foreach (DataGridViewRow row in dgv_Entity.SelectedRows)
+                    //{
+                    //    row.Cells[2].Value = true;
+                    //}
+                }
+                else if (nCount_true == nCount_row)
+                {
+                    foreach (DataGridViewRow row in dgv_Entity.Rows)
+                        row.Cells[2].Value = false;
+
+                    //foreach (DataGridViewRow row in dgv_Entity.SelectedRows)
+                    //{
+                    //    row.Cells[2].Value = false;
+                    //}
+                }
+            }
+        }
+
         #endregion
 
         #region Change Event
@@ -630,15 +703,24 @@ namespace Motion.Durability
 
             if(0 == tab_main.SelectedIndex)
             {
-                if(0 == combo_Type.SelectedIndex)
+                int nCount = 0;
+                if (0 == combo_Type.SelectedIndex)
                 {
-                    if(0 == listView_type.Items.Count)
+                    
+                    if (0 == listView_type.Items.Count)
                     {
                         MessageBox.Show("There is no body data. please check it! ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
 
-                    if (0 == listView_type.SelectedItems.Count)
+                    nCount = 0;
+                    foreach (ListViewItem item in listView_type.Items)
+                    {
+                        if (true == item.Checked)
+                            nCount++;
+                    }
+
+                    if (0 == nCount)
                     {
                         MessageBox.Show("There is no selected body. After selecting the body, please try again! ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
@@ -650,8 +732,8 @@ namespace Motion.Durability
                         return false;
                     }
 
-                    int nCount = 0;
-                    foreach(DataGridViewRow row in dgv_Entity.Rows)
+                    nCount = 0;
+                    foreach (DataGridViewRow row in dgv_Entity.Rows)
                     {
                         if (row.Cells[0].Value.ToString().ToLower() == "true")
                             nCount++;
@@ -684,7 +766,14 @@ namespace Motion.Durability
                         return false;
                     }
 
-                    if (0 == listView_type.SelectedItems.Count)
+                    nCount = 0;
+                    foreach (ListViewItem item in listView_type.Items)
+                    {
+                        if (true == item.Checked)
+                            nCount++;
+                    }
+
+                    if (0 == nCount)
                     {
                         MessageBox.Show("There is no selected force. After selecting the force, please try again! ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
@@ -697,7 +786,7 @@ namespace Motion.Durability
                         return false;
                     }
 
-                    int nCount = 0;
+                    nCount = 0;
                     foreach (DataGridViewRow row in dgv_Entity.Rows)
                     {
                         if (row.Cells[0].Value.ToString().ToLower() == "true")
@@ -717,7 +806,14 @@ namespace Motion.Durability
                         return false;
                     }
 
-                    if (0 == listView_type.SelectedItems.Count)
+                    nCount = 0;
+                    foreach (ListViewItem item in listView_type.Items)
+                    {
+                        if (true == item.Checked)
+                            nCount++;
+                    }
+
+                    if (0 == nCount)
                     {
                         MessageBox.Show("There is no selected FE body. After selecting the FE body, please try again! ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
@@ -877,67 +973,79 @@ namespace Motion.Durability
         {
             XmlNode node_UserItems = _dom.DocumentElement.SelectSingleNode("UserDefinedItems");
             XmlNode node_Item = null;
+            string str_Use = "false";
 
             string[] ar_Unit = new string[4];
             for (int i = 0; i < 4; i++)
                 ar_Unit[i] = "";
+
+            List<ListViewItem> lst_Checked = new List<ListViewItem>();
+            foreach(ListViewItem item in listView_type.Items)
+            {
+                if (true == item.Checked)
+                    lst_Checked.Add(item);
+            }
 
             if(0 == Type_selectedIndex)
             {
                 // Bodies
                 node_Item = m_functions.CreateNodeAndAttribute(_dom, "Item", "name", "Bodies");
 
-                string str_bd_name = listView_type.SelectedItems[0].Text;
+                string str_bd_name = lst_Checked[0].Text;
 
                 XmlNode node_body = m_functions.CreateNodeAndAttribute(_dom, "Body", "name", str_bd_name);
 
                 string str_entity_name = "";
+                
                 foreach(DataGridViewRow row in dgv_Entity.Rows)
                 {
                     str_entity_name = row.Cells[1].Value.ToString();
-                    //str_entity_name = item.SubItems[0].Text;
+                    str_Use = row.Cells[0].Value.ToString().ToLower();
                     XmlNode node_config_entity = row.Tag as XmlNode;
                     string str_type = node_config_entity.Attributes.GetNamedItem("type").Value;
 
-                    if(str_type == "motion")
+                    if ("true" == str_Use)
                     {
-                        foreach(ListViewItem item_RF in listView_RF.Items)
+                        if (str_type == "motion")
                         {
-                            if (true == item_RF.Checked)
+                            foreach (ListViewItem item_RF in listView_RF.Items)
                             {
-                                XmlNode node_Entity = m_functions.CreateNodeAndAttribute(_dom, "Entity", "name", str_entity_name);
-                                m_functions.CreateAttributeXML(_dom, ref node_Entity, "type", str_type);
-
-                                if (row.Cells[2].Value.ToString().ToLower() == "true")
+                                if (true == item_RF.Checked)
                                 {
-                                    m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "true");
-                                }
-                                else
-                                {
-                                    m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "false");
-                                }
+                                    XmlNode node_Entity = m_functions.CreateNodeAndAttribute(_dom, "Entity", "name", str_entity_name);
+                                    m_functions.CreateAttributeXML(_dom, ref node_Entity, "type", str_type);
 
-                                m_functions.CreateAttributeXML(_dom, ref node_Entity, "reference_frame", item_RF.Text);
+                                    if (row.Cells[2].Value.ToString().ToLower() == "true")
+                                    {
+                                        m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "true");
+                                    }
+                                    else
+                                    {
+                                        m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "false");
+                                    }
 
-                                node_body.AppendChild(node_Entity);
+                                    m_functions.CreateAttributeXML(_dom, ref node_Entity, "reference_frame", item_RF.Text);
+
+                                    node_body.AppendChild(node_Entity);
+                                }
                             }
-                        }
-                    }
-                    else
-                    {
-                        XmlNode node_Entity = m_functions.CreateNodeAndAttribute(_dom, "Entity", "name", str_entity_name);
-                        m_functions.CreateAttributeXML(_dom, ref node_Entity, "type", str_type);
-
-                        if (row.Cells[2].Value.ToString().ToLower() == "true")
-                        {
-                            m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "true");
                         }
                         else
                         {
-                            m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "false");
-                        }
-                        node_body.AppendChild(node_Entity);
+                            XmlNode node_Entity = m_functions.CreateNodeAndAttribute(_dom, "Entity", "name", str_entity_name);
+                            m_functions.CreateAttributeXML(_dom, ref node_Entity, "type", str_type);
 
+                            if (row.Cells[2].Value.ToString().ToLower() == "true")
+                            {
+                                m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "true");
+                            }
+                            else
+                            {
+                                m_functions.CreateAttributeXML(_dom, ref node_Entity, "rotation_flag", "false");
+                            }
+                            node_body.AppendChild(node_Entity);
+
+                        }
                     }
                 }
 
@@ -959,7 +1067,7 @@ namespace Motion.Durability
 
                 string str_force_name = "";
                 string str_entity_name = "";
-                foreach (ListViewItem item in listView_type.SelectedItems)
+                foreach (ListViewItem item in lst_Checked)
                 {
                     str_force_name = item.Text;
                     XmlNode node_Force = m_functions.CreateNodeAndAttribute(_dom, "Force", "name", str_force_name);
@@ -992,7 +1100,7 @@ namespace Motion.Durability
                 // FE Modal bodies
                 node_Item = m_functions.CreateNodeAndAttribute(_dom, "Item", "name", "FlexibleBodies");
                 string str_FB_name = "";
-                foreach (ListViewItem item in listView_type.SelectedItems)
+                foreach (ListViewItem item in lst_Checked)
                 {
                     str_FB_name = item.Text;
 
@@ -1018,17 +1126,25 @@ namespace Motion.Durability
         {
             XmlNode node_UserItems = _dom.DocumentElement.SelectSingleNode("UserDefinedItems");
             XmlNode node_Item = null;
+            string str_Use = "false";
 
             string[] ar_Unit = new string[4];
             for (int i = 0; i < 4; i++)
                 ar_Unit[i] = "";
+
+            List<ListViewItem> lst_Checked = new List<ListViewItem>();
+            foreach (ListViewItem item in listView_type.Items)
+            {
+                if (true == item.Checked)
+                    lst_Checked.Add(item);
+            }
 
             if (0 == Type_selectedIndex)
             {
                 // Bodies
                 node_Item = m_functions.CreateNodeAndAttribute(_dom, "Item", "name", "Bodies");
 
-                string str_bd_name = listView_type.SelectedItems[0].Text;
+                string str_bd_name = lst_Checked[0].Text;
 
                 XmlNode node_body = m_functions.CreateNodeAndAttribute(_dom, "Body", "name", str_bd_name);
 
@@ -1036,11 +1152,11 @@ namespace Motion.Durability
                 foreach (DataGridViewRow row in dgv_Entity.Rows)
                 {
                     str_entity_name = row.Cells[1].Value as string;
-                    //str_entity_name = item.SubItems[0].Text;
+                    str_Use = row.Cells[0].Value.ToString().ToLower();
                     XmlNode node_config_entity = row.Tag as XmlNode;
                     string str_type = node_config_entity.Attributes.GetNamedItem("type").Value;
 
-                    if (str_type != "motion")
+                    if (str_type != "motion" && str_Use == "true")
                     {
                         XmlNode node_Entity = m_functions.CreateNodeAndAttribute(_dom, "Entity", "name", str_entity_name);
                         m_functions.CreateAttributeXML(_dom, ref node_Entity, "type", str_type);
@@ -1076,7 +1192,7 @@ namespace Motion.Durability
 
                 string str_force_name = "";
                 string str_entity_name = "";
-                foreach (ListViewItem item in listView_type.SelectedItems)
+                foreach (ListViewItem item in lst_Checked)
                 {
                     str_force_name = item.Text;
                     XmlNode node_Force = m_functions.CreateNodeAndAttribute(_dom, "Force", "name", str_force_name);
@@ -1448,9 +1564,10 @@ namespace Motion.Durability
 
 
 
+
+
         #endregion
 
-
-
+       
     }
 }

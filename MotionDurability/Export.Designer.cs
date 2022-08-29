@@ -57,9 +57,6 @@ namespace Motion.Durability
             this.tlp_selection_entities1 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.dgv_Entity = new System.Windows.Forms.DataGridView();
-            this.Column1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column3 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.tlp_RF_Unit = new System.Windows.Forms.TableLayoutPanel();
             this.gb_RF = new System.Windows.Forms.GroupBox();
             this.listView_RF = new System.Windows.Forms.ListView();
@@ -82,6 +79,9 @@ namespace Motion.Durability
             this.btn_Map_Add = new System.Windows.Forms.Button();
             this.btn_Map_Remove = new System.Windows.Forms.Button();
             this.listView_Map = new System.Windows.Forms.ListView();
+            this.Column1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column3 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.tlp_main.SuspendLayout();
             this.tlp_resultlist_main.SuspendLayout();
             this.tlp_resultlist_header.SuspendLayout();
@@ -494,6 +494,7 @@ namespace Motion.Durability
             // dgv_Entity
             // 
             this.dgv_Entity.AllowUserToAddRows = false;
+            this.dgv_Entity.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle1.Font = new System.Drawing.Font("Gulim", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
@@ -508,6 +509,7 @@ namespace Motion.Durability
             this.Column2,
             this.Column3});
             this.dgv_Entity.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgv_Entity.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgv_Entity.Location = new System.Drawing.Point(6, 50);
             this.dgv_Entity.Margin = new System.Windows.Forms.Padding(6);
             this.dgv_Entity.Name = "dgv_Entity";
@@ -517,27 +519,7 @@ namespace Motion.Durability
             this.dgv_Entity.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgv_Entity.Size = new System.Drawing.Size(425, 783);
             this.dgv_Entity.TabIndex = 1;
-            // 
-            // Column1
-            // 
-            this.Column1.HeaderText = "Use";
-            this.Column1.MinimumWidth = 10;
-            this.Column1.Name = "Column1";
-            this.Column1.Width = 30;
-            // 
-            // Column2
-            // 
-            this.Column2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Column2.HeaderText = "Name";
-            this.Column2.MinimumWidth = 10;
-            this.Column2.Name = "Column2";
-            // 
-            // Column3
-            // 
-            this.Column3.HeaderText = "Rotation";
-            this.Column3.MinimumWidth = 10;
-            this.Column3.Name = "Column3";
-            this.Column3.Width = 50;
+            this.dgv_Entity.ColumnHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgv_Entity_ColumnHeaderMouseDoubleClick);
             // 
             // tlp_RF_Unit
             // 
@@ -851,6 +833,28 @@ namespace Motion.Durability
             this.listView_Map.TabIndex = 3;
             this.listView_Map.UseCompatibleStateImageBehavior = false;
             this.listView_Map.View = System.Windows.Forms.View.List;
+            // 
+            // Column1
+            // 
+            this.Column1.HeaderText = "Use";
+            this.Column1.MinimumWidth = 10;
+            this.Column1.Name = "Column1";
+            this.Column1.Width = 30;
+            // 
+            // Column2
+            // 
+            this.Column2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column2.HeaderText = "Name";
+            this.Column2.MinimumWidth = 10;
+            this.Column2.Name = "Column2";
+            this.Column2.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Column3
+            // 
+            this.Column3.HeaderText = "Rotation";
+            this.Column3.MinimumWidth = 10;
+            this.Column3.Name = "Column3";
+            this.Column3.Width = 50;
             // 
             // Export
             // 
