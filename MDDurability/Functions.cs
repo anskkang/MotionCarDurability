@@ -1545,25 +1545,29 @@ namespace Motion.Durability
                             entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Global");
                             entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Global");
 
-                            // unit_entity = durability.Unit_Force;
 
-                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Vehicle(" + unit_entity + ")");
-                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle(" + unit_entity + ")");
-                            //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle(" + unit_entity + ")");
+                            if (0 < durability.OrientationOfChassis.Count)
+                            {
+                                // unit_entity = durability.Unit_Force;
 
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Vehicle");
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle");
-                            entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle");
+                                //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle(" + unit_entity + ")");
 
-                            //unit_entity = durability.Unit_Force + durability.Unit_Length;
+                                entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Longitudinal_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Lateral_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Tire Force" + seperator + "Vertical_RF_Vehicle");
 
-                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle(" + unit_entity + ")");
-                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle(" + unit_entity + ")");
-                            //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Vehicle(" + unit_entity + ")");
+                                //unit_entity = durability.Unit_Force + durability.Unit_Length;
 
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle");
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle");
-                            entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Vehicle");
+                                //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle(" + unit_entity + ")");
+                                //entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Vehicle(" + unit_entity + ")");
+
+                                entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Overturning_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Rolling resistance_RF_Vehicle");
+                                entity.ResultNames.Add(result_name + "Tire Torque" + seperator + "Aligning_RF_Vehicle");
+                            }
 
                             str_type = "Tire Force";
 
@@ -1602,7 +1606,11 @@ namespace Motion.Durability
                                     {
                                         entity.OrinalValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
                                         entity.TransformValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
-                                        entity.FixedStepValue.Add(new double[12] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+
+                                        if (0 < durability.OrientationOfChassis.Count)
+                                            entity.FixedStepValue.Add(new double[12] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+                                        else
+                                            entity.FixedStepValue.Add(new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
 
                                         if (j == 0)
                                         {
