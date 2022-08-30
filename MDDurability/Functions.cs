@@ -2948,7 +2948,8 @@ namespace Motion.Durability
             ar_space[4] = "  ";
             ar_space[5] = " ";
 
-            string str_temp, str_dir, str_filename;
+            string str_temp, str_dir, str_filename, str_FEbodyname;
+            string[] ar_str_tmp;
             double dvalue;
             if (category == Category.FEBodies)
             {
@@ -3042,7 +3043,21 @@ namespace Motion.Durability
                     }
 
                     str_filename = Path.GetFileNameWithoutExtension(path);
-                    str_filename = str_filename +"_"+ durability.FEBodies[i].Name + ".mcf";
+                    str_FEbodyname = durability.FEBodies[i].Name;
+                    if(str_FEbodyname.Contains("/"))
+                    {
+                        ar_str_tmp = str_FEbodyname.Split(new char[] { '/' });
+                        str_FEbodyname = "";
+                        for (j = 0; j < ar_str_tmp.Length; j++)
+                        {
+                            if (j == 0)
+                                str_FEbodyname = ar_str_tmp[j];
+                            else
+                                str_FEbodyname = str_FEbodyname + "_" + ar_str_tmp[j];
+                        }
+                    }
+
+                    str_filename = str_filename +"_"+ str_FEbodyname + ".mcf";
                     str_dir = Path.GetDirectoryName(path);
                     str_temp = Path.Combine(str_dir, str_filename);
 
