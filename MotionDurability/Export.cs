@@ -69,8 +69,7 @@ namespace Motion.Durability
 
             if(listView_result_list.Items.Count == 0)
             {
-                listView_type.Items.Clear();
-                dgv_Entity.Rows.Clear();
+                Initialize();
             }
         }
 
@@ -577,6 +576,7 @@ namespace Motion.Durability
 
         private void combo_Type_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //listView_RF.Items.Clear();
             if (0 == combo_Type.SelectedIndex)
             {
                 listView_type.MultiSelect = false;
@@ -593,7 +593,7 @@ namespace Motion.Durability
                 else
                 {
                     btn_Write_RPC.Visible = false;
-                    btn_Write_CSV.Visible = false;
+                    btn_Write_CSV.Visible = true;
                     btn_WriteStaticResults.Visible = true;
                 }
 
@@ -616,7 +616,7 @@ namespace Motion.Durability
                 else
                 {
                     btn_Write_RPC.Visible = false;
-                    btn_Write_CSV.Visible = false;
+                    btn_Write_CSV.Visible = true;
                     btn_WriteStaticResults.Visible = true;
                 }
 
@@ -712,8 +712,11 @@ namespace Motion.Durability
 
             m_functions = new Functions();
 
-            listView_RF.Items.Add("VehicleBody");
-            listView_RF.Items.Add("Global");
+            listView_RF.Items.Clear();
+            tb_Description.Text = "";
+
+            //listView_RF.Items.Add("VehicleBody");
+            //listView_RF.Items.Add("Global");
 
             //m_dom_UserItems = m_functions.CreateDurabilityXML();
 
@@ -909,9 +912,16 @@ namespace Motion.Durability
                 m_dom_Config = m_functions.CreateXMLFromPost(ar_path[0]);
 
                 if ("dynamics" == m_dom_Config.DocumentElement.SelectSingleNode("Configuration/Result").Attributes.GetNamedItem("analysis").Value)
+                {
                     m_analysisScenario = AnalysisScenario.Dynamics;
+
+                    tb_Description.Text = "Only dynamic analysis results can be exported.";
+                }
                 else
+                {
                     m_analysisScenario = AnalysisScenario.Static;
+                    tb_Description.Text = "Only static analysis results can be exported.";
+                }
 
                 for (i = 0; i < ar_path.Length; i++)
                 {
@@ -947,18 +957,31 @@ namespace Motion.Durability
                     return;
 
                 // Button Visible
+                listView_RF.Items.Clear();
                 if (m_analysisScenario == AnalysisScenario.Dynamics)
                 {
                     btn_WriteStaticResults.Visible = false;
                     btn_Write_CSV.Visible = true;
                     btn_Write_RPC.Visible = true;
 
+                    if (listView_result_list.Items.Count > 0)
+                    {
+                        listView_RF.Items.Add("VehicleBody");
+                        listView_RF.Items.Add("Global");
+                    }
                 }
                 else
                 {
                     btn_WriteStaticResults.Visible = true;
                     btn_Write_CSV.Visible = false;
                     btn_Write_RPC.Visible = false;
+
+                    //if (listView_result_list.Items.Count > 0)
+                    //{
+                    //    listView_RF.Items.Add("Global");
+                    //    listView_RF.Items[0].Checked = true;
+                    //    listView_RF.Enabled = false;
+                    //}
                 }
 
             }
@@ -1457,10 +1480,16 @@ namespace Motion.Durability
                 XmlNodeList lst_entity = node_data.SelectNodes("Entity");
 
                 string str_E_name = "";
-                
+                string str_E_type = "";
+
                 foreach(XmlNode n in lst_entity)
                 {
                     str_E_name = n.Attributes.GetNamedItem("name").Value;
+                    str_E_type = n.Attributes.GetNamedItem("type").Value;
+
+                    if (m_analysisScenario == AnalysisScenario.Static && str_E_type.Contains("motion"))
+                        continue;
+
                     nRow = dgv_Entity.RowCount;
                     dgv_Entity.Rows.Insert(nRow, 1);
                     DataGridViewRow row = dgv_Entity.Rows[nRow];
@@ -1489,6 +1518,9 @@ namespace Motion.Durability
                 foreach (XmlNode n in lst_entity)
                 {
                     str_E_name = n.Attributes.GetNamedItem("name").Value;
+
+                    if (m_analysisScenario == AnalysisScenario.Static && str_E_name.Contains("Relative"))
+                        continue;
 
                     nRow = dgv_Entity.RowCount;
                     dgv_Entity.Rows.Insert(nRow, 1);

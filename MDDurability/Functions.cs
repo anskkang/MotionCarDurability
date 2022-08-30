@@ -2189,39 +2189,48 @@ namespace Motion.Durability
                         }
                         else
                         {
-                            if( 0 == durability.OrientationOfChassis.Count)
-                            {
-                                entity.TransformValue.Clear();
-                                entity.FixedStepValue.Clear();
-                            }
-
-                            for (i = 0; i < 9; i++)
-                                Cj[i] = durability.OrientationOfChassis[0][i];
-
-                            double[] Fi_prime = new double[3] { 0.0, 0.0, 0.0 };
-                            double[] Ti_prime = new double[3] { 0.0, 0.0, 0.0 };
-
                             nlength = entity.OrinalValue.Count;
 
-                            for (i = 0; i < nlength; i++)
+                            if (0 == durability.OrientationOfChassis.Count)
                             {
-                                for (j = 0; j < 3; j++)
+                                for (i = 0; i < nlength; i++)
                                 {
-                                    Fi[j] = entity.OrinalValue[i][j];
-                                    Ti[j] = entity.OrinalValue[i][j + 3];
-
-                                    Aj[j] = durability.OrientationOfChassis[i][j];
-                                    Aj[j + 3] = durability.OrientationOfChassis[i][j + 3];
-                                    Aj[j + 6] = durability.OrientationOfChassis[i][j + 6];
+                                    for (j = 0; j < 3; j++)
+                                    {
+                                        entity.TransformValue[i][j] = entity.OrinalValue[i][j];
+                                        entity.TransformValue[i][j + 3] = entity.OrinalValue[i][j + 3];
+                                    }
                                 }
+                            }
+                            else
+                            {
 
-                                lib_math.matmattrvec(Cj, Aj, Fi, ref Fi_prime);
-                                lib_math.matmattrvec(Cj, Aj, Ti, ref Ti_prime);
+                                for (i = 0; i < 9; i++)
+                                    Cj[i] = durability.OrientationOfChassis[0][i];
 
-                                for (j = 0; j < 3; j++)
+                                double[] Fi_prime = new double[3] { 0.0, 0.0, 0.0 };
+                                double[] Ti_prime = new double[3] { 0.0, 0.0, 0.0 };
+
+                                for (i = 0; i < nlength; i++)
                                 {
-                                    entity.TransformValue[i][j] = Fi_prime[j];
-                                    entity.TransformValue[i][j + 3] = Ti_prime[j];
+                                    for (j = 0; j < 3; j++)
+                                    {
+                                        Fi[j] = entity.OrinalValue[i][j];
+                                        Ti[j] = entity.OrinalValue[i][j + 3];
+
+                                        Aj[j] = durability.OrientationOfChassis[i][j];
+                                        Aj[j + 3] = durability.OrientationOfChassis[i][j + 3];
+                                        Aj[j + 6] = durability.OrientationOfChassis[i][j + 6];
+                                    }
+
+                                    lib_math.matmattrvec(Cj, Aj, Fi, ref Fi_prime);
+                                    lib_math.matmattrvec(Cj, Aj, Ti, ref Ti_prime);
+
+                                    for (j = 0; j < 3; j++)
+                                    {
+                                        entity.TransformValue[i][j] = Fi_prime[j];
+                                        entity.TransformValue[i][j + 3] = Ti_prime[j];
+                                    }
                                 }
                             }
                         }
@@ -2403,38 +2412,41 @@ namespace Motion.Durability
                             entity.MaxValues.Add((y_max));
                         }
 
-                        // in Vehicle body reference frame
-                        for (i = 0; i < nColumn; i++)
+                        if (0 < durability.OrientationOfChassis.Count)
                         {
-                            for (j = 0; j < nRow; j++)
+                            // in Vehicle body reference frame
+                            for (i = 0; i < nColumn; i++)
                             {
-                                yarray[j] = entity.TransformValue[j][i];
-                            }
-
-                            var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
-
-
-                            for (j = 0; j < durability.ResultStep; j++)
-                            {
-                                y_value = result.Item3[j];
-                                if (err_tol > Math.Abs(y_value))
-                                    y_value = 0.0;
-
-                                if (j == 0)
-                                    y_max = Math.Abs(y_value);
-                                else
+                                for (j = 0; j < nRow; j++)
                                 {
-                                    if (Math.Abs(y_value) > y_max)
-                                        y_max = Math.Abs(y_value);
-
+                                    yarray[j] = entity.TransformValue[j][i];
                                 }
 
-                                entity.FixedStepValue[j][i + 6] = y_value;
+                                var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+
+                                for (j = 0; j < durability.ResultStep; j++)
+                                {
+                                    y_value = result.Item3[j];
+                                    if (err_tol > Math.Abs(y_value))
+                                        y_value = 0.0;
+
+                                    if (j == 0)
+                                        y_max = Math.Abs(y_value);
+                                    else
+                                    {
+                                        if (Math.Abs(y_value) > y_max)
+                                            y_max = Math.Abs(y_value);
+
+                                    }
+
+                                    entity.FixedStepValue[j][i + 6] = y_value;
+                                }
+
+                                entity.MaxValues.Add((y_max));
                             }
 
-                            entity.MaxValues.Add((y_max));
                         }
-
                         
                     }
                     else

@@ -82,6 +82,8 @@ namespace Motion.Durability
             this.btn_Map_Add = new System.Windows.Forms.Button();
             this.btn_Map_Remove = new System.Windows.Forms.Button();
             this.listView_Map = new System.Windows.Forms.ListView();
+            this.gb_Description = new System.Windows.Forms.GroupBox();
+            this.tb_Description = new System.Windows.Forms.RichTextBox();
             this.tlp_main.SuspendLayout();
             this.tlp_resultlist_main.SuspendLayout();
             this.tlp_resultlist_header.SuspendLayout();
@@ -102,6 +104,7 @@ namespace Motion.Durability
             this.tlp_stepsize.SuspendLayout();
             this.tabPage_map.SuspendLayout();
             this.tlp_map_main.SuspendLayout();
+            this.gb_Description.SuspendLayout();
             this.SuspendLayout();
             // 
             // tlp_main
@@ -112,6 +115,7 @@ namespace Motion.Durability
             this.tlp_main.Controls.Add(this.tlp_resultlist_main, 0, 0);
             this.tlp_main.Controls.Add(this.tlp_Close, 1, 1);
             this.tlp_main.Controls.Add(this.tlp_data_main, 1, 0);
+            this.tlp_main.Controls.Add(this.gb_Description, 0, 1);
             this.tlp_main.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlp_main.Location = new System.Drawing.Point(0, 0);
             this.tlp_main.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
@@ -855,6 +859,27 @@ namespace Motion.Durability
             this.listView_Map.UseCompatibleStateImageBehavior = false;
             this.listView_Map.View = System.Windows.Forms.View.List;
             // 
+            // gb_Description
+            // 
+            this.gb_Description.Controls.Add(this.tb_Description);
+            this.gb_Description.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gb_Description.Location = new System.Drawing.Point(3, 463);
+            this.gb_Description.Name = "gb_Description";
+            this.gb_Description.Size = new System.Drawing.Size(284, 44);
+            this.gb_Description.TabIndex = 3;
+            this.gb_Description.TabStop = false;
+            this.gb_Description.Text = "Result Description";
+            // 
+            // tb_Description
+            // 
+            this.tb_Description.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tb_Description.Location = new System.Drawing.Point(3, 17);
+            this.tb_Description.Name = "tb_Description";
+            this.tb_Description.ReadOnly = true;
+            this.tb_Description.Size = new System.Drawing.Size(278, 24);
+            this.tb_Description.TabIndex = 0;
+            this.tb_Description.Text = "";
+            // 
             // Export
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -891,6 +916,7 @@ namespace Motion.Durability
             this.tabPage_map.ResumeLayout(false);
             this.tlp_map_main.ResumeLayout(false);
             this.tlp_map_main.PerformLayout();
+            this.gb_Description.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -949,5 +975,7 @@ namespace Motion.Durability
         private System.Windows.Forms.DataGridViewCheckBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
         private System.Windows.Forms.DataGridViewCheckBoxColumn Column3;
+        private System.Windows.Forms.GroupBox gb_Description;
+        private System.Windows.Forms.RichTextBox tb_Description;
     }
 }
