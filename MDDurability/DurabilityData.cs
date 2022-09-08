@@ -15,11 +15,11 @@ namespace Motion.Durability
 
     }
 
-    public enum AnalysisScenario
-    {
-        Dynamics = 0,
-        Static = 1
-    }
+    //public enum AnalysisScenario
+    //{
+    //    Dynamics = 0,
+    //    Static = 1
+    //}
     public enum ConnectionTypeForBody
     {
         force = 0,
