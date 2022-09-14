@@ -976,6 +976,7 @@ namespace Motion.Durability
             double err_tol = 1.0e-10;
             double y_value = 0.0, y_max = 0.0;
             bool bSkipInterpolation = false;
+            bool bChangeStep = false;
 
             int nDiffer = 0;
             int nSize_list = durability.Body.Entities[0].TransformValue.Count;
@@ -997,10 +998,19 @@ namespace Motion.Durability
                 if (false == Determine_Result_Step(ref durability))
                     return false;
 
+                if (nSize_list != durability.ResultStep)
+                {
+                    bChangeStep = true;
+                }
+
                 foreach (EntityForBody entity in durability.Body.Entities)
                 {
                     nSize_arr = entity.TransformValue[0].Length;
                     //entity.FixedStepValue.Clear();
+
+                    if(bChangeStep)
+                        entity.FixedStepValue.Clear();
+
 
                     for (i = 0; i < nSize_arr; i++)
                     {
@@ -1035,6 +1045,9 @@ namespace Motion.Durability
                                     y_max = Math.Abs(y_value);
 
                             }
+
+                            if (bChangeStep == true && i == 0)
+                                entity.FixedStepValue.Add(new double[nSize_arr]);
 
                             entity.FixedStepValue[j][i] = y_value;
                         }
@@ -1673,6 +1686,8 @@ namespace Motion.Durability
                             }
                         }
 
+                        force_data.Entities.Add(entity);
+
                     }
                     else if (entity.Name.Contains("Displacement"))
                     {
@@ -1757,6 +1772,8 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
@@ -1830,8 +1847,11 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
 
+                        
                     }
                     else if (entity.Name.Contains("Velocity"))
                     {
@@ -1917,6 +1937,8 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
@@ -1990,7 +2012,11 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
+
+                        
                     }
                     else
                     {
@@ -2078,6 +2104,8 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
@@ -2151,14 +2179,14 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
+
+                        
                     }
 
-                    force_data.Entities.Add(entity);
-
                 }
-
-
 
                 #endregion
 
@@ -2326,10 +2354,9 @@ namespace Motion.Durability
                     }
                     else if (entity.Name.Contains("Velocity"))
                     {
-                        nRow = entity.OrinalValue.Count;
-                        nColumn = entity.OrinalValue[0].Length;
                         if (force.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
+                            nRow = entity.OrinalValue.Count;
                             double value_v = 0.0;
                             for (i = 0; i < nRow; i++)
                             {
@@ -2352,6 +2379,9 @@ namespace Motion.Durability
                         }
                         else if (force.TypeofForce == ForceTypeofForce.Bush)
                         {
+                            
+                            nColumn = entity.OrinalValue[0].Length;
+
                             for (i = 0; i < nRow; i++)
                             {
                                 for (j = 0; j < nColumn; j++)
@@ -2361,11 +2391,9 @@ namespace Motion.Durability
                     }
                     else
                     {
-                        nRow = entity.OrinalValue.Count;
-                        nColumn = entity.OrinalValue[0].Length;
-
                         if (force.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
+                            nRow = entity.OrinalValue.Count;
                             double value_a = 0.0;
                             for (i = 0; i < nRow; i++)
                             {
@@ -2388,6 +2416,8 @@ namespace Motion.Durability
                         }
                         else if (force.TypeofForce == ForceTypeofForce.Bush)
                         {
+                            nRow = entity.OrinalValue.Count;
+                            nColumn = entity.OrinalValue[0].Length;
                             for (i = 0; i < nRow; i++)
                             {
                                 for (j = 0; j < nColumn; j++)
@@ -2413,11 +2443,20 @@ namespace Motion.Durability
             double err_tol = 1.0e-10;
             double y_value = 0.0, y_max = 0.0;
             bool bSkipInterpolation = false;
+            bool bChangeStep = false;
 
             k = durability.NumOfResult;
             k = 0;
             xarray = durability.OriginalTimes.ToArray();
             yarray = new double[xarray.Length];
+
+            if (xarray.Length < 3)
+            {
+                if (xarray.Length == 1)
+                    bSkipInterpolation = true;
+                else if (xarray[0] == xarray[1])
+                    bSkipInterpolation = true;
+            }
 
             if (bSkipInterpolation == false)
             {
@@ -2430,6 +2469,15 @@ namespace Motion.Durability
                     {
                         nRow = entity.TransformValue.Count;
                         nColumn = entity.TransformValue[0].Length;
+
+                        if (nRow != durability.ResultStep)
+                        {
+                            bChangeStep = true;
+                            entity.FixedStepValue.Clear();
+                        }
+                        else
+                            bChangeStep = false;
+
                         if (entity.Name.Contains("Force") && force_data.TypeofForce == ForceTypeofForce.Tire)
                         {
                             // in Inertia reference frame
@@ -2462,6 +2510,14 @@ namespace Motion.Durability
                                         if (Math.Abs(y_value) > y_max)
                                             y_max = Math.Abs(y_value);
 
+                                    }
+
+                                    if (bChangeStep == true && i == 0)
+                                    {
+                                        if (0 < durability.OrientationOfChassis.Count)
+                                            entity.FixedStepValue.Add(new double[nColumn*2]);
+                                        else
+                                            entity.FixedStepValue.Add(new double[nColumn]);
                                     }
 
                                     entity.FixedStepValue[j][i] = y_value;
@@ -2539,6 +2595,11 @@ namespace Motion.Durability
                                         if (Math.Abs(y_value) > y_max)
                                             y_max = Math.Abs(y_value);
 
+                                    }
+
+                                    if (bChangeStep == true && i == 0)
+                                    {
+                                        entity.FixedStepValue.Add(new double[nColumn]);
                                     }
 
                                     entity.FixedStepValue[j][i] = y_value;

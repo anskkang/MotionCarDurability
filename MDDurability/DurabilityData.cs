@@ -742,7 +742,8 @@ namespace Motion.Durability
                 {
                     foreach(EntityForForce entity in force_data.Entities)
                     {
-                        nCount = nCount + entity.FixedStepValue[0].Length;
+                        if(entity.FixedStepValue.Count != 0)
+                            nCount = nCount + entity.FixedStepValue[0].Length;
                     }
                 }
 
