@@ -594,7 +594,7 @@ namespace Motion.Durability
                 else
                 {
                     btn_Write_RPC.Visible = false;
-                    btn_Write_CSV.Visible = true;
+                    btn_Write_CSV.Visible = false;
                     btn_WriteStaticResults.Visible = true;
                 }
 
@@ -618,7 +618,7 @@ namespace Motion.Durability
                 else
                 {
                     btn_Write_RPC.Visible = false;
-                    btn_Write_CSV.Visible = true;
+                    btn_Write_CSV.Visible = false;
                     btn_WriteStaticResults.Visible = true;
                 }
 
@@ -980,7 +980,7 @@ namespace Motion.Durability
                 else
                 {
                     btn_WriteStaticResults.Visible = true;
-                    btn_Write_CSV.Visible = true;
+                    btn_Write_CSV.Visible = false;
                     btn_Write_RPC.Visible = false;
 
                     if (listView_result_list.Items.Count > 0)
