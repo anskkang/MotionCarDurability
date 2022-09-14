@@ -31,7 +31,7 @@ namespace PostAPI
 
         public IList<(BodyType, string)> GetBodies(BodyType type)
         {
-            return this.OutputReader.GetBodies(type);
+            return this.OutputReader.GetBodies(type, true);
         }
 
         public IList<(ConnectorType, ActionType, string)> GetConnectors(string name)
@@ -74,6 +74,11 @@ namespace PostAPI
         public string Version
         {
             get { return this.OutputReader.Version; }
+        }
+
+        public AnalysisModelType GetPrimaryAnalysisType()
+        {
+            return this.OutputReader.GetPrimaryAnalysisType();
         }
 
         public void Close()

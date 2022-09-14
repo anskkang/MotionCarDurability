@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using VM.Models;
 
 namespace Motion.Durability
 {
@@ -29,7 +30,7 @@ namespace Motion.Durability
 
         //FileFormat m_fileFormat;
         ResultValueType m_resultType;
-        AnalysisScenario m_analysisScenario;
+        AnalysisModelType m_analysisScenario;
 
         ListViewItem m_item_type = null;
 
@@ -149,7 +150,7 @@ namespace Motion.Durability
 
                         string _result = item.Tag as string;
 
-                        DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisScenario.Dynamics);
+                        DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics);
                         if (durability == null)
                             continue;
 
@@ -184,7 +185,7 @@ namespace Motion.Durability
                             string _result = item.Tag as string;
                             string _map = item_map.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisScenario.Dynamics);
+                            DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics);
                             if (durability == null)
                                 continue;
 
@@ -247,7 +248,7 @@ namespace Motion.Durability
 
                             string _result = item.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisScenario.Dynamics);
+                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics);
                             if (durability == null)
                                 continue;
 
@@ -276,7 +277,7 @@ namespace Motion.Durability
                                 string _result = item.Tag as string;
                                 string _map = item_map.Tag as string;
 
-                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisScenario.Dynamics);
+                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics);
                                 if (durability == null)
                                     continue;
 
@@ -318,16 +319,16 @@ namespace Motion.Durability
 
                             string _result = item.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisScenario.Dynamics);
+                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics);
                             if (durability == null)
                                 continue;
 
-                            if (durability.ExistChassis == false)
-                            {
-                                string str_error = string.Format(" “{0}” cannot export time history data", _output);
-                                MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                continue;
-                            }
+                            //if (durability.ExistChassis == false)
+                            //{
+                            //    string str_error = string.Format(" “{0}” cannot export time history data", _output);
+                            //    MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            //    continue;
+                            //}
 
                             if (false == m_functions.WriteResultToFile(FileFormat.CSV, m_resultType, _path, durability))
                             {
@@ -354,7 +355,7 @@ namespace Motion.Durability
                                 string _result = item.Tag as string;
                                 string _map = item_map.Tag as string;
 
-                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisScenario.Dynamics);
+                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics);
                                 if (durability == null)
                                     continue;
 
@@ -584,11 +585,11 @@ namespace Motion.Durability
                 btn_Write_CSV.Text = "Write CSV";
 
                 btn_Export_Map.Visible = true;
-                if (m_analysisScenario == AnalysisScenario.Dynamics)
+                if (m_analysisScenario == AnalysisModelType.Dynamics)
                 {
                     btn_Write_RPC.Visible = true;
                     btn_Write_CSV.Visible = true;
-                    btn_WriteStaticResults.Visible = false;
+                    btn_WriteStaticResults.Visible = true;
                 }
                 else
                 {
@@ -607,11 +608,11 @@ namespace Motion.Durability
                 btn_Write_CSV.Text = "Write CSV";
 
                 btn_Export_Map.Visible = true;
-                if (m_analysisScenario == AnalysisScenario.Dynamics)
+                if (m_analysisScenario == AnalysisModelType.Dynamics)
                 {
                     btn_Write_RPC.Visible = true;
                     btn_Write_CSV.Visible = true;
-                    btn_WriteStaticResults.Visible = false;
+                    btn_WriteStaticResults.Visible = true;
                 }
                 else
                 {
@@ -629,7 +630,7 @@ namespace Motion.Durability
                 btn_Write_CSV.Text = "Write MCF";
 
                 btn_Export_Map.Visible = true;
-                if (m_analysisScenario == AnalysisScenario.Dynamics)
+                if (m_analysisScenario == AnalysisModelType.Dynamics)
                 {
                     btn_Write_RPC.Visible = false;
                     btn_Write_CSV.Visible = true;
@@ -638,7 +639,7 @@ namespace Motion.Durability
                 else
                 {
                     btn_Write_RPC.Visible = false;
-                    btn_Write_CSV.Visible = false;
+                    btn_Write_CSV.Visible = true;
                     btn_WriteStaticResults.Visible = false;
                 }
 
@@ -913,13 +914,13 @@ namespace Motion.Durability
 
                 if ("dynamics" == m_dom_Config.DocumentElement.SelectSingleNode("Configuration/Result").Attributes.GetNamedItem("analysis").Value)
                 {
-                    m_analysisScenario = AnalysisScenario.Dynamics;
+                    m_analysisScenario = AnalysisModelType.Dynamics;
 
                     tb_Description.Text = "Only dynamic analysis results can be exported.";
                 }
                 else
                 {
-                    m_analysisScenario = AnalysisScenario.Static;
+                    m_analysisScenario = AnalysisModelType.Statics;
                     tb_Description.Text = "Only static analysis results can be exported.";
                 }
 
@@ -936,7 +937,7 @@ namespace Motion.Durability
                             string _output1 = Path.GetFileNameWithoutExtension(ar_path[0]);
                             string _output2 = Path.GetFileNameWithoutExtension(ar_path[i]);
                             string str_error;
-                            if (m_analysisScenario == AnalysisScenario.Dynamics)
+                            if (m_analysisScenario == AnalysisModelType.Dynamics)
                                 str_error = string.Format(" \"{0}\" cannot be added because the result type is different from \"{1} (Dynamics)\" ", _output2, _output1);
                             else
                                 str_error = string.Format(" \"{0}\" cannot be added because the result type is different from \"{1} (Static)\" ", _output2, _output1);
@@ -958,9 +959,9 @@ namespace Motion.Durability
 
                 // Button Visible
                 listView_RF.Items.Clear();
-                if (m_analysisScenario == AnalysisScenario.Dynamics)
+                if (m_analysisScenario == AnalysisModelType.Dynamics)
                 {
-                    btn_WriteStaticResults.Visible = false;
+                    btn_WriteStaticResults.Visible = true;
                     btn_Write_CSV.Visible = true;
                     btn_Write_RPC.Visible = true;
 
@@ -973,15 +974,15 @@ namespace Motion.Durability
                 else
                 {
                     btn_WriteStaticResults.Visible = true;
-                    btn_Write_CSV.Visible = false;
+                    btn_Write_CSV.Visible = true;
                     btn_Write_RPC.Visible = false;
 
-                    //if (listView_result_list.Items.Count > 0)
-                    //{
-                    //    listView_RF.Items.Add("Global");
-                    //    listView_RF.Items[0].Checked = true;
-                    //    listView_RF.Enabled = false;
-                    //}
+                    if (listView_result_list.Items.Count > 0)
+                    {
+                        listView_RF.Items.Add("Global");
+                        listView_RF.Items[0].Checked = true;
+                        listView_RF.Enabled = false;
+                    }
                 }
 
             }
@@ -1013,7 +1014,7 @@ namespace Motion.Durability
                         string _output1 = listView_result_list.Items[0].Text;
                         string _output2 = Path.GetFileNameWithoutExtension(ar_path[i]);
                         string str_error, str_analysisType;
-                        if (m_analysisScenario == AnalysisScenario.Dynamics)
+                        if (m_analysisScenario == AnalysisModelType.Dynamics)
                             str_analysisType = "Dynamics";
                         else
                             str_analysisType = "Static";
@@ -1487,7 +1488,7 @@ namespace Motion.Durability
                     str_E_name = n.Attributes.GetNamedItem("name").Value;
                     str_E_type = n.Attributes.GetNamedItem("type").Value;
 
-                    if (m_analysisScenario == AnalysisScenario.Static && str_E_type.Contains("motion"))
+                    if (m_analysisScenario == AnalysisModelType.Statics && str_E_type.Contains("motion"))
                         continue;
 
                     nRow = dgv_Entity.RowCount;
@@ -1519,7 +1520,7 @@ namespace Motion.Durability
                 {
                     str_E_name = n.Attributes.GetNamedItem("name").Value;
 
-                    if (m_analysisScenario == AnalysisScenario.Static && str_E_name.Contains("Relative"))
+                    if (m_analysisScenario == AnalysisModelType.Statics && str_E_name.Contains("Relative"))
                         continue;
 
                     nRow = dgv_Entity.RowCount;
@@ -1554,27 +1555,23 @@ namespace Motion.Durability
 
             int nCount = 0;
             int nResult = 0;
-           
+            int nEndStep = 0;           
             int i;
 
-           
-
-            nCount = 0;
-            nResult = 0;
             foreach (ListViewItem item in listView_result_list.Items)
             {
                
 
                 string _result = item.Tag as string;
 
-                DurabilityData durability = m_functions.BuildDataFromSelection(dom, _result, AnalysisScenario.Static);
+                DurabilityData durability = m_functions.BuildDataFromSelection(dom, _result, AnalysisModelType.Statics);
                 if (durability == null)
                     continue;
 
                 nCount++;
                 staticResult.ResultFiles.Add(item.Text);
                 nResult = durability.NumOfResult;
-
+                nEndStep = durability.FixedTimes.Count;
                 if (0 == nType)
                 {
                     Body body = durability.Body;
@@ -1593,12 +1590,12 @@ namespace Motion.Durability
 
                     foreach (EntityForBody entity in body.Entities)
                     {
-                        for (i = 0; i < entity.FixedStepValue[nResult - 1].Length; i++)
+                        for (i = 0; i < entity.FixedStepValue[nEndStep - 1].Length; i++)
                         {
                             if(i < 3)
-                                lst_data.Add(entity.FixedStepValue[nResult - 1][i] * entity.UnitScaleFactor[0]);
+                                lst_data.Add(entity.FixedStepValue[nEndStep - 1][i] * entity.UnitScaleFactor[0]);
                             else
-                                lst_data.Add(entity.FixedStepValue[nResult - 1][i] * entity.UnitScaleFactor[1]);
+                                lst_data.Add(entity.FixedStepValue[nEndStep - 1][i] * entity.UnitScaleFactor[1]);
                         }
                     }
 
@@ -1626,12 +1623,12 @@ namespace Motion.Durability
                     {
                         foreach (EntityForForce entity in force_data.Entities)
                         {
-                            for (i = 0; i < entity.FixedStepValue[nResult - 1].Length; i++)
+                            for (i = 0; i < entity.FixedStepValue[nEndStep - 1].Length; i++)
                             {
                                 if (i < 3 || (5 < i && i < 9))
-                                    lst_data.Add(entity.FixedStepValue[nResult - 1][i] * entity.UnitScaleFactor[0]);
+                                    lst_data.Add(entity.FixedStepValue[nEndStep - 1][i] * entity.UnitScaleFactor[0]);
                                 else
-                                    lst_data.Add(entity.FixedStepValue[nResult - 1][i] * entity.UnitScaleFactor[1]);
+                                    lst_data.Add(entity.FixedStepValue[nEndStep - 1][i] * entity.UnitScaleFactor[1]);
                             }
                         }
                     }

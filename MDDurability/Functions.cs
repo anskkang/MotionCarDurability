@@ -11,6 +11,7 @@ using System.IO;
 using PostAPI;
 using VM.Post.API.OutputReader;
 using VM.Enums.Post;
+using VM.Models;
 
 namespace Motion.Durability
 {
@@ -20,7 +21,7 @@ namespace Motion.Durability
         string m_strMapPath;
         public Functions() { }
 
-        public DurabilityData BuildDataFromMap(string _strResultPath, string _strMapPath, AnalysisScenario scenario)
+        public DurabilityData BuildDataFromMap(string _strResultPath, string _strMapPath, AnalysisModelType scenario)
         {
             m_strMapPath = _strMapPath;
 
@@ -32,7 +33,7 @@ namespace Motion.Durability
             return durability;
         }
 
-        public DurabilityData BuildDataFromSelection(XmlDocument dom, string _strResultPath, AnalysisScenario scenario)
+        public DurabilityData BuildDataFromSelection(XmlDocument dom, string _strResultPath, AnalysisModelType scenario)
         {
             m_strResultPath = _strResultPath;
             PostAPI.PostAPI postAPI = new PostAPI.PostAPI(_strResultPath);
@@ -568,7 +569,7 @@ namespace Motion.Durability
 
                         for (i = 0; i < str_curve_path.Count; i++)
                         {
-                            curve_point = curve[str_curve_path[i]];
+                            curve_point = curve[body.Name + "/" + str_curve_path[i]];
                             yarray = curve_point.Select(s => s.Y).ToArray();
 
                             j = 0;
@@ -974,10 +975,8 @@ namespace Motion.Durability
             double[] yarray = null;
             double err_tol = 1.0e-10;
             double y_value = 0.0, y_max = 0.0;
-            //double dFull_Scale = durability.Full_Scale;
-
-            if (false == Determine_Result_Step(ref durability))
-                return false;
+            bool bSkipInterpolation = false;
+            bool bChangeStep = false;
 
             int nDiffer = 0;
             int nSize_list = durability.Body.Entities[0].TransformValue.Count;
@@ -986,63 +985,125 @@ namespace Motion.Durability
             xarray = durability.OriginalTimes.ToArray();
             yarray = new double[nSize_list];
 
-            foreach (EntityForBody entity in durability.Body.Entities)
+            if(xarray.Length < 3)
             {
-                nSize_arr = entity.TransformValue[0].Length;
-                //entity.FixedStepValue.Clear();
+                if (xarray.Length == 1)
+                    bSkipInterpolation = true;
+                else if (xarray[0] == xarray[1])
+                    bSkipInterpolation = true;
+            }
 
-                for (i = 0; i < nSize_arr; i++)
+            if (bSkipInterpolation == false)
+            {
+                if (false == Determine_Result_Step(ref durability))
+                    return false;
+
+                if (nSize_list != durability.ResultStep)
                 {
-                    for (j = 0; j < nSize_list; j++)
+                    bChangeStep = true;
+                }
+
+                foreach (EntityForBody entity in durability.Body.Entities)
+                {
+                    nSize_arr = entity.TransformValue[0].Length;
+                    //entity.FixedStepValue.Clear();
+
+                    if(bChangeStep)
+                        entity.FixedStepValue.Clear();
+
+
+                    for (i = 0; i < nSize_arr; i++)
                     {
-                        yarray[j] = entity.TransformValue[j][i];
-
-                        //if (i == 0)
-                        //    entity.FixedStepValue.Add(new double[nSize_arr]);
-                    }
-
-                    var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nSize_list, durability.ResultStep, xarray[0], durability.EndTime_Modify);
-
-                    if (i == 0 && k == 0 && result.Item1 == ResultType.SUCCESS)
-                    {
-                        durability.FixedTimes.Clear();
-                        for (j = 0; j < durability.ResultStep; j++)
-                            durability.FixedTimes.Add(result.Item2[j]);
-                    }
-
-                    for (j = 0; j < durability.ResultStep; j++)
-                    {
-                        y_value = result.Item3[j];
-                        if (err_tol > Math.Abs(y_value))
-                            y_value = 0.0;
-
-                        if (j == 0)
-                            y_max = Math.Abs(y_value);
-                        else
+                        for (j = 0; j < nSize_list; j++)
                         {
-                            if (Math.Abs(y_value) > y_max)
-                                y_max = Math.Abs(y_value);
+                            yarray[j] = entity.TransformValue[j][i];
 
+                            //if (i == 0)
+                            //    entity.FixedStepValue.Add(new double[nSize_arr]);
                         }
 
-                        entity.FixedStepValue[j][i] = y_value;
+                        var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nSize_list, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+                        if (i == 0 && k == 0 )
+                        {
+                            durability.FixedTimes.Clear();
+                            for (j = 0; j < durability.ResultStep; j++)
+                                durability.FixedTimes.Add(result.Item2[j]);
+                        }
+
+                        for (j = 0; j < durability.ResultStep; j++)
+                        {
+                            y_value = result.Item3[j];
+                            if (err_tol > Math.Abs(y_value))
+                                y_value = 0.0;
+
+                            if (j == 0)
+                                y_max = Math.Abs(y_value);
+                            else
+                            {
+                                if (Math.Abs(y_value) > y_max)
+                                    y_max = Math.Abs(y_value);
+
+                            }
+
+                            if (bChangeStep == true && i == 0)
+                                entity.FixedStepValue.Add(new double[nSize_arr]);
+
+                            entity.FixedStepValue[j][i] = y_value;
+                        }
+
+                        entity.MaxValues.Add((y_max));
                     }
 
-                    entity.MaxValues.Add((y_max));
-                }
-
-                nDiffer = entity.FixedStepValue.Count - durability.ResultStep;
-                if (nDiffer > 0)
-                {
-                    for(i = 0; i < nDiffer; i++)
+                    nDiffer = entity.FixedStepValue.Count - durability.ResultStep;
+                    if (nDiffer > 0)
                     {
-                        nSize_list = entity.FixedStepValue.Count - 1;
+                        for (i = 0; i < nDiffer; i++)
+                        {
+                            nSize_list = entity.FixedStepValue.Count - 1;
 
-                        entity.FixedStepValue.RemoveAt(nSize_list);
+                            entity.FixedStepValue.RemoveAt(nSize_list);
+                        }
                     }
-                }
 
-                k++;
+                    k++;
+                }
+            }
+            else
+            {
+                durability.FixedTimes.Clear();
+                for(i = 0; i < xarray.Length; i++)
+                    durability.FixedTimes.Add(xarray[i]);
+
+                foreach (EntityForBody entity in durability.Body.Entities)
+                {
+                    nSize_arr = entity.TransformValue[0].Length;
+
+                    for (i = 0; i < nSize_arr; i++)
+                    {
+                        for (j = 0; j < nSize_list; j++)
+                        {
+                            y_value = entity.TransformValue[j][i];
+
+                            if (err_tol > Math.Abs(y_value))
+                                y_value = 0.0;
+
+                            if (j == 0)
+                                y_max = Math.Abs(y_value);
+                            else
+                            {
+                                if (Math.Abs(y_value) > y_max)
+                                    y_max = Math.Abs(y_value);
+
+                            }
+
+                            entity.FixedStepValue[j][i] = y_value;
+                        }
+                        entity.MaxValues.Add((y_max));
+                    }
+
+                    k++;
+                }
             }
 
 
@@ -1625,6 +1686,8 @@ namespace Motion.Durability
                             }
                         }
 
+                        force_data.Entities.Add(entity);
+
                     }
                     else if (entity.Name.Contains("Displacement"))
                     {
@@ -1709,6 +1772,8 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
@@ -1782,8 +1847,11 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
 
+                        
                     }
                     else if (entity.Name.Contains("Velocity"))
                     {
@@ -1869,6 +1937,8 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
@@ -1942,7 +2012,11 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
+
+                        
                     }
                     else
                     {
@@ -2030,6 +2104,8 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
                         else if (force_data.TypeofForce == ForceTypeofForce.Bush)
                         {
@@ -2103,14 +2179,14 @@ namespace Motion.Durability
                                     j++;
                                 }
                             }
+
+                            force_data.Entities.Add(entity);
                         }
+
+                        
                     }
 
-                    force_data.Entities.Add(entity);
-
                 }
-
-
 
                 #endregion
 
@@ -2278,10 +2354,9 @@ namespace Motion.Durability
                     }
                     else if (entity.Name.Contains("Velocity"))
                     {
-                        nRow = entity.OrinalValue.Count;
-                        nColumn = entity.OrinalValue[0].Length;
                         if (force.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
+                            nRow = entity.OrinalValue.Count;
                             double value_v = 0.0;
                             for (i = 0; i < nRow; i++)
                             {
@@ -2304,6 +2379,9 @@ namespace Motion.Durability
                         }
                         else if (force.TypeofForce == ForceTypeofForce.Bush)
                         {
+                            
+                            nColumn = entity.OrinalValue[0].Length;
+
                             for (i = 0; i < nRow; i++)
                             {
                                 for (j = 0; j < nColumn; j++)
@@ -2313,11 +2391,9 @@ namespace Motion.Durability
                     }
                     else
                     {
-                        nRow = entity.OrinalValue.Count;
-                        nColumn = entity.OrinalValue[0].Length;
-
                         if (force.TypeofForce == ForceTypeofForce.TSpringDamper)
                         {
+                            nRow = entity.OrinalValue.Count;
                             double value_a = 0.0;
                             for (i = 0; i < nRow; i++)
                             {
@@ -2340,6 +2416,8 @@ namespace Motion.Durability
                         }
                         else if (force.TypeofForce == ForceTypeofForce.Bush)
                         {
+                            nRow = entity.OrinalValue.Count;
+                            nColumn = entity.OrinalValue[0].Length;
                             for (i = 0; i < nRow; i++)
                             {
                                 for (j = 0; j < nColumn; j++)
@@ -2364,74 +2442,60 @@ namespace Motion.Durability
             double[] yarray = null;
             double err_tol = 1.0e-10;
             double y_value = 0.0, y_max = 0.0;
-            //double dFull_Scale = durability.Full_Scale;
-
-            if (false == Determine_Result_Step(ref durability))
-                return false;
+            bool bSkipInterpolation = false;
+            bool bChangeStep = false;
 
             k = durability.NumOfResult;
             k = 0;
             xarray = durability.OriginalTimes.ToArray();
             yarray = new double[xarray.Length];
 
-            foreach (Force force_data in durability.Forces)
+            if (xarray.Length < 3)
             {
-                foreach (EntityForForce entity in force_data.Entities)
+                if (xarray.Length == 1)
+                    bSkipInterpolation = true;
+                else if (xarray[0] == xarray[1])
+                    bSkipInterpolation = true;
+            }
+
+            if (bSkipInterpolation == false)
+            {
+                if (false == Determine_Result_Step(ref durability))
+                    return false;
+
+                foreach (Force force_data in durability.Forces)
                 {
-                    nRow = entity.TransformValue.Count;
-                    nColumn = entity.TransformValue[0].Length;
-                    if (entity.Name.Contains("Force") && force_data.TypeofForce == ForceTypeofForce.Tire)
+                    foreach (EntityForForce entity in force_data.Entities)
                     {
-                        // in Inertia reference frame
-                        for (i = 0; i < nColumn; i++)
+                        nRow = entity.TransformValue.Count;
+                        nColumn = entity.TransformValue[0].Length;
+
+                        if (nRow != durability.ResultStep)
                         {
-                            for (j = 0; j < nRow; j++)
-                            {
-                                yarray[j] = entity.OrinalValue[j][i];
-                            }
-
-                            var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
-
-                            if (i == 0 && k == 0 && result.Item1 == ResultType.SUCCESS)
-                            {
-                                durability.FixedTimes.Clear();
-                                for (j = 0; j < durability.ResultStep; j++)
-                                    durability.FixedTimes.Add(result.Item2[j]);
-                            }
-
-                            for (j = 0; j < durability.ResultStep; j++)
-                            {
-                                y_value = result.Item3[j];
-                                if (err_tol > Math.Abs(y_value))
-                                    y_value = 0.0;
-
-                                if (j == 0)
-                                    y_max = Math.Abs(y_value);
-                                else
-                                {
-                                    if (Math.Abs(y_value) > y_max)
-                                        y_max = Math.Abs(y_value);
-
-                                }
-
-                                entity.FixedStepValue[j][i] = y_value;
-                            }
-
-                            entity.MaxValues.Add((y_max));
+                            bChangeStep = true;
+                            entity.FixedStepValue.Clear();
                         }
+                        else
+                            bChangeStep = false;
 
-                        if (0 < durability.OrientationOfChassis.Count)
+                        if (entity.Name.Contains("Force") && force_data.TypeofForce == ForceTypeofForce.Tire)
                         {
-                            // in Vehicle body reference frame
+                            // in Inertia reference frame
                             for (i = 0; i < nColumn; i++)
                             {
                                 for (j = 0; j < nRow; j++)
                                 {
-                                    yarray[j] = entity.TransformValue[j][i];
+                                    yarray[j] = entity.OrinalValue[j][i];
                                 }
 
                                 var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
 
+                                if (i == 0 && k == 0)
+                                {
+                                    durability.FixedTimes.Clear();
+                                    for (j = 0; j < durability.ResultStep; j++)
+                                        durability.FixedTimes.Add(result.Item2[j]);
+                                }
 
                                 for (j = 0; j < durability.ResultStep; j++)
                                 {
@@ -2448,71 +2512,216 @@ namespace Motion.Durability
 
                                     }
 
-                                    entity.FixedStepValue[j][i + 6] = y_value;
+                                    if (bChangeStep == true && i == 0)
+                                    {
+                                        if (0 < durability.OrientationOfChassis.Count)
+                                            entity.FixedStepValue.Add(new double[nColumn*2]);
+                                        else
+                                            entity.FixedStepValue.Add(new double[nColumn]);
+                                    }
+
+                                    entity.FixedStepValue[j][i] = y_value;
                                 }
 
                                 entity.MaxValues.Add((y_max));
                             }
 
-                        }
-                        
-                    }
-                    else
-                    {
-                        for (i = 0; i < nColumn; i++)
-                        {
-                            for (j = 0; j < nRow; j++)
+                            if (0 < durability.OrientationOfChassis.Count)
                             {
-                                //yarray[j] = entity.OrinalValue[j][i];
-                                yarray[j] = entity.TransformValue[j][i];
-                            }
-
-                            var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
-
-                            if (i == 0 && k == 0 && result.Item1 == ResultType.SUCCESS)
-                            {
-                                durability.FixedTimes.Clear();
-                                for (j = 0; j < durability.ResultStep; j++)
-                                    durability.FixedTimes.Add(result.Item2[j]);
-                            }
-
-                            for (j = 0; j < durability.ResultStep; j++)
-                            {
-                                y_value = result.Item3[j];
-                                if (err_tol > Math.Abs(y_value))
-                                    y_value = 0.0;
-
-                                if (j == 0)
-                                    y_max = Math.Abs(y_value);
-                                else
+                                // in Vehicle body reference frame
+                                for (i = 0; i < nColumn; i++)
                                 {
-                                    if (Math.Abs(y_value) > y_max)
-                                        y_max = Math.Abs(y_value);
+                                    for (j = 0; j < nRow; j++)
+                                    {
+                                        yarray[j] = entity.TransformValue[j][i];
+                                    }
 
+                                    var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+
+                                    for (j = 0; j < durability.ResultStep; j++)
+                                    {
+                                        y_value = result.Item3[j];
+                                        if (err_tol > Math.Abs(y_value))
+                                            y_value = 0.0;
+
+                                        if (j == 0)
+                                            y_max = Math.Abs(y_value);
+                                        else
+                                        {
+                                            if (Math.Abs(y_value) > y_max)
+                                                y_max = Math.Abs(y_value);
+
+                                        }
+
+                                        entity.FixedStepValue[j][i + 6] = y_value;
+                                    }
+
+                                    entity.MaxValues.Add((y_max));
                                 }
 
-                                entity.FixedStepValue[j][i] = y_value;
                             }
 
-                            entity.MaxValues.Add((y_max));
                         }
-                    }
-
-                    nDiffer = nRow - durability.ResultStep;
-                    if (nDiffer > 0)
-                    {
-                        for(i = 0; i < nDiffer;i++)
+                        else
                         {
-                            j = entity.FixedStepValue.Count - 1;
+                            for (i = 0; i < nColumn; i++)
+                            {
+                                for (j = 0; j < nRow; j++)
+                                {
+                                    //yarray[j] = entity.OrinalValue[j][i];
+                                    yarray[j] = entity.TransformValue[j][i];
+                                }
 
-                            entity.FixedStepValue.RemoveAt(j);
+                                var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nRow, durability.ResultStep, xarray[0], durability.EndTime_Modify);
+
+                                if (i == 0 && k == 0)
+                                {
+                                    durability.FixedTimes.Clear();
+                                    for (j = 0; j < durability.ResultStep; j++)
+                                        durability.FixedTimes.Add(result.Item2[j]);
+                                }
+
+                                for (j = 0; j < durability.ResultStep; j++)
+                                {
+                                    y_value = result.Item3[j];
+                                    if (err_tol > Math.Abs(y_value))
+                                        y_value = 0.0;
+
+                                    if (j == 0)
+                                        y_max = Math.Abs(y_value);
+                                    else
+                                    {
+                                        if (Math.Abs(y_value) > y_max)
+                                            y_max = Math.Abs(y_value);
+
+                                    }
+
+                                    if (bChangeStep == true && i == 0)
+                                    {
+                                        entity.FixedStepValue.Add(new double[nColumn]);
+                                    }
+
+                                    entity.FixedStepValue[j][i] = y_value;
+                                }
+
+                                entity.MaxValues.Add((y_max));
+                            }
                         }
-                    }
 
-                    k++;
+                        nDiffer = nRow - durability.ResultStep;
+                        if (nDiffer > 0)
+                        {
+                            for (i = 0; i < nDiffer; i++)
+                            {
+                                j = entity.FixedStepValue.Count - 1;
+
+                                entity.FixedStepValue.RemoveAt(j);
+                            }
+                        }
+
+                        k++;
+                    }
+                }
+
+            }
+            else
+            {
+                durability.FixedTimes.Clear();
+                for (i = 0; i < xarray.Length; i++)
+                    durability.FixedTimes.Add(xarray[i]);
+
+                foreach (Force force_data in durability.Forces)
+                {
+                    foreach (EntityForForce entity in force_data.Entities)
+                    {
+                        nRow = entity.TransformValue.Count;
+                        nColumn = entity.TransformValue[0].Length;
+                        if (entity.Name.Contains("Force") && force_data.TypeofForce == ForceTypeofForce.Tire)
+                        {
+                            // in Inertia reference frame
+                            for (i = 0; i < nColumn; i++)
+                            {
+                                for (j = 0; j < nRow; j++)
+                                {
+                                    y_value = entity.OrinalValue[j][i];
+                                    if (err_tol > Math.Abs(y_value))
+                                        y_value = 0.0;
+
+                                    if (j == 0)
+                                        y_max = Math.Abs(y_value);
+                                    else
+                                    {
+                                        if (Math.Abs(y_value) > y_max)
+                                            y_max = Math.Abs(y_value);
+
+                                    }
+
+                                    entity.FixedStepValue[j][i] = y_value;
+                                }
+                                entity.MaxValues.Add((y_max));
+
+                            }
+
+                            if (0 < durability.OrientationOfChassis.Count)
+                            {
+                                // in Vehicle body reference frame
+                                for (i = 0; i < nColumn; i++)
+                                {
+                                    for (j = 0; j < nRow; j++)
+                                    {
+                                        y_value = entity.TransformValue[j][i];
+                                        if (err_tol > Math.Abs(y_value))
+                                            y_value = 0.0;
+
+                                        if (j == 0)
+                                            y_max = Math.Abs(y_value);
+                                        else
+                                        {
+                                            if (Math.Abs(y_value) > y_max)
+                                                y_max = Math.Abs(y_value);
+
+                                        }
+
+                                        entity.FixedStepValue[j][i + 6] = y_value;
+                                    }
+
+                                    entity.MaxValues.Add((y_max));
+                                }
+
+                            }
+
+                        }
+                        else
+                        {
+                            for (i = 0; i < nColumn; i++)
+                            {
+                                for (j = 0; j < nRow; j++)
+                                {
+                                    y_value = entity.TransformValue[j][i];
+                                    if (err_tol > Math.Abs(y_value))
+                                        y_value = 0.0;
+
+                                    if (j == 0)
+                                        y_max = Math.Abs(y_value);
+                                    else
+                                    {
+                                        if (Math.Abs(y_value) > y_max)
+                                            y_max = Math.Abs(y_value);
+
+                                    }
+
+                                    entity.FixedStepValue[j][i] = y_value;
+                                }
+
+                                entity.MaxValues.Add((y_max));
+                            }
+                        }
+
+                        k++;
+                    }
                 }
             }
-
 
             return true;
         }
@@ -2667,7 +2876,7 @@ namespace Motion.Durability
 
                     var result = _postAPI.InterpolationAkimaSpline(xarray, yarray, nSize_list, durability.ResultStep, xarray[0], durability.EndTime_Modify);
 
-                    if (i == 0 && j == 0 && result.Item1 == ResultType.SUCCESS)
+                    if (i == 0 && j == 0)
                     {
                         for (k = 0; k < durability.ResultStep; k++)
                             durability.FixedTimes.Add(result.Item2[k]);
@@ -3845,16 +4054,25 @@ namespace Motion.Durability
             XmlNode node_userfunctions = CreateNodeAndAttribute(dom, "Type", "name", "User defined functions");
             XmlNode node_FEs = CreateNodeAndAttribute(dom, "Type", "name", "Flexible Bodies");
 
-
+            AnalysisModelType analysisModelType = postAPI.GetPrimaryAnalysisType();
+            if (analysisModelType == AnalysisModelType.Dynamics)
+                CreateAttributeXML(dom, ref node_Result, "analysis", "dynamics");
+            else if (analysisModelType == AnalysisModelType.Statics)
+                CreateAttributeXML(dom, ref node_Result, "analysis", "static");
+            else
+            {
+                MessageBox.Show(string.Format("{0} is not supported analysis type(Supported Analysis Type : Dynamics and Statics). Please check it", Path.GetFileName(str_result_Name)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
 
             // For Rigid body
-            bool isExistChassis = false;
+            //bool isExistChassis = false;
             for (i = 0; i < count_Rbody; i++)
             {
                 XmlNode node_body = CreateNodeAndAttribute(dom, "Body", "name", Rbodies[i].Item2);
 
-                if (Rbodies[i].Item2.Contains("chassis"))
-                    isExistChassis = true;
+                //if (Rbodies[i].Item2.Contains("chassis"))
+                //    isExistChassis = true;
 
                 var connectors = postAPI.GetConnectors(Rbodies[i].Item2);
                 count_connector = connectors.Count;
@@ -3935,10 +4153,7 @@ namespace Motion.Durability
                     //}
                 }
 
-                if(isExistChassis)
-                    CreateAttributeXML(dom, ref node_Result, "analysis", "dynamics");
-                else
-                    CreateAttributeXML(dom, ref node_Result, "analysis", "static");
+               
 
                 // Append motion node 
                 XmlNode node_disp = CreateNodeAndAttribute(dom, "Entity", "name", "Displacement");
@@ -3994,12 +4209,18 @@ namespace Motion.Durability
 
         }
 
-        public bool Distinguish_Analysis_Type(AnalysisScenario _toolScenario, string _path_dfr, ref bool _isSameAnalysysType)
+        public bool Distinguish_Analysis_Type(AnalysisModelType _toolScenario, string _path_dfr, ref bool _isSameAnalysysType)
         {
-            int i, j, count_Rbody;
-            AnalysisScenario targetScenario;
+           // int i, j, count_Rbody;
+            AnalysisModelType targetScenario;
             string str_result_Name = Path.GetFileNameWithoutExtension(_path_dfr);
             string str_res = Path.Combine(Path.GetDirectoryName(_path_dfr), str_result_Name + ".res");
+
+            if (false == File.Exists(str_res))
+            {
+                MessageBox.Show(string.Format("{0} file does not exist. Please check it", Path.GetFileName(str_res)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
 
             PostAPI.PostAPI postAPI = new PostAPI.PostAPI(_path_dfr);
             if (postAPI == null)
@@ -4008,31 +4229,27 @@ namespace Motion.Durability
                 return false;
             }
 
-            if (false == File.Exists(str_res))
-            {
-                MessageBox.Show(string.Format("{0} file does not exist. Please check it", Path.GetFileName(str_res)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
+            targetScenario = postAPI.GetPrimaryAnalysisType();
 
-            IList<(BodyType, string)> Rbodies = postAPI.GetBodies(BodyType.RIGID);
+            //IList<(BodyType, string)> Rbodies = postAPI.GetBodies(BodyType.RIGID);
 
-            count_Rbody = Rbodies.Count;
+            //count_Rbody = Rbodies.Count;
 
-            if (count_Rbody == 0)
-            {
-                MessageBox.Show(string.Format("{0} does not have a rigid body. Please check it", Path.GetFileName(str_result_Name)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
+            //if (count_Rbody == 0)
+            //{
+            //    MessageBox.Show(string.Format("{0} does not have a rigid body. Please check it", Path.GetFileName(str_result_Name)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return false;
+            //}
 
-            targetScenario = AnalysisScenario.Static;
-            for (i = 0; i < count_Rbody; i++)
-            {
-                if (Rbodies[i].Item2.Contains("chassis"))
-                {
-                    targetScenario = AnalysisScenario.Dynamics;
-                    break;
-                }
-            }
+            //targetScenario = AnalysisModelType.Statics;
+            //for (i = 0; i < count_Rbody; i++)
+            //{
+            //    if (Rbodies[i].Item2.Contains("chassis"))
+            //    {
+            //        targetScenario = AnalysisModelType.Dynamics;
+            //        break;
+            //    }
+            //}
 
             if (_toolScenario == targetScenario)
                 _isSameAnalysysType = true;

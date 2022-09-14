@@ -5,6 +5,13 @@
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	  <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 	  <OutputPath>$(SolutionDir)bin\$(Configuration)\</OutputPath>
+	  <PackageId>Motion/Postprocessor</PackageId>
+	  <Authors>ANSYS,Inc</Authors>
+	  <Company>ANSYS,Inc</Company>
+	  <Product>ANSYS,Inc</Product>
+	  <Copyright>Copyright@2023 ANSYS,Inc. All rights reserved.</Copyright>
+	  <AssemblyVersion>23.1.22256.0</AssemblyVersion>
+	  <FileVersion>23.1.22256.0</FileVersion>
   </PropertyGroup>
 	<!--<ItemGroup>
 		<PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
@@ -48,6 +55,21 @@
 			<HintPath>$(SolutionDir)RPC\VM.Models.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Properties\Settings.Designer.cs">
+	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Settings.settings</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Properties\Settings.settings">
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	  </None>
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

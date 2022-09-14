@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using VM.Models;
 
 namespace Motion.Durability
 {
@@ -174,7 +175,7 @@ namespace Motion.Durability
             if (DialogResult.OK == m_save_file.ShowDialog())
             {
                 m_functions = new Functions();
-                m_durability = m_functions.BuildDataFromMap(m_open_motionresult.FileName, m_open_map.FileName, AnalysisScenario.Dynamics);
+                m_durability = m_functions.BuildDataFromMap(m_open_motionresult.FileName, m_open_map.FileName, AnalysisModelType.Dynamics);
 
                 if (m_durability == null)
                     return;
