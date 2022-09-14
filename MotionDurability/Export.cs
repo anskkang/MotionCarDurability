@@ -581,7 +581,7 @@ namespace Motion.Durability
             if (0 == combo_Type.SelectedIndex)
             {
                 listView_type.MultiSelect = false;
-                listView_RF.Visible = true;
+                gb_RF.Visible = true;
                 btn_Write_CSV.Text = "Write CSV";
 
                 btn_Export_Map.Visible = true;
@@ -599,12 +599,13 @@ namespace Motion.Durability
                 }
 
                 dgv_Entity.Columns[2].Visible = true;
+                gb_Unit.Visible = true;
                 
             }
             else if (1 == combo_Type.SelectedIndex)
             {
                 listView_type.MultiSelect = true;
-                listView_RF.Visible = false;
+                gb_RF.Visible = false;
                 btn_Write_CSV.Text = "Write CSV";
 
                 btn_Export_Map.Visible = true;
@@ -622,11 +623,12 @@ namespace Motion.Durability
                 }
 
                 dgv_Entity.Columns[2].Visible = false;
+                gb_Unit.Visible = true;
             }
             else if (2 == combo_Type.SelectedIndex)
             {
                 listView_type.MultiSelect = true;
-                listView_RF.Visible = false;
+                gb_RF.Visible = false;
                 btn_Write_CSV.Text = "Write MCF";
 
                 btn_Export_Map.Visible = true;
@@ -644,6 +646,7 @@ namespace Motion.Durability
                 }
 
                 dgv_Entity.Columns[2].Visible = false;
+                gb_Unit.Visible = false;
             }
 
             if (listView_result_list.Items.Count > 0)
