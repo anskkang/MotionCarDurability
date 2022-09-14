@@ -969,6 +969,9 @@ namespace Motion.Durability
                     {
                         listView_RF.Items.Add("VehicleBody");
                         listView_RF.Items.Add("Global");
+
+                        listView_RF.Items[0].Checked = true;
+                        listView_RF.Items[1].Checked = true;
                     }
                 }
                 else
@@ -1396,6 +1399,9 @@ namespace Motion.Durability
                     listView_type.Items.Add(item);
                 }
 
+                foreach (ListViewItem item in listView_RF.Items)
+                    item.Checked = true;
+
             }
             else if( 1 == selectedIndex)
             {
@@ -1495,9 +1501,9 @@ namespace Motion.Durability
                     dgv_Entity.Rows.Insert(nRow, 1);
                     DataGridViewRow row = dgv_Entity.Rows[nRow];
                     
-                    row.Cells[0].Value = false;
+                    row.Cells[0].Value = true;
                     row.Cells[1].Value = str_E_name;
-                    row.Cells[2].Value = false;
+                    row.Cells[2].Value = true;
                     row.Tag = n;
                     //dgv_Entity.Rows.Add(row);
                     
@@ -1507,6 +1513,9 @@ namespace Motion.Durability
                     //listView_Entity.Items.Add(item);
 
                 }
+
+                foreach (ListViewItem item in listView_RF.Items)
+                    item.Checked = true;
 
             }
             else if ("Force" == node_data.Name)
@@ -1527,9 +1536,9 @@ namespace Motion.Durability
                     dgv_Entity.Rows.Insert(nRow, 1);
                     DataGridViewRow row = dgv_Entity.Rows[nRow];
 
-                    row.Cells[0].Value = false;
+                    row.Cells[0].Value = true;
                     row.Cells[1].Value = str_E_name;
-                    row.Cells[2].Value = false;
+                    row.Cells[2].Value = true;
                     row.Tag = n;
                     //dgv_Entity.Rows.Add(row);
 
