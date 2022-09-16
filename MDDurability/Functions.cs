@@ -2896,11 +2896,18 @@ namespace Motion.Durability
 
         public bool WriteMap(string path, XmlDocument dom)
         {
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
+            //XmlWriterSettings settings = new XmlWriterSettings();
+            //settings.Indent = true;
 
-            XmlWriter writer = XmlWriter.Create(path, settings);
-            dom.Save(writer);
+            //XmlWriter writer = XmlWriter.Create(path, settings);
+            //dom.Save(writer);
+
+
+            XmlTextWriter writer = new XmlTextWriter(path, Encoding.UTF8);
+            writer.Formatting = Formatting.Indented;
+            dom.WriteContentTo(writer);
+            writer.Flush();
+            writer.Close();
 
             return true;
         }
