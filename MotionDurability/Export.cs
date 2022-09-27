@@ -57,35 +57,20 @@ namespace Motion.Durability
 
             if(DialogResult.OK == m_open_dfr.ShowDialog())
             {
-                Add_Result_List(m_open_dfr.FileNames, false);
+                Add_Result_List(m_open_dfr.FileNames);
             }
         }
 
         private void btn_Remove_Click(object sender, EventArgs e)
         {
-            ListViewItem Item_First = listView_result_list.Items[0];
-            bool _bUpdate = false;
-
             foreach(ListViewItem item in listView_result_list.SelectedItems)
             {
-                if (Item_First == item)
-                    _bUpdate = true;
-
                 listView_result_list.Items.Remove(item);
             }
 
             if(listView_result_list.Items.Count == 0)
             {
                 Initialize();
-            }
-            else if(listView_result_list.Items.Count == 1)
-            {
-                ListViewItem item = listView_result_list.Items[0];
-                string[] ar_path = new string[1];
-                ar_path[0] = item.Tag as string;
-
-                Add_Result_List(ar_path, _bUpdate);
-
             }
         }
 
@@ -921,12 +906,12 @@ namespace Motion.Durability
         }
 
 
-        void Add_Result_List(string[] ar_path, bool _bUpdate)
+        void Add_Result_List(string[] ar_path)
         {
             int i;
             bool isSameAnalysisType = false;
 
-            if (0 == listView_result_list.Items.Count || _bUpdate == true)
+            if (0 == listView_result_list.Items.Count)
             {
                 m_dom_Config = m_functions.CreateXMLFromPost(ar_path[0]);
 
@@ -942,37 +927,34 @@ namespace Motion.Durability
                     tb_Description.Text = "Only static analysis results can be exported.";
                 }
 
-                if (_bUpdate == false)
+                for (i = 0; i < ar_path.Length; i++)
                 {
-                    for (i = 0; i < ar_path.Length; i++)
+                    isSameAnalysisType = false;
+
+                    if (i > 0)
                     {
-                        isSameAnalysisType = false;
+                        m_functions.Distinguish_Analysis_Type(m_analysisScenario, ar_path[i], ref isSameAnalysisType);
 
-                        if (i > 0)
+                        if(false == isSameAnalysisType)
                         {
-                            m_functions.Distinguish_Analysis_Type(m_analysisScenario, ar_path[i], ref isSameAnalysisType);
-
-                            if (false == isSameAnalysisType)
-                            {
-                                string _output1 = Path.GetFileNameWithoutExtension(ar_path[0]);
-                                string _output2 = Path.GetFileNameWithoutExtension(ar_path[i]);
-                                string str_error;
-                                if (m_analysisScenario == AnalysisModelType.Dynamics)
-                                    str_error = string.Format(" \"{0}\" cannot be added because the result type is different from \"{1} (Dynamics)\" ", _output2, _output1);
-                                else
-                                    str_error = string.Format(" \"{0}\" cannot be added because the result type is different from \"{1} (Static)\" ", _output2, _output1);
+                            string _output1 = Path.GetFileNameWithoutExtension(ar_path[0]);
+                            string _output2 = Path.GetFileNameWithoutExtension(ar_path[i]);
+                            string str_error;
+                            if (m_analysisScenario == AnalysisModelType.Dynamics)
+                                str_error = string.Format(" \"{0}\" cannot be added because the result type is different from \"{1} (Dynamics)\" ", _output2, _output1);
+                            else
+                                str_error = string.Format(" \"{0}\" cannot be added because the result type is different from \"{1} (Static)\" ", _output2, _output1);
 
 
-                                MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                continue;
-                            }
+                            MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            continue;
                         }
-
-                        ListViewItem item = new ListViewItem(Path.GetFileNameWithoutExtension(ar_path[i]));
-                        item.Tag = ar_path[i];
-
-                        listView_result_list.Items.Add(item);
                     }
+
+                    ListViewItem item = new ListViewItem(Path.GetFileNameWithoutExtension(ar_path[i]));
+                    item.Tag = ar_path[i];
+
+                    listView_result_list.Items.Add(item);
                 }
 
                 if (false == ChangeDisplay_ListViewType_From_Combo_Type(combo_Type.SelectedIndex))
