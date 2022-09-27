@@ -2896,11 +2896,18 @@ namespace Motion.Durability
 
         public bool WriteMap(string path, XmlDocument dom)
         {
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
+            //XmlWriterSettings settings = new XmlWriterSettings();
+            //settings.Indent = true;
 
-            XmlWriter writer = XmlWriter.Create(path, settings);
-            dom.Save(writer);
+            //XmlWriter writer = XmlWriter.Create(path, settings);
+            //dom.Save(writer);
+
+
+            XmlTextWriter writer = new XmlTextWriter(path, Encoding.UTF8);
+            writer.Formatting = Formatting.Indented;
+            dom.WriteContentTo(writer);
+            writer.Flush();
+            writer.Close();
 
             return true;
         }
@@ -3534,7 +3541,10 @@ namespace Motion.Durability
                         else
                             lst_value.Add(entity.Unit2);
 
-                        dScale = entity.MaxValues[j] / dFull_Scale;
+                        if(j < 3)
+                            dScale = (entity.MaxValues[j] * entity.UnitScaleFactor[0]) / dFull_Scale;
+                        else
+                            dScale = (entity.MaxValues[j] * entity.UnitScaleFactor[1]) / dFull_Scale;
 
                         lst_key.Add("SCALE.CHAN_" + i.ToString());
                         lst_value.Add(dScale.ToString("E6"));
@@ -3572,7 +3582,10 @@ namespace Motion.Durability
                             else
                                 lst_value.Add(entity.Unit2);
 
-                            dScale = entity.MaxValues[j] / dFull_Scale;
+                            if (j < 3 || (5 < j && j < 9))
+                                dScale = (entity.MaxValues[j] * entity.UnitScaleFactor[0]) / dFull_Scale;
+                            else
+                                dScale = (entity.MaxValues[j] * entity.UnitScaleFactor[1]) / dFull_Scale;
 
                             lst_key.Add("SCALE.CHAN_" + i.ToString());
                             lst_value.Add(dScale.ToString("E6"));
@@ -3624,16 +3637,24 @@ namespace Motion.Durability
                         yarray = new double[nRow];
                         for (j = 0; j < nRow; j++)
                         {
-                            yarray[j] = entity.FixedStepValue[j][i];
+                            if(i < 3)
+                                yarray[j] = entity.FixedStepValue[j][i] * entity.UnitScaleFactor[0];
+                            else
+                                yarray[j] = entity.FixedStepValue[j][i] * entity.UnitScaleFactor[1];
                         }
 
                         lst_data.Add(yarray);
                     }
 
-
+                    i = 0;
                     foreach (double dmax in entity.MaxValues)
                     {
-                        lst_max.Add(dmax);
+                        if (i < 3)
+                            lst_max.Add(dmax * entity.UnitScaleFactor[0]);
+                        else
+                            lst_max.Add(dmax * entity.UnitScaleFactor[1]);
+
+                        i++;
                     }
                 }
 
@@ -3657,15 +3678,24 @@ namespace Motion.Durability
                             yarray = new double[nRow];
                             for (j = 0; j < nRow; j++)
                             {
-                                yarray[j] = entity.FixedStepValue[j][i];
+                                if (i < 3 || (5 < i && i < 9))
+                                    yarray[j] = entity.FixedStepValue[j][i] * entity.UnitScaleFactor[0];
+                                else
+                                    yarray[j] = entity.FixedStepValue[j][i] * entity.UnitScaleFactor[1];
                             }
 
                             lst_data.Add(yarray);
                         }
 
+                        i = 0;
                         foreach (double dmax in entity.MaxValues)
                         {
-                            lst_max.Add(dmax);
+                            if (i < 3 || (5 < i && i < 9))
+                                lst_max.Add(dmax * entity.UnitScaleFactor[0]);
+                            else
+                                lst_max.Add(dmax * entity.UnitScaleFactor[1]);
+
+                            i++;
                         }
                     }
                 }
@@ -3760,12 +3790,12 @@ namespace Motion.Durability
                     _dFactor = 1.0;
                     return true;
                 }
-                else if (fromUnit == "kgf")
+                else if (toUnit == "kgf")
                 {
                     _dFactor = 0.1019716212977928;
                     return true;
                 }
-                else if (fromUnit == "lbf")
+                else if (toUnit == "lbf")
                 {
                     _dFactor = 0.224809;
                     return true;
@@ -3780,12 +3810,12 @@ namespace Motion.Durability
                     _dFactor = 9.80665;
                     return true;
                 }
-                else if (fromUnit == "kgf")
+                else if (toUnit == "kgf")
                 {
                     _dFactor = 1.0;
                     return true;
                 }
-                else if (fromUnit == "lbf")
+                else if (toUnit == "lbf")
                 {
                     _dFactor = 2.2046;
                     return true;
@@ -3800,12 +3830,12 @@ namespace Motion.Durability
                     _dFactor = 4.4482;
                     return true;
                 }
-                else if (fromUnit == "kgf")
+                else if (toUnit == "kgf")
                 {
                     _dFactor = 0.453592;
                     return true;
                 }
-                else if (fromUnit == "lbf")
+                else if (toUnit == "lbf")
                 {
                     _dFactor = 1.0;
                     return true;
