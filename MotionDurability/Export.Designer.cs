@@ -893,7 +893,7 @@ namespace Motion.Durability
             this.Controls.Add(this.tlp_main);
             this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Export";
-            this.Text = "Motion Result Export";
+            this.Text = "Vehicle Simulation Result Export";
             this.tlp_main.ResumeLayout(false);
             this.tlp_resultlist_main.ResumeLayout(false);
             this.tlp_resultlist_header.ResumeLayout(false);
