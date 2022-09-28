@@ -4,7 +4,7 @@
     <TargetFramework>net48</TargetFramework>
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	  <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-	  <OutputPath>$(SolutionDir)bin\$(Configuration)\</OutputPath>
+	  <OutputPath>..\bin\Release\</OutputPath>
 	  <PackageId>Motion/Postprocessor</PackageId>
 	  <Authors>ANSYS,Inc</Authors>
 	  <Company>ANSYS,Inc</Company>

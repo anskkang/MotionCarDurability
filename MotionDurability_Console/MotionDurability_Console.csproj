@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0180E706-7BDA-44D9-93D9-C9A62D795FC0}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <ProjectGuid>{2BDFAEF1-A4A8-4812-ACE2-4BFAE9850E59}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <RootNamespace>Motion.Durability</RootNamespace>
-    <AssemblyName>MotionDurability</AssemblyName>
+    <AssemblyName>MotionDurability_Console</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -34,68 +34,28 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <NoWarn>1701;1702</NoWarn>
     <WarningsAsErrors>;NU1605</WarningsAsErrors>
+    <NoWarn>1701;1702</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="VM.Models, Version=23.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="VM.Models">
       <HintPath>..\..\..\2023\Force Export for durability\Code\MotionDurability\RPC\VM.Models.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Export.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Export.Designer.cs">
-      <DependentUpon>Export.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Form_config.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form_config.Designer.cs">
-      <DependentUpon>Form_config.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Export.resx">
-      <DependentUpon>Export.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form_config.resx">
-      <DependentUpon>Form_config.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

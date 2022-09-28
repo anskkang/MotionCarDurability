@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MotionDurability")]
+[assembly: AssemblyTitle("MotionDurability_Console")]
 [assembly: AssemblyDescription("The executable file for Motion force export")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ANSYS,Inc")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0180e706-7bda-44d9-93d9-c9a62d795fc0")]
+[assembly: Guid("2bdfaef1-a4a8-4812-ace2-4bfae9850e59")]
 
 // Version information for an assembly consists of the following four values:
 //
