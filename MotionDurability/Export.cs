@@ -152,6 +152,7 @@ namespace Motion.Durability
             {
                 string _dir = Path.GetDirectoryName(m_save_rpc.FileName);
                 string _userNamed = Path.GetFileNameWithoutExtension(m_save_rpc.FileName);
+                string errMessage = "";
 
                 if (0 == tab_main.SelectedIndex)
                 {
@@ -165,7 +166,7 @@ namespace Motion.Durability
 
                         string _result = item.Tag as string;
 
-                        DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics);
+                        DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics, ref errMessage);
                         if (durability == null)
                             continue;
 
@@ -176,7 +177,7 @@ namespace Motion.Durability
                             continue;
                         }
 
-                        if (false == m_functions.WriteResultToFile(FileFormat.RPC, m_resultType, _path, durability))
+                        if (false == m_functions.WriteResultToFile(FileFormat.RPC, m_resultType, _path, durability, ref errMessage))
                         {
                             //MessageBox.Show("Failed to export results to file.");
                             continue;
@@ -200,7 +201,7 @@ namespace Motion.Durability
                             string _result = item.Tag as string;
                             string _map = item_map.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics);
+                            DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics, ref errMessage);
                             if (durability == null)
                                 continue;
 
@@ -211,7 +212,7 @@ namespace Motion.Durability
                                 continue;
                             }
 
-                            if (false == m_functions.WriteResultToFile(FileFormat.RPC, m_resultType, _path, durability))
+                            if (false == m_functions.WriteResultToFile(FileFormat.RPC, m_resultType, _path, durability, ref errMessage))
                             {
                                 //MessageBox.Show("Failed to export results to file.");
                                 continue;
@@ -248,6 +249,7 @@ namespace Motion.Durability
                 {
                     string _dir = Path.GetDirectoryName(m_save_csv.FileName);
                     string _userNamed = Path.GetFileNameWithoutExtension(m_save_csv.FileName);
+                    string errMessage = "";
 
                     if (0 == tab_main.SelectedIndex)
                     {
@@ -263,11 +265,11 @@ namespace Motion.Durability
 
                             string _result = item.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics);
+                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics, ref errMessage);
                             if (durability == null)
                                 continue;
 
-                            if (false == m_functions.WriteResultToFile(FileFormat.MCF, m_resultType, _path, durability))
+                            if (false == m_functions.WriteResultToFile(FileFormat.MCF, m_resultType, _path, durability, ref errMessage))
                             {
                                 //MessageBox.Show("Failed to export results to file.");
                                 continue;
@@ -292,12 +294,12 @@ namespace Motion.Durability
                                 string _result = item.Tag as string;
                                 string _map = item_map.Tag as string;
 
-                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics);
+                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics, ref errMessage);
                                 if (durability == null)
                                     continue;
 
 
-                                if (false == m_functions.WriteResultToFile(FileFormat.MCF, m_resultType, _path, durability))
+                                if (false == m_functions.WriteResultToFile(FileFormat.MCF, m_resultType, _path, durability, ref errMessage))
                                 {
                                     //MessageBox.Show("Failed to export results to file.");
                                     continue;
@@ -319,6 +321,7 @@ namespace Motion.Durability
                 {
                     string _dir = Path.GetDirectoryName(m_save_csv.FileName);
                     string _userNamed = Path.GetFileNameWithoutExtension(m_save_csv.FileName);
+                    string errMessage = "";
 
                     if (0 == tab_main.SelectedIndex)
                     {
@@ -334,7 +337,7 @@ namespace Motion.Durability
 
                             string _result = item.Tag as string;
 
-                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics);
+                            DurabilityData durability = m_functions.BuildDataFromSelection(m_dom_UserItems, _result, AnalysisModelType.Dynamics, ref errMessage);
                             if (durability == null)
                                 continue;
 
@@ -345,7 +348,7 @@ namespace Motion.Durability
                             //    continue;
                             //}
 
-                            if (false == m_functions.WriteResultToFile(FileFormat.CSV, m_resultType, _path, durability))
+                            if (false == m_functions.WriteResultToFile(FileFormat.CSV, m_resultType, _path, durability, ref errMessage))
                             {
                                 //MessageBox.Show("Failed to export results to file.");
                                 continue;
@@ -370,7 +373,7 @@ namespace Motion.Durability
                                 string _result = item.Tag as string;
                                 string _map = item_map.Tag as string;
 
-                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics);
+                                DurabilityData durability = m_functions.BuildDataFromMap(_result, _map, AnalysisModelType.Dynamics, ref errMessage);
                                 if (durability == null)
                                     continue;
 
@@ -381,7 +384,7 @@ namespace Motion.Durability
                                     continue;
                                 }
 
-                                if (false == m_functions.WriteResultToFile(FileFormat.CSV, m_resultType, _path, durability))
+                                if (false == m_functions.WriteResultToFile(FileFormat.CSV, m_resultType, _path, durability, ref errMessage))
                                 {
                                     //MessageBox.Show("Failed to export results to file.");
                                     continue;
@@ -415,6 +418,8 @@ namespace Motion.Durability
             {
                 StaticResult staticResult = null;
                 int nSize = 0;
+                string errMessage = "";
+
                 if (0 == tab_main.SelectedIndex)
                 {
                     staticResult = Get_StaticResult(m_dom_UserItems, combo_Type.SelectedIndex);
@@ -422,7 +427,7 @@ namespace Motion.Durability
                     nSize = 1;
                     Define_Progress(0, nSize);
 
-                    if (false == m_functions.WriteToStatic(m_save_static.FileName, staticResult))
+                    if (false == m_functions.WriteToStatic(m_save_static.FileName, staticResult, ref errMessage))
                         return;
 
                     pBar1.PerformStep();
@@ -489,7 +494,7 @@ namespace Motion.Durability
                         }
 
 
-                        if (false == m_functions.WriteToStatic(str_path, staticResult))
+                        if (false == m_functions.WriteToStatic(str_path, staticResult, ref errMessage))
                             return;
 
                         pBar1.PerformStep();
@@ -925,10 +930,11 @@ namespace Motion.Durability
         {
             int i;
             bool isSameAnalysisType = false;
+            string errMessage = "";
 
             if (0 == listView_result_list.Items.Count || _bUpdate == true)
             {
-                m_dom_Config = m_functions.CreateXMLFromPost(ar_path[0]);
+                m_dom_Config = m_functions.CreateXMLFromPost(ar_path[0], ref errMessage);
 
                 if ("dynamics" == m_dom_Config.DocumentElement.SelectSingleNode("Configuration/Result").Attributes.GetNamedItem("analysis").Value)
                 {
@@ -950,7 +956,7 @@ namespace Motion.Durability
 
                         if (i > 0)
                         {
-                            m_functions.Distinguish_Analysis_Type(m_analysisScenario, ar_path[i], ref isSameAnalysisType);
+                            m_functions.Distinguish_Analysis_Type(m_analysisScenario, ar_path[i], ref isSameAnalysisType, ref errMessage);
 
                             if (false == isSameAnalysisType)
                             {
@@ -1032,7 +1038,7 @@ namespace Motion.Durability
                         }
                     }
 
-                    m_functions.Distinguish_Analysis_Type(m_analysisScenario, ar_path[i], ref isSameAnalysisType);
+                    m_functions.Distinguish_Analysis_Type(m_analysisScenario, ar_path[i], ref isSameAnalysisType, ref errMessage);
                     if (false == isSameAnalysisType)
                     {
                         string _output1 = listView_result_list.Items[0].Text;
@@ -1587,6 +1593,7 @@ namespace Motion.Durability
             int nResult = 0;
             int nEndStep = 0;           
             int i;
+            string errMessage = "";
 
             foreach (ListViewItem item in listView_result_list.Items)
             {
@@ -1594,7 +1601,7 @@ namespace Motion.Durability
 
                 string _result = item.Tag as string;
 
-                DurabilityData durability = m_functions.BuildDataFromSelection(dom, _result, AnalysisModelType.Statics);
+                DurabilityData durability = m_functions.BuildDataFromSelection(dom, _result, AnalysisModelType.Statics, ref errMessage);
                 if (durability == null)
                     continue;
 

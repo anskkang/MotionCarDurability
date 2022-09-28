@@ -175,16 +175,21 @@ namespace Motion.Durability
             if (DialogResult.OK == m_save_file.ShowDialog())
             {
                 m_functions = new Functions();
-                m_durability = m_functions.BuildDataFromMap(m_open_motionresult.FileName, m_open_map.FileName, AnalysisModelType.Dynamics);
+                string errMessage = "";
+                m_durability = m_functions.BuildDataFromMap(m_open_motionresult.FileName, m_open_map.FileName, AnalysisModelType.Dynamics, ref errMessage);
 
                 if (m_durability == null)
+                {
+                    MessageBox.Show(errMessage, "Error");
                     return;
+                }
+                    
 
                 
 
-                if (false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability))
+                if (false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability, ref errMessage))
                 {
-                    MessageBox.Show("Failed to export results to file.");
+                    MessageBox.Show("Failed to export results to file.\n" + errMessage, "Error");
                     TB_savepath.Text = "Fail !!!";
 
                     return;

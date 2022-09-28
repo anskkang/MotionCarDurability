@@ -21,19 +21,19 @@ namespace Motion.Durability
         string m_strMapPath;
         public Functions() { }
 
-        public DurabilityData BuildDataFromMap(string _strResultPath, string _strMapPath, AnalysisModelType scenario)
+        public DurabilityData BuildDataFromMap(string _strResultPath, string _strMapPath, AnalysisModelType scenario, ref string errMessage)
         {
             m_strMapPath = _strMapPath;
 
             XmlDocument dom = new XmlDocument();
             dom.Load(_strMapPath);
 
-            DurabilityData durability = BuildDataFromSelection(dom, _strResultPath, scenario);
+            DurabilityData durability = BuildDataFromSelection(dom, _strResultPath, scenario, ref errMessage);
 
             return durability;
         }
 
-        public DurabilityData BuildDataFromSelection(XmlDocument dom, string _strResultPath, AnalysisModelType scenario)
+        public DurabilityData BuildDataFromSelection(XmlDocument dom, string _strResultPath, AnalysisModelType scenario, ref string errMessage)
         {
             m_strResultPath = _strResultPath;
             PostAPI.PostAPI postAPI = new PostAPI.PostAPI(_strResultPath);
@@ -48,7 +48,8 @@ namespace Motion.Durability
             durability.StepSize = Convert.ToDouble(node_Stepsize.Attributes.GetNamedItem("value").Value);
             if (durability.StepSize <= 0.0)
             {
-                MessageBox.Show("The step size must be greater than zero", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show("The step size must be greater than zero", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errMessage += "Error : The step size must be greater than zero \n";
                 return null;
             }
 
@@ -69,7 +70,7 @@ namespace Motion.Durability
             if (str_Category == "Bodies")
             {
                 durability.Type = Category.Bodies;
-                if (false == BuildBodyFromMap(node_Item, postAPI, ref durability))
+                if (false == BuildBodyFromMap(node_Item, postAPI, ref durability, ref errMessage))
                     return null;
 
                 // Translate data in the each reference frame
@@ -77,14 +78,14 @@ namespace Motion.Durability
                     return null;
 
                 // Interpolation given step size
-                if (false == Interpolation_For_Body(postAPI, ref durability))
+                if (false == Interpolation_For_Body(postAPI, ref durability, ref errMessage))
                     return null;
 
             }
             else if (str_Category == "Forces")
             {
                 durability.Type = Category.Forces;
-                if (false == BuildForceFromMap(node_Item, postAPI, ref durability))
+                if (false == BuildForceFromMap(node_Item, postAPI, ref durability, ref errMessage))
                     return null;
 
                 // Translate data in the each reference frame
@@ -92,7 +93,7 @@ namespace Motion.Durability
                     return null;
 
                 // Interpolation given step size
-                if (false == Interpolation_For_Force(postAPI, ref durability))
+                if (false == Interpolation_For_Force(postAPI, ref durability, ref errMessage))
                     return null;
             }
             else if (str_Category == "Userdefinedfunctions")
@@ -102,11 +103,11 @@ namespace Motion.Durability
             else if (str_Category == "FlexibleBodies")
             {
                 durability.Type = Category.FEBodies;
-                if (false == BuildFEBodyFromMap(node_Item, postAPI, ref durability))
+                if (false == BuildFEBodyFromMap(node_Item, postAPI, ref durability, ref errMessage))
                     return null;
 
                 // Interpolation given step size
-                if (false == Interpolation_For_FEBody(postAPI, ref durability))
+                if (false == Interpolation_For_FEBody(postAPI, ref durability, ref errMessage))
                     return null;
             }
             else
@@ -120,7 +121,7 @@ namespace Motion.Durability
         }
 
         #region Bodies
-        private bool BuildBodyFromMap(XmlNode _node_Item, PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        private bool BuildBodyFromMap(XmlNode _node_Item, PostAPI.PostAPI _postAPI, ref DurabilityData durability, ref string errMessage)
         {
             int i, j;
             Body body = durability.Body;
@@ -148,7 +149,8 @@ namespace Motion.Durability
             {
                 string str_result = Path.GetFileName(m_strResultPath);
                 string str_error = string.Format("The target body does not exist in “{0}”. . The “{1}” result cannot be exported", str_result, body.Name);
-                MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errMessage += "Error : " + str_error + "\n";
+                //MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -968,7 +970,7 @@ namespace Motion.Durability
             return true;
         }
 
-        private bool Interpolation_For_Body(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        private bool Interpolation_For_Body(PostAPI.PostAPI _postAPI, ref DurabilityData durability, ref string errMessage)
         {
             int i, j, k;
             double[] xarray = null;
@@ -995,7 +997,7 @@ namespace Motion.Durability
 
             if (bSkipInterpolation == false)
             {
-                if (false == Determine_Result_Step(ref durability))
+                if (false == Determine_Result_Step(ref durability, ref errMessage))
                     return false;
 
                 if (nSize_list != durability.ResultStep)
@@ -1318,7 +1320,7 @@ namespace Motion.Durability
 
         #region Forces
 
-        private bool BuildForceFromMap(XmlNode _node_Item, PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        private bool BuildForceFromMap(XmlNode _node_Item, PostAPI.PostAPI _postAPI, ref DurabilityData durability, ref string errMessage)
         {
             int i, j, nNode_force;
             double[] xarray = null;
@@ -1426,7 +1428,8 @@ namespace Motion.Durability
                 {
                     string str_result = Path.GetFileName(m_strResultPath);
                     string str_error = string.Format("The target force does not exist in “{0}”. . The “{1}” result cannot be exported", str_result, force_data.Name);
-                    MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    errMessage += "Error : " + str_error + "\n";
+                    //MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                     //return false;
                 }
@@ -2434,7 +2437,7 @@ namespace Motion.Durability
             return true;
         }
 
-        private bool Interpolation_For_Force(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        private bool Interpolation_For_Force(PostAPI.PostAPI _postAPI, ref DurabilityData durability, ref string errMessage)
         {
             int i, j, k;
             int nRow = 0, nColumn = 0, nDiffer = 0;
@@ -2460,7 +2463,7 @@ namespace Motion.Durability
 
             if (bSkipInterpolation == false)
             {
-                if (false == Determine_Result_Step(ref durability))
+                if (false == Determine_Result_Step(ref durability, ref errMessage))
                     return false;
 
                 foreach (Force force_data in durability.Forces)
@@ -2730,7 +2733,7 @@ namespace Motion.Durability
 
         #region FEBodies
 
-        private bool BuildFEBodyFromMap(XmlNode _node_Item, PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        private bool BuildFEBodyFromMap(XmlNode _node_Item, PostAPI.PostAPI _postAPI, ref DurabilityData durability, ref string errMessage)
         {
             int i, j, k;
             int nFindCount, nBody, nNumofMode, nNumofResultStep = 1;
@@ -2775,7 +2778,8 @@ namespace Motion.Durability
 
             if (nFindCount == 0)
             {
-                MessageBox.Show("There are not FE body in Motion result. Please confirm the name of FE body", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errMessage += "Error : There are not FE body in Motion result. Please confirm the name of FE body.\n";
+                //MessageBox.Show("There are not FE body in Motion result. Please confirm the name of FE body", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -2851,13 +2855,13 @@ namespace Motion.Durability
             return true;
         }
 
-        private bool Interpolation_For_FEBody(PostAPI.PostAPI _postAPI, ref DurabilityData durability)
+        private bool Interpolation_For_FEBody(PostAPI.PostAPI _postAPI, ref DurabilityData durability, ref string errMessage)
         {
             int i, j, k, nBody, nNumofMode, nSize_list;
             double[] xarray;
             double[] yarray;
 
-            if (false == Determine_Result_Step(ref durability))
+            if (false == Determine_Result_Step(ref durability, ref errMessage))
                 return false;
 
             nBody = durability.FEBodies.Count;
@@ -2913,28 +2917,28 @@ namespace Motion.Durability
         }
 
 
-        public bool WriteResultToFile(FileFormat fileFormat, ResultValueType resulttype, string path, DurabilityData durability)
+        public bool WriteResultToFile(FileFormat fileFormat, ResultValueType resulttype, string path, DurabilityData durability, ref string errMessage)
         {
             if (fileFormat == FileFormat.CSV)
             {
-                if (false == WriteToCSV(resulttype, path, durability))
+                if (false == WriteToCSV(resulttype, path, durability, ref errMessage))
                     return false;
             }
             else if (fileFormat == FileFormat.RPC)
             {
-                if (false == WriteToRPC(ResultValueType.FixedStep, path, durability))
+                if (false == WriteToRPC(ResultValueType.FixedStep, path, durability, ref errMessage))
                     return false;
             }
             else if (fileFormat == FileFormat.MCF)
             {
-                if (false == WriteToMCF(resulttype, path, durability))
+                if (false == WriteToMCF(resulttype, path, durability, ref errMessage))
                     return false;
             }
 
             return true;
         }
 
-        private bool WriteToCSV(ResultValueType resulttype, string path, DurabilityData durability)
+        private bool WriteToCSV(ResultValueType resulttype, string path, DurabilityData durability, ref string errMessage)
         {
             Category category = durability.Type;
             StringBuilder sb = new StringBuilder();
@@ -3146,7 +3150,7 @@ namespace Motion.Durability
             return true;
         }
 
-        private bool WriteToMCF(ResultValueType resulttype, string path, DurabilityData durability)
+        private bool WriteToMCF(ResultValueType resulttype, string path, DurabilityData durability, ref string errMessage)
         {
             int i, j, k, nBody, nNumofMode, nlog10, nNumofResult;
             Category category = durability.Type;
@@ -3282,7 +3286,8 @@ namespace Motion.Durability
             }
             else
             {
-                MessageBox.Show("There are not supported type. Please change type", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errMessage += "Error : There are not supported type. Please change type\n";
+                //MessageBox.Show("There are not supported type. Please change type", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -3292,7 +3297,7 @@ namespace Motion.Durability
         }
 
 
-        private bool WriteToRPC(ResultValueType resulttype, string path, DurabilityData durability)
+        private bool WriteToRPC(ResultValueType resulttype, string path, DurabilityData durability, ref string errMessage)
         {
             int i, j;
             int nRemain, nRow, nColumn;
@@ -3306,7 +3311,7 @@ namespace Motion.Durability
             int nCount_Add_Header = 0;
             Int16 full_scale = 32752;
 
-            if (false == Get_RPC_Header(durability, ref lst_key, ref lst_value, ref nCount_Add_Header))
+            if (false == Get_RPC_Header(durability, ref lst_key, ref lst_value, ref nCount_Add_Header, ref errMessage))
                 return false;
 
             pts_per_frame = Convert.ToInt32(lst_value[12]);
@@ -3389,7 +3394,7 @@ namespace Motion.Durability
             return true;
         }
 
-        public bool WriteToStatic(string path, StaticResult staticResult)
+        public bool WriteToStatic(string path, StaticResult staticResult, ref string errMessage)
         {
             
             StringBuilder sb = new StringBuilder();
@@ -3425,7 +3430,7 @@ namespace Motion.Durability
             return true;
         }
 
-        private bool Get_RPC_Header(DurabilityData durability, ref List<string> lst_key, ref List<string> lst_value, ref int nCount)
+        private bool Get_RPC_Header(DurabilityData durability, ref List<string> lst_key, ref List<string> lst_value, ref int nCount, ref string errMessage)
         {
             int i, j;
             int nchannels, nResultStep;
@@ -3969,13 +3974,14 @@ namespace Motion.Durability
             }
         }
 
-        private bool Determine_Result_Step(ref DurabilityData durability)
+        private bool Determine_Result_Step(ref DurabilityData durability, ref string errMessage)
         {
             int nCount;
 
             if (durability.StepSize > durability.EndTime)
             {
-                MessageBox.Show("The step size is greater than the end time of result", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errMessage += "Error : The step size is greater than the end time of result\n";
+                //MessageBox.Show("The step size is greater than the end time of result", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -4041,7 +4047,7 @@ namespace Motion.Durability
             return dom;
         }
 
-        public XmlDocument CreateXMLFromPost(string _path_dfr)
+        public XmlDocument CreateXMLFromPost(string _path_dfr, ref string errMessage)
         {
             int i, j, count_Rbody, count_connector, count_FModal;
             XmlDocument dom = CreateDurabilityXML();
@@ -4239,7 +4245,7 @@ namespace Motion.Durability
 
         }
 
-        public bool Distinguish_Analysis_Type(AnalysisModelType _toolScenario, string _path_dfr, ref bool _isSameAnalysysType)
+        public bool Distinguish_Analysis_Type(AnalysisModelType _toolScenario, string _path_dfr, ref bool _isSameAnalysysType, ref string errMessage)
         {
            // int i, j, count_Rbody;
             AnalysisModelType targetScenario;
