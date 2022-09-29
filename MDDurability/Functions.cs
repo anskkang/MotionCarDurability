@@ -835,6 +835,10 @@ namespace Motion.Durability
                             {
                                 for (j = 0; j < 3; j++)
                                 {
+                                    Ai[j] = durability.Body.RF_Orientations[i][j];
+                                    Ai[j + 3] = durability.Body.RF_Orientations[i][j + 3];
+                                    Ai[j + 6] = durability.Body.RF_Orientations[i][j + 6];
+
                                     Aj[j] = durability.OrientationOfChassis[i][j];
                                     Aj[j + 3] = durability.OrientationOfChassis[i][j + 3];
                                     Aj[j + 6] = durability.OrientationOfChassis[i][j + 6];
