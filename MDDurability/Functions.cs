@@ -3159,10 +3159,12 @@ namespace Motion.Durability
         private bool WriteToMCF(ResultValueType resulttype, string path, DurabilityData durability, ref string errMessage)
         {
             int i, j, k, nBody, nNumofMode, nlog10, nNumofResult;
+            int nLineChanger;
             Category category = durability.Type;
             StringBuilder sb;
             string str_precision = durability.Precision;
             string str_seperator = " ", str_seperator1 = "  ", str_seperator2 = "      ";
+            string str_seperator15 = "               " ,str_CRLF="\r\n";
             string[] ar_space = new string[6];
             nBody = durability.FEBodies.Count;
             double[] xarray;
@@ -3177,6 +3179,7 @@ namespace Motion.Durability
             string str_temp, str_dir, str_filename, str_FEbodyname;
             string[] ar_str_tmp;
             double dvalue;
+            nLineChanger = 50;
             if (category == Category.FEBodies)
             {
                 for (i = 0; i < nBody; i++)
@@ -3201,18 +3204,35 @@ namespace Motion.Durability
                         if (j == (nNumofMode - 1))
                             str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
                         else
-                            str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
+                        {
+                            if ((j+1) == nLineChanger)
+                            {
+                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2 + str_CRLF + str_seperator15;
+                                nLineChanger = nLineChanger + 50;
+                            }
+                            else
+                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
+                        }
                     }
                     sb.AppendLine(str_temp);
 
                     str_temp = str_seperator1 + "Frequency:   ";
+                    nLineChanger = 50;
                     for (j = 0; j < nNumofMode; j++)
                     {
                         nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
                         if (j == (nNumofMode - 1))
                             str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
                         else
-                            str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
+                        {
+                            if ((j + 1) == nLineChanger)
+                            {
+                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2 + str_CRLF + str_seperator15;
+                                nLineChanger = nLineChanger + 50;
+                            }
+                            else
+                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
+                        }
                     }
                     sb.AppendLine(str_temp);
 
@@ -3227,6 +3247,7 @@ namespace Motion.Durability
 
                         for (j = 0; j < nNumofResult; j++)
                         {
+                            nLineChanger = 50;
                             str_temp = str_seperator1 + xarray[j].ToString(str_precision);
                             for (k = 0; k < nNumofMode; k++)
                             {
@@ -3236,9 +3257,25 @@ namespace Motion.Durability
                                     dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k-6][j];
 
                                 if (dvalue >= 0.0)
-                                    str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                {
+                                    if ((k + 1) == nLineChanger)
+                                    {
+                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        nLineChanger = nLineChanger + 50;
+                                    }
+                                    else
+                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                }
                                 else
-                                    str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                {
+                                    if ((k + 1) == nLineChanger)
+                                    {
+                                        str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        nLineChanger = nLineChanger + 50;
+                                    }
+                                    else
+                                        str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                }
                             }
                             sb.AppendLine(str_temp);
                         }
@@ -3250,6 +3287,7 @@ namespace Motion.Durability
 
                         for (j = 0; j < nNumofResult; j++)
                         {
+                            nLineChanger = 50;
                             str_temp = str_seperator1 + xarray[j].ToString(str_precision);
                             for (k = 0; k < nNumofMode; k++)
                             {
@@ -3259,9 +3297,25 @@ namespace Motion.Durability
                                     dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k-6][j];
 
                                 if (dvalue >= 0.0)
-                                    str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                {
+                                    if ((k + 1) == nLineChanger)
+                                    {
+                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        nLineChanger = nLineChanger + 50;
+                                    }
+                                    else
+                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                }
                                 else
-                                    str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                {
+                                    if ((k + 1) == nLineChanger)
+                                    {
+                                        str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        nLineChanger = nLineChanger + 50;
+                                    }
+                                    else
+                                        str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                }
                             }
 
                             sb.AppendLine(str_temp);
