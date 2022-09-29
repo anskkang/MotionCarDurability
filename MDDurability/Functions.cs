@@ -2253,23 +2253,29 @@ namespace Motion.Durability
 
                             for (i = 0; i < nlength; i++)
                             {
+                                //for (j = 0; j < 3; j++)
+                                //{
+                                //    Fi[j] = entity.OrinalValue[i][j];
+                                //    Ti[j] = entity.OrinalValue[i][j + 3];
+
+                                //    Aj[j] = durability.OrientationOfChassis[i][j];
+                                //    Aj[j + 3] = durability.OrientationOfChassis[i][j + 3];
+                                //    Aj[j + 6] = durability.OrientationOfChassis[i][j + 6];
+                                //}
+
+                                //lib_math.mattrvec(Aj, Fi, ref Fi_2prime);
+                                //lib_math.mattrvec(Aj, Ti, ref Ti_2prime);
+
+                                //for (j = 0; j < 3; j++)
+                                //{
+                                //    entity.TransformValue[i][j] = Fi_2prime[j];
+                                //    entity.TransformValue[i][j + 3] = Ti_2prime[j];
+                                //}
+
                                 for (j = 0; j < 3; j++)
                                 {
-                                    Fi[j] = entity.OrinalValue[i][j];
-                                    Ti[j] = entity.OrinalValue[i][j + 3];
-
-                                    Aj[j] = durability.OrientationOfChassis[i][j];
-                                    Aj[j + 3] = durability.OrientationOfChassis[i][j + 3];
-                                    Aj[j + 6] = durability.OrientationOfChassis[i][j + 6];
-                                }
-
-                                lib_math.mattrvec(Aj, Fi, ref Fi_2prime);
-                                lib_math.mattrvec(Aj, Ti, ref Ti_2prime);
-
-                                for (j = 0; j < 3; j++)
-                                {
-                                    entity.TransformValue[i][j] = Fi_2prime[j];
-                                    entity.TransformValue[i][j + 3] = Ti_2prime[j];
+                                    entity.TransformValue[i][j] = entity.OrinalValue[i][j];
+                                    entity.TransformValue[i][j + 3] = entity.OrinalValue[i][j + 3];
                                 }
                             }
 
