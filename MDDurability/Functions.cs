@@ -3264,7 +3264,11 @@ namespace Motion.Durability
                                 {
                                     if ((k + 1) == nLineChanger)
                                     {
-                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        if(nLineChanger == nNumofMode)
+                                            str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                        else
+                                            str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+
                                         nLineChanger = nLineChanger + 50;
                                     }
                                     else
@@ -3274,7 +3278,11 @@ namespace Motion.Durability
                                 {
                                     if ((k + 1) == nLineChanger)
                                     {
-                                        str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        if (nLineChanger == nNumofMode)
+                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                        else
+                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+
                                         nLineChanger = nLineChanger + 50;
                                     }
                                     else
@@ -3304,7 +3312,11 @@ namespace Motion.Durability
                                 {
                                     if ((k + 1) == nLineChanger)
                                     {
-                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        if (nLineChanger == nNumofMode)
+                                            str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                        else
+                                            str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+
                                         nLineChanger = nLineChanger + 50;
                                     }
                                     else
@@ -3314,7 +3326,11 @@ namespace Motion.Durability
                                 {
                                     if ((k + 1) == nLineChanger)
                                     {
-                                        str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        if (nLineChanger == nNumofMode)
+                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                        else
+                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+
                                         nLineChanger = nLineChanger + 50;
                                     }
                                     else
