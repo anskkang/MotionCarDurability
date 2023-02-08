@@ -311,6 +311,12 @@ namespace Motion.Durability
                             }
 
                         }
+
+                        if("" != errMessage)
+                        {
+                            MessageBox.Show("Description : The following error occurred while writing the file.\n"
+                                            + errMessage + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                     else
                     {
