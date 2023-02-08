@@ -2747,12 +2747,27 @@ namespace Motion.Durability
         {
             int i, j, k;
             int nFindCount, nBody, nNumofMode, nNumofResultStep = 1;
-            string str_bd_name;
+            string str_bd_name, str_mcf_format;
+            MCFFormat mCFFormat;
 
             IList<(BodyType, string)> Mbodies = _postAPI.GetBodies(VM.Enums.Post.BodyType.MODAL);
             IList<(BodyType, string)> EF_Mbodies = _postAPI.GetBodies(VM.Enums.Post.BodyType.EF_MODAL);
 
             XmlNodeList lst_Node = _node_Item.SelectNodes("Body");
+
+            if (null == _node_Item.Attributes.GetNamedItem("mcf_format"))
+            {
+                mCFFormat = MCFFormat.Wrapped;
+            }
+            else
+            {
+                str_mcf_format = _node_Item.Attributes.GetNamedItem("mcf_format").Value;
+
+                if ("0" == str_mcf_format)
+                    mCFFormat = MCFFormat.Wrapped;
+                else
+                    mCFFormat = MCFFormat.Unwrapped;
+            }
 
             nBody = lst_Node.Count;
             nFindCount = 0;
@@ -2766,6 +2781,7 @@ namespace Motion.Durability
                     {
                         FEBody body = new FEBody();
                         body.Name = str_bd_name;
+                        body.MCF_Write_Format = mCFFormat;
                         durability.FEBodies.Add(body);
                         nFindCount++;
                     }
@@ -2779,6 +2795,7 @@ namespace Motion.Durability
                         {
                             FEBody body = new FEBody();
                             body.Name = str_bd_name;
+                            body.MCF_Write_Format = mCFFormat;
                             durability.FEBodies.Add(body);
                             nFindCount++;
                         }
@@ -3166,6 +3183,7 @@ namespace Motion.Durability
             int nLineChanger;
             Category category = durability.Type;
             StringBuilder sb;
+            MCFFormat mCFFormat;
             string str_precision = durability.Precision;
             string str_seperator = " ", str_seperator1 = "  ", str_seperator2 = "      ";
             string str_seperator15 = "               " ,str_CRLF="\r\n";
@@ -3200,40 +3218,70 @@ namespace Motion.Durability
                     sb.AppendLine("Number of Modes: " + (durability.FEBodies[i].NumofMode + 6));
 
                     nNumofMode = durability.FEBodies[i].OriginalTime_Modal_Coordinates.Count + 6;
+                    mCFFormat = durability.FEBodies[i].MCF_Write_Format;
 
                     str_temp = str_seperator1 + "Mode:        ";
-                    for (j = 0; j < nNumofMode; j++)
+
+                    if (mCFFormat == MCFFormat.Unwrapped)
                     {
-                        nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
-                        if (j == (nNumofMode - 1))
-                            str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
-                        else
+                        for (j = 0; j < nNumofMode; j++)
                         {
-                            if ((j+1) == nLineChanger)
-                            {
-                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2 + str_CRLF + str_seperator15;
-                                nLineChanger = nLineChanger + 50;
-                            }
+                            nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
+                            if (j == (nNumofMode - 1))
+                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
                             else
-                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
+                            {
+                                if ((j + 1) == nLineChanger)
+                                {
+                                    str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2 + str_CRLF + str_seperator15;
+                                    nLineChanger = nLineChanger + 50;
+                                }
+                                else
+                                    str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (j = 0; j < nNumofMode; j++)
+                        {
+                            nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
+                            if (j == (nNumofMode - 1))
+                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
+                            else
+                                 str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
                         }
                     }
                     sb.AppendLine(str_temp);
 
                     str_temp = str_seperator1 + "Frequency:   ";
                     nLineChanger = 50;
-                    for (j = 0; j < nNumofMode; j++)
+                    if (mCFFormat == MCFFormat.Unwrapped)
                     {
-                        nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
-                        if (j == (nNumofMode - 1))
-                            str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
-                        else
+                        for (j = 0; j < nNumofMode; j++)
                         {
-                            if ((j + 1) == nLineChanger)
+                            nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
+                            if (j == (nNumofMode - 1))
+                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
+                            else
                             {
-                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2 + str_CRLF + str_seperator15;
-                                nLineChanger = nLineChanger + 50;
+                                if ((j + 1) == nLineChanger)
+                                {
+                                    str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2 + str_CRLF + str_seperator15;
+                                    nLineChanger = nLineChanger + 50;
+                                }
+                                else
+                                    str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
                             }
+                        }
+                    }
+                    else
+                    {
+                        for (j = 0; j < nNumofMode; j++)
+                        {
+                            nlog10 = (int)Math.Truncate(Math.Log10(j + 1));
+                            if (j == (nNumofMode - 1))
+                                str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString();
                             else
                                 str_temp = str_temp + str_seperator1 + ar_space[nlog10] + (j + 1).ToString() + str_seperator2;
                         }
@@ -3249,47 +3297,74 @@ namespace Motion.Durability
                         xarray = durability.OriginalTimes.ToArray();
                         nNumofResult = xarray.Length;
 
-                        for (j = 0; j < nNumofResult; j++)
+                        if (mCFFormat == MCFFormat.Unwrapped)
                         {
-                            nLineChanger = 50;
-                            str_temp = str_seperator1 + xarray[j].ToString(str_precision);
-                            for (k = 0; k < nNumofMode; k++)
+                            for (j = 0; j < nNumofResult; j++)
                             {
-                                if (k < 6)
-                                    dvalue = 0.0;
-                                else
-                                    dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k-6][j];
-
-                                if (dvalue >= 0.0)
+                                nLineChanger = 50;
+                                str_temp = str_seperator1 + xarray[j].ToString(str_precision);
+                                for (k = 0; k < nNumofMode; k++)
                                 {
-                                    if ((k + 1) == nLineChanger)
+                                    if (k < 6)
+                                        dvalue = 0.0;
+                                    else
+                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j];
+
+                                    if (dvalue >= 0.0)
                                     {
-                                        if(nLineChanger == nNumofMode)
+                                        if ((k + 1) == nLineChanger)
+                                        {
+                                            if (nLineChanger == nNumofMode)
+                                                str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                            else
+                                                str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+
+                                            nLineChanger = nLineChanger + 50;
+                                        }
+                                        else
                                             str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
-                                        else
-                                            str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
-
-                                        nLineChanger = nLineChanger + 50;
                                     }
                                     else
-                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
-                                }
-                                else
-                                {
-                                    if ((k + 1) == nLineChanger)
                                     {
-                                        if (nLineChanger == nNumofMode)
-                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
-                                        else
-                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        if ((k + 1) == nLineChanger)
+                                        {
+                                            if (nLineChanger == nNumofMode)
+                                                str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                            else
+                                                str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
 
-                                        nLineChanger = nLineChanger + 50;
+                                            nLineChanger = nLineChanger + 50;
+                                        }
+                                        else
+                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                    }
+                                }
+                                sb.AppendLine(str_temp);
+                            }
+                        }
+                        else
+                        {
+                            for (j = 0; j < nNumofResult; j++)
+                            {
+                                str_temp = str_seperator1 + xarray[j].ToString(str_precision);
+                                for (k = 0; k < nNumofMode; k++)
+                                {
+                                    if (k < 6)
+                                        dvalue = 0.0;
+                                    else
+                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j];
+
+                                    if (dvalue >= 0.0)
+                                    {
+                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
                                     }
                                     else
+                                    {
                                         str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                    }
                                 }
+                                sb.AppendLine(str_temp);
                             }
-                            sb.AppendLine(str_temp);
                         }
                     }
                     else if (resulttype == ResultValueType.FixedStep)
@@ -3297,48 +3372,77 @@ namespace Motion.Durability
                         xarray = durability.FixedTimes.ToArray();
                         nNumofResult = xarray.Length;
 
-                        for (j = 0; j < nNumofResult; j++)
+                        if (mCFFormat == MCFFormat.Unwrapped)
                         {
-                            nLineChanger = 50;
-                            str_temp = str_seperator1 + xarray[j].ToString(str_precision);
-                            for (k = 0; k < nNumofMode; k++)
+                            for (j = 0; j < nNumofResult; j++)
                             {
-                                if (k < 6)
-                                    dvalue = 0.0;
-                                else
-                                    dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k-6][j];
-
-                                if (dvalue >= 0.0)
+                                nLineChanger = 50;
+                                str_temp = str_seperator1 + xarray[j].ToString(str_precision);
+                                for (k = 0; k < nNumofMode; k++)
                                 {
-                                    if ((k + 1) == nLineChanger)
+                                    if (k < 6)
+                                        dvalue = 0.0;
+                                    else
+                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j];
+
+                                    if (dvalue >= 0.0)
                                     {
-                                        if (nLineChanger == nNumofMode)
+                                        if ((k + 1) == nLineChanger)
+                                        {
+                                            if (nLineChanger == nNumofMode)
+                                                str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
+                                            else
+                                                str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+
+                                            nLineChanger = nLineChanger + 50;
+                                        }
+                                        else
                                             str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
-                                        else
-                                            str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
-
-                                        nLineChanger = nLineChanger + 50;
                                     }
                                     else
-                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
-                                }
-                                else
-                                {
-                                    if ((k + 1) == nLineChanger)
                                     {
-                                        if (nLineChanger == nNumofMode)
-                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
-                                        else
-                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
+                                        if ((k + 1) == nLineChanger)
+                                        {
+                                            if (nLineChanger == nNumofMode)
+                                                str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                            else
+                                                str_temp = str_temp + str_seperator + dvalue.ToString(str_precision) + str_CRLF + str_seperator15;
 
-                                        nLineChanger = nLineChanger + 50;
+                                            nLineChanger = nLineChanger + 50;
+                                        }
+                                        else
+                                            str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                    }
+                                }
+
+                                sb.AppendLine(str_temp);
+                            }
+                        }
+                        else
+                        {
+                            for (j = 0; j < nNumofResult; j++)
+                            {
+                                nLineChanger = 50;
+                                str_temp = str_seperator1 + xarray[j].ToString(str_precision);
+                                for (k = 0; k < nNumofMode; k++)
+                                {
+                                    if (k < 6)
+                                        dvalue = 0.0;
+                                    else
+                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j];
+
+                                    if (dvalue >= 0.0)
+                                    {
+                                        str_temp = str_temp + str_seperator1 + dvalue.ToString(str_precision);
                                     }
                                     else
+                                    {
                                         str_temp = str_temp + str_seperator + dvalue.ToString(str_precision);
+                                    }
                                 }
-                            }
 
-                            sb.AppendLine(str_temp);
+                                sb.AppendLine(str_temp);
+                            }
                         }
                     }
 
@@ -4303,6 +4407,7 @@ namespace Motion.Durability
             for(i = 0; i < count_FModal; i++)
             {
                 XmlNode node_Fbody = CreateNodeAndAttribute(dom, "FBody", "name", Fbodies[i].Item2);
+                CreateAttributeXML(dom, ref node_Fbody, "mcf_format", "0");
                 node_FEs.AppendChild(node_Fbody);
             }
 
