@@ -3359,7 +3359,15 @@ namespace Motion.Durability
 
                     str_filename = str_filename +"_"+ str_FEbodyname + ".mcf";
                     str_dir = Path.GetDirectoryName(path);
+
                     str_temp = Path.Combine(str_dir, str_filename);
+
+                    if((str_temp.Length - 4) >= 248)
+                    {
+                        errMessage += "Error : The length of the file path is too long. Its length must be less than 260.\n";
+                        errMessage += "File Path :" + str_temp + "\n";
+                        return false;
+                    }
 
                     File.WriteAllText(str_temp, sb.ToString());
                 }
@@ -3686,6 +3694,10 @@ namespace Motion.Durability
                         }
                     }
                 }
+            }
+            else if (durability.Type == Category.FEBodies)
+            {
+
             }
             else if (durability.Type == Category.UserDefinedFunctions)
             {

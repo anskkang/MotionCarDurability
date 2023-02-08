@@ -126,6 +126,12 @@ namespace Motion.Durability
             Define_Progress(0, 1);
             if (DialogResult.OK == m_save_map.ShowDialog())
             {
+                 if (260 <= m_save_map.FileName.Length)
+                {
+                    MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + m_save_map.FileName + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 m_functions.WriteMap(m_save_map.FileName, m_dom_UserItems);
                 pBar1.PerformStep();
             }
@@ -152,6 +158,18 @@ namespace Motion.Durability
             {
                 string _dir = Path.GetDirectoryName(m_save_rpc.FileName);
                 string _userNamed = Path.GetFileNameWithoutExtension(m_save_rpc.FileName);
+
+                if (248 <= _dir.Length)
+                {
+                    MessageBox.Show("Error : The length of the directory is too long. Its length must be less than 248.\n" + "Directory : " + _dir + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                else if (260 <= _userNamed.Length)
+                {
+                    MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + _userNamed + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 string errMessage = "";
 
                 if (0 == tab_main.SelectedIndex)
@@ -163,6 +181,12 @@ namespace Motion.Durability
 
                         string _output = item.Text + "_" + _userNamed + ".rsp";
                         string _path = Path.Combine(_dir, _output);
+
+                        if (260 <= (_path.Length - 4)) 
+                        {
+                            MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File path : " + _path + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
 
                         string _result = item.Tag as string;
 
@@ -251,6 +275,17 @@ namespace Motion.Durability
                     string _userNamed = Path.GetFileNameWithoutExtension(m_save_csv.FileName);
                     string errMessage = "";
 
+                    if (248 <= _dir.Length)
+                    {
+                        MessageBox.Show("Error : The length of the directory is too long. Its length must be less than 248.\n" + "Directory : " + _dir + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    else if (260 <= _userNamed.Length)
+                    {
+                        MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + _userNamed + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     if (0 == tab_main.SelectedIndex)
                     {
                         int nCount = listView_result_list.Items.Count ;
@@ -321,6 +356,18 @@ namespace Motion.Durability
                 {
                     string _dir = Path.GetDirectoryName(m_save_csv.FileName);
                     string _userNamed = Path.GetFileNameWithoutExtension(m_save_csv.FileName);
+
+                    if (248 <= _dir.Length)
+                    {
+                        MessageBox.Show("Error : The length of the directory is too long. Its length must be less than 248.\n" + "Directory : " + _dir + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    else if (260 <= _userNamed.Length)
+                    {
+                        MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + _userNamed + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     string errMessage = "";
 
                     if (0 == tab_main.SelectedIndex)
@@ -334,6 +381,12 @@ namespace Motion.Durability
 
                             string _output = item.Text + "_" + _userNamed + ".csv";
                             string _path = Path.Combine(_dir, _output);
+
+                            if (260 <= (_path.Length - 4))
+                            {
+                                MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File path : " + _path + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
 
                             string _result = item.Tag as string;
 
@@ -436,6 +489,18 @@ namespace Motion.Durability
                 {
                     string _dir = Path.GetDirectoryName(m_save_static.FileName);
                     string _userNamed = Path.GetFileNameWithoutExtension(m_save_static.FileName);
+
+                    if (248 <= _dir.Length)
+                    {
+                        MessageBox.Show("Error : The length of the directory is too long. Its length must be less than 248.\n" + "Directory : " + _dir + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    else if (260 <= _userNamed.Length)
+                    {
+                        MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + _userNamed + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     string str_path = "";
                     string str_map_path = "";
                     XmlDocument dom = null;
@@ -447,6 +512,12 @@ namespace Motion.Durability
                     {
                         string _output = _userNamed + "_" + item.Text + ".csv";
                         str_path = Path.Combine(_dir, _output);
+
+                        if (260 <= (str_path.Length - 4))
+                        {
+                            MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File path : " + str_path + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
 
                         str_map_path = item.Tag as string;
 
