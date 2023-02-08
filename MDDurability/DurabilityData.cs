@@ -61,6 +61,12 @@ namespace Motion.Durability
         Static = 3
     }
 
+    public enum MCFFormat
+    {
+        Wrapped = 0,
+        Unwrapped = 1
+    }
+
     public class EntityForBody
     {
         public EntityForBody()
@@ -448,11 +454,13 @@ namespace Motion.Durability
         {
             m_lstOriginStep_MC = new List<double[]>();
             m_lstFixedStep_MC = new List<double[]>();
+            m_mcfformat = MCFFormat.Wrapped;
         }
 
         private string m_strName;
         private List<double[]> m_lstOriginStep_MC;
         private List<double[]> m_lstFixedStep_MC;
+        private MCFFormat m_mcfformat;
 
         public string Name
         {
@@ -472,7 +480,11 @@ namespace Motion.Durability
             set { m_lstFixedStep_MC = value; }
         }
 
-        
+        public MCFFormat MCF_Write_Format
+        {
+            get { return m_mcfformat; }
+            set { m_mcfformat = value; }
+        }
 
         public int NumofMode { get; set; }
 

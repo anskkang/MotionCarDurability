@@ -349,6 +349,12 @@ namespace Motion.Durability
                             }
                         }
 
+                        if ("" != errMessage)
+                        {
+                            MessageBox.Show("Description : The following error occurred while writing the file.\n"
+                                            + errMessage + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+
                     }
 
                 }
@@ -674,7 +680,9 @@ namespace Motion.Durability
 
         private void combo_Type_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //listView_RF.Items.Clear();
+            gb_Unit.Visible = true;
+            Change_ComboBox_Contents(combo_Type.SelectedIndex);
+
             if (0 == combo_Type.SelectedIndex)
             {
                 listView_type.MultiSelect = false;
@@ -696,7 +704,7 @@ namespace Motion.Durability
                 }
 
                 dgv_Entity.Columns[2].Visible = true;
-                gb_Unit.Visible = true;
+                //gb_Unit.Visible = true;
                 
             }
             else if (1 == combo_Type.SelectedIndex)
@@ -720,7 +728,7 @@ namespace Motion.Durability
                 }
 
                 dgv_Entity.Columns[2].Visible = false;
-                gb_Unit.Visible = true;
+                //gb_Unit.Visible = true;
             }
             else if (2 == combo_Type.SelectedIndex)
             {
@@ -743,7 +751,7 @@ namespace Motion.Durability
                 }
 
                 dgv_Entity.Columns[2].Visible = false;
-                gb_Unit.Visible = false;
+                //gb_Unit.Visible = false;
             }
 
             if (listView_result_list.Items.Count > 0)
@@ -1320,6 +1328,12 @@ namespace Motion.Durability
             {
                 // FE Modal bodies
                 node_Item = m_functions.CreateNodeAndAttribute(_dom, "Item", "name", "FlexibleBodies");
+
+                if(0 == combo_Force.SelectedIndex)
+                    m_functions.CreateAttributeXML(_dom, ref node_Item, "mcf_format", "0");
+                else
+                    m_functions.CreateAttributeXML(_dom, ref node_Item, "mcf_format", "1");
+
                 string str_FB_name = "";
                 foreach (ListViewItem item in lst_Checked)
                 {
@@ -1793,6 +1807,48 @@ namespace Motion.Durability
             foreach (ListViewItem item in listView_type.SelectedItems)
                 item.ForeColor = Color.Red; 
 
+        }
+
+        void Change_ComboBox_Contents(int nIndex)
+        {
+            if(2 == nIndex)
+            {
+                combo_Force.Items.Clear();
+
+                combo_Force.Items.AddRange(new object[] { "Wrapped", "Unwrapped"});
+                combo_Force.SelectedIndex = 0;
+
+                label4.Text = "Format :";
+                gb_Unit.Text = "Writing Format for MCF";
+
+                label5.Visible = false;
+                combo_length.Visible = false;
+
+                label6.Visible = false;
+                combo_Angle.Visible = false;
+
+                label7.Visible = false;
+                combo_Time.Visible = false;
+            }
+            else
+            {
+                combo_Force.Items.Clear();
+
+                combo_Force.Items.AddRange(new object[] {"N","kg*f", "lbf"});
+                combo_Force.SelectedIndex = 0;
+
+                label4.Text = "Force :";
+                gb_Unit.Text = "Unit Selection";
+
+                label5.Visible = true;
+                combo_length.Visible = true;
+
+                label6.Visible = true;
+                combo_Angle.Visible = true;
+
+                label7.Visible = true;
+                combo_Time.Visible = true;
+            }
         }
 
 
