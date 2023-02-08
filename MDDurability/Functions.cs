@@ -2887,6 +2887,9 @@ namespace Motion.Durability
             int i, j, k, nBody, nNumofMode, nSize_list;
             double[] xarray;
             double[] yarray;
+            double y_value = 0.0, y_max = 0.0;
+            double err_tol = 1.0e-10;
+            bool bChangeStep;
 
             if (false == Determine_Result_Step(ref durability, ref errMessage))
                 return false;
@@ -2894,12 +2897,21 @@ namespace Motion.Durability
             nBody = durability.FEBodies.Count;
 
             xarray = durability.OriginalTimes.ToArray();
+            yarray = new double[durability.ResultStep];
             nSize_list = xarray.Length;
 
+            if (nSize_list != durability.ResultStep)
+            {
+                bChangeStep = true;
+            }
+            else bChangeStep = false;
 
             for (i = 0; i < nBody; i++)
             {
                 nNumofMode = durability.FEBodies[i].OriginalTime_Modal_Coordinates.Count;
+
+                for (j = 0; j < 6; j++)
+                    durability.FEBodies[i].MaxValues.Add(0.0);
 
                 for (j = 0; j < nNumofMode; j++)
                 {
@@ -2914,6 +2926,24 @@ namespace Motion.Durability
                     }
 
                     durability.FEBodies[i].FixedTime_Modal_Coordinates.Add(result.Item3);
+
+                    //yarray = durability.FEBodies[i].FixedTime_Modal_Coordinates[j];
+                    for (k = 0; k < durability.ResultStep; k++)
+                    {
+                        y_value = result.Item3[k];
+                        if (err_tol > Math.Abs(y_value))
+                            y_value = 0.0;
+
+                        if (j == 0)
+                            y_max = Math.Abs(y_value);
+                        else
+                        {
+                            if (Math.Abs(y_value) > y_max)
+                                y_max = Math.Abs(y_value);
+
+                        }
+                    }
+                    durability.FEBodies[i].MaxValues.Add(y_max);
                 }
 
             }
@@ -3491,97 +3521,223 @@ namespace Motion.Durability
 
         private bool WriteToRPC(ResultValueType resulttype, string path, DurabilityData durability, ref string errMessage)
         {
-            int i, j;
+            int i, j, k;
             int nRemain, nRow, nColumn;
             int pts_total, pts_per_frame, frame;
 
-            FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
-            BinaryWriter bw = new BinaryWriter(fs);
+            string str_temp, str_dir, str_filename, str_FEbodyname;
+            string[] ar_str_tmp;
 
-            List<string> lst_key = new List<string>();
-            List<string> lst_value = new List<string>();
-            int nCount_Add_Header = 0;
-            Int16 full_scale = 32752;
-
-            if (false == Get_RPC_Header(durability, ref lst_key, ref lst_value, ref nCount_Add_Header, ref errMessage))
-                return false;
-
-            pts_per_frame = Convert.ToInt32(lst_value[12]);
-            frame = Convert.ToInt32(lst_value[14]);
-            pts_total = pts_per_frame * frame;
-
-            List<double[]> lst_data = new List<double[]>();
-            List<double> lst_max = new List<double>();
-
-            if (false == Get_RPC_Data(durability, ref lst_data, ref lst_max))
-                return false;
-
-            List<Int16[]> lst_data_New = new List<Int16[]>();
-
-
-            if (false == COnvert_RPC_Data_To_INT_FULL_SCALE(lst_data, lst_max, full_scale, ref lst_data_New))
-                return false;
-
-            // Write Header block
-            nRow = lst_key.Count;
-            for (i = 0; i < nRow; i++)
+            if (durability.Type != Category.FEBodies)
             {
-                nColumn = lst_key[i].Length;
-                for (j = nColumn; j < 32; j++)
-                    lst_key[i] = lst_key[i] + "\0";
+                FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
+                BinaryWriter bw = new BinaryWriter(fs);
 
-                nColumn = lst_key[i].Length;
-                for (j = 0; j < nColumn; j++)
-                    bw.Write(lst_key[i][j]);
+                List<string> lst_key = new List<string>();
+                List<string> lst_value = new List<string>();
+                int nCount_Add_Header = 0;
+                Int16 full_scale = 32752;
 
-                //nRemain = 32 - nColumn;
-                //for (j = 0; j < nRemain; j++)
-                //    bw.Write("\0");
+                if (false == Get_RPC_Header(durability, ref lst_key, ref lst_value, ref nCount_Add_Header, ref errMessage))
+                    return false;
 
-                nColumn = lst_value[i].Length;
-                for (j = nColumn; j < 96; j++)
-                    lst_value[i] = lst_value[i] + "\0";
+                pts_per_frame = Convert.ToInt32(lst_value[12]);
+                frame = Convert.ToInt32(lst_value[14]);
+                pts_total = pts_per_frame * frame;
 
-                nColumn = lst_value[i].Length;
-                for (j = 0; j < nColumn; j++)
-                    bw.Write(lst_value[i][j]);
+                List<double[]> lst_data = new List<double[]>();
+                List<double> lst_max = new List<double>();
 
-                //nRemain = 96 - nColumn;
-                //for (j = 0; j < nRemain; j++)
-                //    bw.Write("\0");
-            }
+                if (false == Get_RPC_Data(durability, ref lst_data, ref lst_max))
+                    return false;
 
-            string str_null = "";
-            for (i = 0; i < 128; i++)
-                str_null = str_null + "\0";
+                List<Int16[]> lst_data_New = new List<Int16[]>();
 
-            for (i = 0; i < nCount_Add_Header; i++)
-            {
-                for (j = 0; j < 128; j++)
-                    bw.Write(str_null[j]);
-            }
 
-            // Write data
-            nRow = lst_data_New.Count;
+                if (false == COnvert_RPC_Data_To_INT_FULL_SCALE(lst_data, lst_max, full_scale, ref lst_data_New))
+                    return false;
 
-            for (i = 0; i < nRow; i++)
-            {
-                nColumn = lst_data_New[i].Length;
-                nRemain = pts_total - nColumn;
-
-                for (j = 0; j < nColumn; j++)
+                // Write Header block
+                nRow = lst_key.Count;
+                for (i = 0; i < nRow; i++)
                 {
-                    bw.Write(lst_data_New[i][j]);
+                    nColumn = lst_key[i].Length;
+                    for (j = nColumn; j < 32; j++)
+                        lst_key[i] = lst_key[i] + "\0";
+
+                    nColumn = lst_key[i].Length;
+                    for (j = 0; j < nColumn; j++)
+                        bw.Write(lst_key[i][j]);
+
+                    //nRemain = 32 - nColumn;
+                    //for (j = 0; j < nRemain; j++)
+                    //    bw.Write("\0");
+
+                    nColumn = lst_value[i].Length;
+                    for (j = nColumn; j < 96; j++)
+                        lst_value[i] = lst_value[i] + "\0";
+
+                    nColumn = lst_value[i].Length;
+                    for (j = 0; j < nColumn; j++)
+                        bw.Write(lst_value[i][j]);
+
+                    //nRemain = 96 - nColumn;
+                    //for (j = 0; j < nRemain; j++)
+                    //    bw.Write("\0");
                 }
 
-                for (j = 0; j < nRemain; j++)
+                string str_null = "";
+                for (i = 0; i < 128; i++)
+                    str_null = str_null + "\0";
+
+                for (i = 0; i < nCount_Add_Header; i++)
                 {
-                    bw.Write("\0");
+                    for (j = 0; j < 128; j++)
+                        bw.Write(str_null[j]);
+                }
+
+                // Write data
+                nRow = lst_data_New.Count;
+
+                for (i = 0; i < nRow; i++)
+                {
+                    nColumn = lst_data_New[i].Length;
+                    nRemain = pts_total - nColumn;
+
+                    for (j = 0; j < nColumn; j++)
+                    {
+                        bw.Write(lst_data_New[i][j]);
+                    }
+
+                    for (j = 0; j < nRemain; j++)
+                    {
+                        bw.Write("\0");
+                    }
+                }
+
+                bw.Close();
+                fs.Close();
+            }
+            else
+            {
+                for (k = 0; k < durability.FEBodies.Count; k++)
+                {
+                    str_filename = Path.GetFileNameWithoutExtension(path);
+                    str_FEbodyname = durability.FEBodies[k].Name;
+                    if (str_FEbodyname.Contains("/"))
+                    {
+                        ar_str_tmp = str_FEbodyname.Split(new char[] { '/' });
+                        str_FEbodyname = "";
+                        for (j = 0; j < ar_str_tmp.Length; j++)
+                        {
+                            if (j == 0)
+                                str_FEbodyname = ar_str_tmp[j];
+                            else
+                                str_FEbodyname = str_FEbodyname + "_" + ar_str_tmp[j];
+                        }
+                    }
+
+                    str_filename = str_filename + "_" + str_FEbodyname + ".rsp";
+                    str_dir = Path.GetDirectoryName(path);
+
+                    str_temp = Path.Combine(str_dir, str_filename);
+
+                    if ((str_temp.Length - 4) >= 248)
+                    {
+                        errMessage += "Error : The length of the file path is too long. Its length must be less than 260.\n";
+                        errMessage += "File Path :" + str_temp + "\n";
+                        return false;
+                    }
+
+                    FileStream fs = new FileStream(str_temp, FileMode.Create, FileAccess.Write);
+                    BinaryWriter bw = new BinaryWriter(fs);
+
+                    List<string> lst_key = new List<string>();
+                    List<string> lst_value = new List<string>();
+                    int nCount_Add_Header = 0;
+                    Int16 full_scale = 32752;
+
+                    if (false == Get_RPC_Header_FE(durability, k, ref lst_key, ref lst_value, ref nCount_Add_Header, ref errMessage))
+                        return false;
+
+                    pts_per_frame = Convert.ToInt32(lst_value[12]);
+                    frame = Convert.ToInt32(lst_value[14]);
+                    pts_total = pts_per_frame * frame;
+
+                    List<double[]> lst_data = new List<double[]>();
+                    List<double> lst_max = new List<double>();
+
+                    if (false == Get_RPC_Data_FE(durability, k, ref lst_data, ref lst_max))
+                        return false;
+
+                    List<Int16[]> lst_data_New = new List<Int16[]>();
+
+
+                    if (false == COnvert_RPC_Data_To_INT_FULL_SCALE(lst_data, lst_max, full_scale, ref lst_data_New))
+                        return false;
+
+                    // Write Header block
+                    nRow = lst_key.Count;
+                    for (i = 0; i < nRow; i++)
+                    {
+                        nColumn = lst_key[i].Length;
+                        for (j = nColumn; j < 32; j++)
+                            lst_key[i] = lst_key[i] + "\0";
+
+                        nColumn = lst_key[i].Length;
+                        for (j = 0; j < nColumn; j++)
+                            bw.Write(lst_key[i][j]);
+
+                        //nRemain = 32 - nColumn;
+                        //for (j = 0; j < nRemain; j++)
+                        //    bw.Write("\0");
+
+                        nColumn = lst_value[i].Length;
+                        for (j = nColumn; j < 96; j++)
+                            lst_value[i] = lst_value[i] + "\0";
+
+                        nColumn = lst_value[i].Length;
+                        for (j = 0; j < nColumn; j++)
+                            bw.Write(lst_value[i][j]);
+
+                        //nRemain = 96 - nColumn;
+                        //for (j = 0; j < nRemain; j++)
+                        //    bw.Write("\0");
+                    }
+
+                    string str_null = "";
+                    for (i = 0; i < 128; i++)
+                        str_null = str_null + "\0";
+
+                    for (i = 0; i < nCount_Add_Header; i++)
+                    {
+                        for (j = 0; j < 128; j++)
+                            bw.Write(str_null[j]);
+                    }
+
+                    // Write data
+                    nRow = lst_data_New.Count;
+
+                    for (i = 0; i < nRow; i++)
+                    {
+                        nColumn = lst_data_New[i].Length;
+                        nRemain = pts_total - nColumn;
+
+                        for (j = 0; j < nColumn; j++)
+                        {
+                            bw.Write(lst_data_New[i][j]);
+                        }
+
+                        for (j = 0; j < nRemain; j++)
+                        {
+                            bw.Write("\0");
+                        }
+                    }
+
+                    bw.Close();
+                    fs.Close();
                 }
             }
-
-            bw.Close();
-            fs.Close();
 
             return true;
         }
@@ -3799,10 +3955,6 @@ namespace Motion.Durability
                     }
                 }
             }
-            else if (durability.Type == Category.FEBodies)
-            {
-
-            }
             else if (durability.Type == Category.UserDefinedFunctions)
             {
 
@@ -3816,6 +3968,138 @@ namespace Motion.Durability
             return true;
         }
 
+        private bool Get_RPC_Header_FE(DurabilityData durability, Int32 nIndex, ref List<string> lst_key, ref List<string> lst_value, ref int nCount, ref string errMessage)
+        {
+            int i, j;
+            int nchannels, nResultStep;
+            int pts_per_frame = 0, frames = 0;
+            int num_params, num_header_blocks;
+            double delta_T;
+            double dFull_Scale = durability.Full_Scale;
+            double dScale = 1.0;
+
+            nchannels = durability.FEBodies[nIndex].NumofMode + 6;
+            nResultStep = durability.ResultStep;
+            delta_T = durability.StepSize;
+
+            num_params = 19 + 6 * nchannels;
+            num_header_blocks = (int)Math.Ceiling((double)(num_params / 4));
+            if (num_params > (4 * num_header_blocks))
+                num_header_blocks = num_header_blocks + 1;
+
+            Calculate_NumOfFrame(nResultStep, ref pts_per_frame, ref frames);
+
+            // 1. FORMAT
+            lst_key.Add("FORMAT");
+            lst_value.Add("BINARY");
+
+            // 2. NUM_HEADER_BLOCKS
+            lst_key.Add("NUM_HEADER_BLOCKS");
+            lst_value.Add(num_header_blocks.ToString());
+
+            // 3. NUM_PARAMS
+            lst_key.Add("NUM_PARAMS");
+            lst_value.Add(num_params.ToString());
+
+            // 4. FILE_TYPE
+            lst_key.Add("FILE_TYPE");
+            lst_value.Add("TIME_HISTORY");
+
+            // 5. TIME_TYPE
+            lst_key.Add("TIME_TYPE");
+            lst_value.Add("RESPONSE");
+
+            // 6. DATE
+            lst_key.Add("DATE");
+            DateTime utcNow = DateTime.UtcNow;
+            lst_value.Add(utcNow.Day.ToString("D2") + "-" + utcNow.Month.ToString("D2") + "-" + utcNow.Year.ToString("D4") + " " + utcNow.Hour.ToString("D2") + ":" + utcNow.Minute.ToString("D2") + ":" + utcNow.Second.ToString("D2"));
+
+            // 7. OPERATION
+            lst_key.Add("OPERATION");
+            lst_value.Add("ANSYSMotion");
+
+            // 8. BYPASS_FILTER
+            lst_key.Add("BYPASS_FILTER");
+            lst_value.Add("0");
+
+            // 9. CHANNELS
+            lst_key.Add("CHANNELS");
+            lst_value.Add(nchannels.ToString());
+
+            // 10. DATA_TYPE
+            lst_key.Add("DATA_TYPE");
+            lst_value.Add("SHORT_INTEGER");
+
+            // 11. DELTA_T
+            lst_key.Add("DELTA_T");
+            lst_value.Add(delta_T.ToString("E6"));
+
+            // 12. REPEATS
+            lst_key.Add("REPEATS");
+            lst_value.Add("0");
+
+            // 13. PTS_PER_FRAME
+            lst_key.Add("PTS_PER_FRAME");
+            lst_value.Add(pts_per_frame.ToString());
+
+            // 14. PTS_PER_GROUP
+            lst_key.Add("PTS_PER_GROUP");
+            lst_value.Add(pts_per_frame.ToString());
+
+            // 15. FRAMES
+            lst_key.Add("FRAMES");
+            lst_value.Add(frames.ToString());
+
+            // 16. HALF_FRAMES
+            lst_key.Add("HALF_FRAMES");
+            lst_value.Add("0");
+
+            // 17. PARTITIONS
+            lst_key.Add("PARTITIONS");
+            lst_value.Add("1");
+
+            // 18. PART.CHAN_1
+            lst_key.Add("PART.CHAN_1");
+            lst_value.Add("1");
+
+            // 19. PART.NCHAN_1
+            lst_key.Add("PART.NCHAN_1");
+            lst_value.Add(nchannels.ToString());
+
+            FEBody fbody = durability.FEBodies[nIndex];
+            Int32 nNumberofMode = fbody.NumofMode + 6;
+
+            for (i = 0; i < nNumberofMode; i++)
+            {
+                lst_key.Add("DESC.CHAN_" + (i+1).ToString());
+                lst_value.Add("Mode_" + (i + 1).ToString());
+
+                lst_key.Add("UNITS.CHAN_" + (i + 1).ToString());
+                lst_value.Add(durability.Unit_Length);
+
+                dScale = (fbody.MaxValues[i] * durability.Scale_Length) / dFull_Scale;
+
+                lst_key.Add("SCALE.CHAN_" + (i + 1).ToString());
+                lst_value.Add(dScale.ToString("E6"));
+
+                lst_key.Add("UPPER_LIMIT.CHAN_" + (i + 1).ToString());
+                lst_value.Add("1.0");
+
+                lst_key.Add("LOWER_LIMIT.CHAN_" + (i + 1).ToString());
+                lst_value.Add("-1.0");
+
+                lst_key.Add("MAP.CHAN_" + (i + 1).ToString());
+                lst_value.Add((i + 1).ToString());
+            }
+
+
+            // Add
+            nCount = 4 * num_header_blocks - num_params;
+
+
+
+            return true;
+        }
 
         private bool Get_RPC_Data(DurabilityData durability, ref List<double[]> lst_data, ref List<double> lst_max)
         {
@@ -3911,6 +4195,42 @@ namespace Motion.Durability
             return true;
         }
 
+        private bool Get_RPC_Data_FE(DurabilityData durability, Int32 nIndex, ref List<double[]> lst_data, ref List<double> lst_max)
+        {
+            int i, j, nRow, nColumn;
+            double[] yarray;
+            FEBody fbody = durability.FEBodies[nIndex];
+
+            nRow = durability.FixedTimes.Count;
+            nColumn = fbody.FixedTime_Modal_Coordinates.Count + 6;
+
+
+            for (i = 0; i < nColumn; i++)
+            {
+                yarray = new double[nRow];
+
+                for (j = 0; j < nRow; j++)
+                {
+                    if (i < 6)
+                        yarray[j] = 0.0;
+                    else
+                    {
+                        yarray[j] = fbody.FixedTime_Modal_Coordinates[i - 6][j] * durability.Scale_Length;
+
+                    }
+                }
+                lst_data.Add(yarray);
+            }
+
+            foreach (double dmax in fbody.MaxValues)
+            {
+                lst_max.Add(dmax * durability.Scale_Length);
+            }
+
+
+            return true;
+        }
+
         private bool COnvert_RPC_Data_To_INT_FULL_SCALE(List<double[]> lst_data, List<double> lst_max, Int16 full_scale, ref List<Int16[]> lst_data_new)
         {
             int i, j;
@@ -3925,9 +4245,19 @@ namespace Motion.Durability
                 dmax = lst_max[i];
                 lst_data_new.Add(new Int16[nColumn]);
 
-                for (j = 0; j < nColumn; j++)
+                if (0.0 != dmax)
                 {
-                    lst_data_new[i][j] = (Int16)Math.Round((lst_data[i][j] / dmax) * full_scale);
+                    for (j = 0; j < nColumn; j++)
+                    {
+                        lst_data_new[i][j] = (Int16)Math.Round((lst_data[i][j] / dmax) * full_scale);
+                    }
+                }
+                else
+                {
+                    for (j = 0; j < nColumn; j++)
+                    {
+                        lst_data_new[i][j] = (Int16)Math.Round(0.0);
+                    }
                 }
             }
 

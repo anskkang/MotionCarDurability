@@ -739,7 +739,7 @@ namespace Motion.Durability
                 btn_Export_Map.Visible = true;
                 if (m_analysisScenario == AnalysisModelType.Dynamics)
                 {
-                    btn_Write_RPC.Visible = false;
+                    btn_Write_RPC.Visible = true;
                     btn_Write_CSV.Visible = true;
                     btn_WriteStaticResults.Visible = false;
                 }
@@ -1343,7 +1343,16 @@ namespace Motion.Durability
                     node_Item.AppendChild(node_FBody);
                 }
 
-                
+                // Unit
+                Get_Unit_String(ar_Unit);
+
+                XmlNode node_Unit = m_functions.CreateNodeAndAttribute(_dom, "Unit", "force", ar_Unit[0]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "length", ar_Unit[1]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "angle", ar_Unit[2]);
+                m_functions.CreateAttributeXML(_dom, ref node_Unit, "time", ar_Unit[3]);
+
+                node_UserItems.AppendChild(node_Unit);
+
             }
 
             //double dStepsize = Convert.ToDouble(tb_stepsize.Text);
@@ -1819,10 +1828,10 @@ namespace Motion.Durability
                 combo_Force.SelectedIndex = 0;
 
                 label4.Text = "Format :";
-                gb_Unit.Text = "Writing Format for MCF";
+                gb_Unit.Text = "MCF format & Unit";
 
-                label5.Visible = false;
-                combo_length.Visible = false;
+                label5.Visible = true;
+                combo_length.Visible = true;
 
                 label6.Visible = false;
                 combo_Angle.Visible = false;
