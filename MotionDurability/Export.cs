@@ -112,6 +112,7 @@ namespace Motion.Durability
 
         private void btn_Export_Map_Click(object sender, EventArgs e)
         {
+            string errMessage = "";
             if (false == Validation())
                 return;
 
@@ -126,9 +127,12 @@ namespace Motion.Durability
             Define_Progress(0, 1);
             if (DialogResult.OK == m_save_map.ShowDialog())
             {
-                 if (260 <= m_save_map.FileName.Length)
+                 if (260 <= Path.GetFileNameWithoutExtension(m_save_map.FileName).Length)
                 {
-                    MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + m_save_map.FileName + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    errMessage = "The number of characters(directory and file name) is required less than 260. \n";
+                    errMessage += "File Path :" + Path.GetFileNameWithoutExtension(m_save_map.FileName) + "\n";
+
+                    MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -156,21 +160,28 @@ namespace Motion.Durability
 
             if (DialogResult.OK == m_save_rpc.ShowDialog())
             {
+                string errMessage = "";
+
                 string _dir = Path.GetDirectoryName(m_save_rpc.FileName);
                 string _userNamed = Path.GetFileNameWithoutExtension(m_save_rpc.FileName);
 
                 if (248 <= _dir.Length)
                 {
-                    MessageBox.Show("Error : The length of the directory is too long. Its length must be less than 248.\n" + "Directory : " + _dir + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    errMessage = "The number of characters(directory) is required less than 248. \n";
+                    errMessage += "Directory :" + _dir + "\n";
+
+                    MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 else if (260 <= _userNamed.Length)
                 {
-                    MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + _userNamed + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    errMessage = "The number of characters(directory and file name) is required less than 260. \n";
+                    errMessage += "File Path :" + _userNamed + "\n";
+                    MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                string errMessage = "";
+                errMessage = "";
 
                 if (0 == tab_main.SelectedIndex)
                 {
@@ -182,9 +193,12 @@ namespace Motion.Durability
                         string _output = item.Text + "_" + _userNamed + ".rsp";
                         string _path = Path.Combine(_dir, _output);
 
-                        if (260 <= (_path.Length - 4)) 
+                        if (260 <= Path.GetFileNameWithoutExtension(_path).Length) 
                         {
-                            MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File path : " + _path + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            errMessage = "The number of characters(directory and file name) is required less than 260. \n";
+                            errMessage += "File Path :" + Path.GetFileNameWithoutExtension(_path) + "\n";
+
+                            MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
@@ -263,6 +277,8 @@ namespace Motion.Durability
                     return;
             }
 
+            string errMessage = "";
+
             m_save_csv = new SaveFileDialog();
             if(2 == combo_Type.SelectedIndex)
             {
@@ -273,16 +289,21 @@ namespace Motion.Durability
                 {
                     string _dir = Path.GetDirectoryName(m_save_csv.FileName);
                     string _userNamed = Path.GetFileNameWithoutExtension(m_save_csv.FileName);
-                    string errMessage = "";
 
                     if (248 <= _dir.Length)
                     {
-                        MessageBox.Show("Error : The length of the directory is too long. Its length must be less than 248.\n" + "Directory : " + _dir + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        errMessage = "The number of characters(directory) is required less than 248. \n";
+                        errMessage += "Directory :" + _dir + "\n";
+
+                        MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                     else if (260 <= _userNamed.Length)
                     {
-                        MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + _userNamed + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        errMessage = "The number of characters(directory and file name) is required less than 260. \n";
+                        errMessage += "File Path :" + _userNamed + "\n";
+
+                        MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
@@ -371,16 +392,22 @@ namespace Motion.Durability
 
                     if (248 <= _dir.Length)
                     {
-                        MessageBox.Show("Error : The length of the directory is too long. Its length must be less than 248.\n" + "Directory : " + _dir + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        errMessage = "The number of characters(directory) is required less than 248. \n";
+                        errMessage += "Directory :" + _dir + "\n";
+
+                        MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                     else if (260 <= _userNamed.Length)
                     {
-                        MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + _userNamed + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        errMessage = "The number of characters(directory and file name) is required less than 260. \n";
+                        errMessage += "File Path :" + _userNamed + "\n";
+
+                        MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
-                    string errMessage = "";
+                   
 
                     if (0 == tab_main.SelectedIndex)
                     {
@@ -394,9 +421,12 @@ namespace Motion.Durability
                             string _output = item.Text + "_" + _userNamed + ".csv";
                             string _path = Path.Combine(_dir, _output);
 
-                            if (260 <= (_path.Length - 4))
+                            if (260 <= Path.GetFileNameWithoutExtension(_path).Length)
                             {
-                                MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File path : " + _path + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                errMessage = "The number of characters(directory and file name) is required less than 260. \n";
+                                errMessage += "File Path :" + Path.GetFileNameWithoutExtension(_path) + "\n";
+
+                                MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
 
@@ -504,12 +534,18 @@ namespace Motion.Durability
 
                     if (248 <= _dir.Length)
                     {
-                        MessageBox.Show("Error : The length of the directory is too long. Its length must be less than 248.\n" + "Directory : " + _dir + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        errMessage = "The number of characters(directory) is required less than 248. \n";
+                        errMessage += "Directory :" + _dir + "\n";
+
+                        MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                     else if (260 <= _userNamed.Length)
                     {
-                        MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File name : " + _userNamed + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        errMessage = "The number of characters(directory and file name) is required less than 260. \n";
+                        errMessage += "File Path :" + _userNamed + "\n";
+
+                        MessageBox.Show(_userNamed, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
@@ -527,7 +563,10 @@ namespace Motion.Durability
 
                         if (260 <= (str_path.Length - 4))
                         {
-                            MessageBox.Show("Error : The length of the file path is too long. Its length must be less than 260.\n" + "File path : " + str_path + "\n", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            errMessage = "The number of characters(directory and file name) is required less than 260. \n";
+                            errMessage += "File Path :" + Path.GetFileNameWithoutExtension(str_path) + "\n";
+
+                            MessageBox.Show(errMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
