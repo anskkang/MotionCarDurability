@@ -2934,7 +2934,7 @@ namespace Motion.Durability
                         if (err_tol > Math.Abs(y_value))
                             y_value = 0.0;
 
-                        if (j == 0)
+                        if (k == 0)
                             y_max = Math.Abs(y_value);
                         else
                         {
