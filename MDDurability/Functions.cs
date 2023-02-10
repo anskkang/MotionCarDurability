@@ -3007,6 +3007,13 @@ namespace Motion.Durability
             //double dScalefactor = 0.0;
             double dScaleTime = 0.0;
 
+            if (Path.GetFileNameWithoutExtension(path).Length >= 260)
+            {
+                errMessage += "Error : The number of characters(path and file name) is required less than 260.\n";
+                errMessage += "File Path :" + Path.GetFileNameWithoutExtension(path) + "\n";
+                return false;
+            }
+
             int nRowCount = durability.OriginalTimes.Count;
             int nColumnCount = 1;
             #region Bodies
@@ -3496,10 +3503,10 @@ namespace Motion.Durability
 
                     str_temp = Path.Combine(str_dir, str_filename);
 
-                    if((str_temp.Length - 4) >= 248)
+                    if(Path.GetFileNameWithoutExtension(str_temp).Length >= 260)
                     {
                         errMessage += "Error : The length of the file path is too long. Its length must be less than 260.\n";
-                        errMessage += "File Path :" + str_temp + "\n";
+                        errMessage += "File Path :" + Path.GetFileNameWithoutExtension(str_temp) + "\n";
                         return false;
                     }
 
@@ -3642,10 +3649,10 @@ namespace Motion.Durability
 
                     str_temp = Path.Combine(str_dir, str_filename);
 
-                    if ((str_temp.Length - 4) >= 248)
+                    if (Path.GetFileNameWithoutExtension(str_temp).Length >= 260)
                     {
-                        errMessage += "Error : The length of the file path is too long. Its length must be less than 260.\n";
-                        errMessage += "File Path :" + str_temp + "\n";
+                        errMessage += "Error : The number of characters(path and file name) is required less than 260.\n";
+                        errMessage += "File Path :" + Path.GetFileNameWithoutExtension(str_temp) + "\n";
                         return false;
                     }
 
