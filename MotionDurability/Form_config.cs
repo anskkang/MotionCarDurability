@@ -55,13 +55,13 @@ namespace Motion.Durability
 
         private void Operation_File_Format()
         {
-            if(rb_csv.Checked)
+            if (rb_csv.Checked)
             {
                 rb_original.Enabled = true;
                 rb_transfrom.Enabled = true;
                 rb_transfrom.Enabled = true;
             }
-            else if(rb_RPC.Checked)
+            else if (rb_RPC.Checked)
             {
                 rb_fixedstep.Checked = true;
                 rb_original.Enabled = false;
@@ -127,10 +127,10 @@ namespace Motion.Durability
 
                 if (rb_RPC.Checked)
                     m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.rsp");
-                else if(rb_csv.Checked)
+                else if (rb_csv.Checked)
                     m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, "Force_Tire.csv");
-                else if(rb_MCF.Checked)
-                    m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, Path.GetFileName(m_open_motionresult.FileName)+"_");
+                else if (rb_MCF.Checked)
+                    m_save_file.FileName = Path.Combine(m_save_file.InitialDirectory, Path.GetFileName(m_open_motionresult.FileName) + "_");
             }
 
             if (m_open_map.FileName == "")
@@ -175,16 +175,21 @@ namespace Motion.Durability
             if (DialogResult.OK == m_save_file.ShowDialog())
             {
                 m_functions = new Functions();
-                m_durability = m_functions.BuildDataFromMap(m_open_motionresult.FileName, m_open_map.FileName, AnalysisModelType.Dynamics);
+                string errMessage = "";
+                m_durability = m_functions.BuildDataFromMap(m_open_motionresult.FileName, m_open_map.FileName, AnalysisModelType.Dynamics, ref errMessage);
 
                 if (m_durability == null)
-                    return;
-
-                
-
-                if (false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability))
                 {
-                    MessageBox.Show("Failed to export results to file.");
+                    MessageBox.Show(errMessage, "Error");
+                    return;
+                }
+
+
+
+
+                if (false == m_functions.WriteResultToFile(m_fileFormat, m_resultType, m_save_file.FileName, m_durability, ref errMessage))
+                {
+                    MessageBox.Show("Failed to export results to file.\n" + errMessage, "Error");
                     TB_savepath.Text = "Fail !!!";
 
                     return;
