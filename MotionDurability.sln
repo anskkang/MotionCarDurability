@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostAPI", "PostAPI\PostAPI.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MotionDurability", "MotionDurability\MotionDurability.csproj", "{0180E706-7BDA-44D9-93D9-C9A62D795FC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MotionDurability_Console", "MotionDurability_Console\MotionDurability_Console.csproj", "{2BDFAEF1-A4A8-4812-ACE2-4BFAE9850E59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0180E706-7BDA-44D9-93D9-C9A62D795FC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0180E706-7BDA-44D9-93D9-C9A62D795FC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0180E706-7BDA-44D9-93D9-C9A62D795FC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BDFAEF1-A4A8-4812-ACE2-4BFAE9850E59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BDFAEF1-A4A8-4812-ACE2-4BFAE9850E59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BDFAEF1-A4A8-4812-ACE2-4BFAE9850E59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BDFAEF1-A4A8-4812-ACE2-4BFAE9850E59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
