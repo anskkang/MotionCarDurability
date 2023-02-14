@@ -10,9 +10,9 @@
 	  <Company>ANSYS,Inc</Company>
 	  <Product>ANSYS,Inc</Product>
 	  <Copyright>Copyright@2023 ANSYS,Inc. All rights reserved.</Copyright>
-	  <AssemblyVersion>23.1.23045.0</AssemblyVersion>
-	  <FileVersion>23.1.23045.0</FileVersion>
-	  <Version>23.1.23045</Version>
+	  <AssemblyVersion>23.2.23045.0</AssemblyVersion>
+	  <FileVersion>23.2.23045.0</FileVersion>
+	  <Version>23.2.23045</Version>
   </PropertyGroup>
 	<!--<ItemGroup>
 		<PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
@@ -20,35 +20,39 @@
 
 	<ItemGroup>
 		<Reference Include="VM">
-		  <HintPath>..\RPC\v23r1\VM.dll</HintPath>
+		  <HintPath>$(SolutionDir)RPC\v23r2\VM.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Enums.Post">
-		  <HintPath>..\RPC\v23r1\VM.Enums.Post.dll</HintPath>
+		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Enums.Post.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Extensions">
-		  <HintPath>..\RPC\v23r1\VM.Extensions.dll</HintPath>
+		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Extensions.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Localization">
-		  <HintPath>..\RPC\v23r1\VM.Localization.dll</HintPath>
+		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Localization.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models">
-		  <HintPath>..\RPC\v23r1\VM.Models.dll</HintPath>
+		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Models.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models.OutputReader">
-		  <HintPath>..\RPC\v23r1\VM.Models.OutputReader.dll</HintPath>
+		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Models.OutputReader.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models.Post">
-		  <HintPath>..\RPC\v23r1\VM.Models.Post.dll</HintPath>
+		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Models.Post.dll</HintPath>
+		  <Private>false</Private>
+		</Reference>
+		<Reference Include="VM.Models.Post.DataSource">
+		  <HintPath>..\RPC\v23r2\VM.Models.Post.DataSource.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Post.API.OutputReader">
-		  <HintPath>..\RPC\v23r1\VM.Post.API.OutputReader.dll</HintPath>
+		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Post.API.OutputReader.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="WindowsBase">
@@ -74,6 +78,6 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="IF NOT EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot; mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot;&#xD;&#xA;IF NOT EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\x64\&quot; mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\x64\&quot;&#xD;&#xA;IF EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot; copy &quot;$(SolutionDir)RPC\v23r1\Resources\&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot;&#xD;&#xA;IF EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\x64\&quot; copy &quot;$(SolutionDir)RPC\v23r1\x64\&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\x64\&quot;&#xD;&#xA;copy &quot;$(SolutionDir)RPC\v23r1\&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\&quot;" />
+	  <Exec Command="IF NOT EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot; mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot;&#xD;&#xA;IF NOT EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\x64\&quot; mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\x64\&quot;&#xD;&#xA;IF EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot; copy &quot;$(SolutionDir)RPC\v23r2\Resources\&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\Resources\&quot;&#xD;&#xA;IF EXIST &quot;$(SolutionDir)bin\$(ConfigurationName)\x64\&quot; copy &quot;$(SolutionDir)RPC\v23r2\x64\&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\x64\&quot;&#xD;&#xA;copy &quot;$(SolutionDir)RPC\v23r2\&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\&quot;" />
 	</Target>
 </Project>

@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using VM;
 using VM.Enums.Post;
 using VM.Models;
 using VM.Models.OutputReader;
 using VM.Post.API.OutputReader;
+using VM.Models.Post;
 
 namespace PostAPI
 {
@@ -24,12 +26,12 @@ namespace PostAPI
 
         private OutputReader OutputReader { get; set; }
 
-        public IDictionary<string, IList<Point>> GetCurves(IPlotParameters parameters)
+        public IDictionary<string, IList<Point2D>> GetCurves(IPlotParameters parameters)
         {
             return this.OutputReader.GetCurves(parameters);
         }
 
-        public IList<(BodyType, string)> GetBodies(BodyType type)
+        public IEnumerable<(BodyType, string)> GetBodies(BodyType type)
         {
             return this.OutputReader.GetBodies(type, true);
         }
@@ -59,7 +61,7 @@ namespace PostAPI
             return this.OutputReader.GetVector(target, path, analysisModelType);
         }
 
-        public (VM.Enums.Post.ResultType, double[], double[]) InterpolationAkimaSpline(double[] X, double[] Y, int NoOfPnt,
+        public (VM.Enums.Post.InterpolationErrorType, double[], double[]) InterpolationAkimaSpline(double[] X, double[] Y, int NoOfPnt,
             int NoOfDesiredPnt, double StartPnt, double EndPnt)
         {
             return this.OutputReader.InterpolationAkimaSpline(X, Y, NoOfPnt, NoOfDesiredPnt, StartPnt, EndPnt);
