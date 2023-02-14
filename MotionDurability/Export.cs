@@ -208,12 +208,12 @@ namespace Motion.Durability
                         if (durability == null)
                             continue;
 
-                        if (durability.ExistChassis == false)
-                        {
-                            string str_error = string.Format(" “{0}” cannot export time history data", _output);
-                            MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            continue;
-                        }
+                        //if (durability.ExistChassis == false)
+                        //{
+                        //    string str_error = string.Format(" “{0}” cannot export time history data", _output);
+                        //    MessageBox.Show(str_error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        //    continue;
+                        //}
 
                         if (false == m_functions.WriteResultToFile(FileFormat.RPC, m_resultType, _path, durability, ref errMessage))
                         {
@@ -784,7 +784,7 @@ namespace Motion.Durability
                 }
                 else
                 {
-                    btn_Write_RPC.Visible = false;
+                    btn_Write_RPC.Visible = true;
                     btn_Write_CSV.Visible = true;
                     btn_WriteStaticResults.Visible = false;
                 }
