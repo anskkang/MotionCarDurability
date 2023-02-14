@@ -10,9 +10,9 @@
 	  <Company>ANSYS,Inc</Company>
 	  <Product>ANSYS,Inc</Product>
 	  <Copyright>Copyright@2023 ANSYS,Inc. All rights reserved.</Copyright>
-	  <AssemblyVersion>23.2.23041.0</AssemblyVersion>
-	  <FileVersion>23.2.23041.0</FileVersion>
-	  <Version>23.2.23040</Version>
+	  <AssemblyVersion>23.1.23045.0</AssemblyVersion>
+	  <FileVersion>23.1.23045.0</FileVersion>
+	  <Version>23.1.23045</Version>
   </PropertyGroup>
 	<!--<ItemGroup>
 		<PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
