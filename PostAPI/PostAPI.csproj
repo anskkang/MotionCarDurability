@@ -20,35 +20,35 @@
 
 	<ItemGroup>
 		<Reference Include="VM">
-		  <HintPath>..\RPC\v23r1\VM.dll</HintPath>
+		  <HintPath>C:\Program Files\ANSYS Inc\v231\Motion\bin\VM.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Enums.Post">
-		  <HintPath>..\RPC\v23r1\VM.Enums.Post.dll</HintPath>
+		  <HintPath>C:\Program Files\ANSYS Inc\v231\Motion\bin\VM.Enums.Post.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Extensions">
-		  <HintPath>..\RPC\v23r1\VM.Extensions.dll</HintPath>
+		  <HintPath>C:\Program Files\ANSYS Inc\v231\Motion\bin\VM.Extensions.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Localization">
-		  <HintPath>..\RPC\v23r1\VM.Localization.dll</HintPath>
+		  <HintPath>C:\Program Files\ANSYS Inc\v231\Motion\bin\VM.Localization.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models">
-		  <HintPath>..\RPC\v23r1\VM.Models.dll</HintPath>
+		  <HintPath>C:\Program Files\ANSYS Inc\v231\Motion\bin\VM.Models.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models.OutputReader">
-		  <HintPath>..\RPC\v23r1\VM.Models.OutputReader.dll</HintPath>
+		  <HintPath>C:\Program Files\ANSYS Inc\v231\Motion\bin\VM.Models.OutputReader.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models.Post">
-		  <HintPath>..\RPC\v23r1\VM.Models.Post.dll</HintPath>
+		  <HintPath>C:\Program Files\ANSYS Inc\v231\Motion\bin\VM.Models.Post.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Post.API.OutputReader">
-		  <HintPath>..\RPC\v23r1\VM.Post.API.OutputReader.dll</HintPath>
+		  <HintPath>C:\Program Files\ANSYS Inc\v231\Motion\bin\VM.Post.API.OutputReader.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="WindowsBase">
