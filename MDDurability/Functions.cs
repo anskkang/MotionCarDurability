@@ -3259,7 +3259,7 @@ namespace Motion.Durability
 
                     str_temp = str_seperator1 + "Mode:        ";
 
-                    if (mCFFormat == MCFFormat.Unwrapped)
+                    if (mCFFormat == MCFFormat.Wrapped)
                     {
                         for (j = 0; j < nNumofMode; j++)
                         {
@@ -3293,7 +3293,7 @@ namespace Motion.Durability
 
                     str_temp = str_seperator1 + "Frequency:   ";
                     nLineChanger = 50;
-                    if (mCFFormat == MCFFormat.Unwrapped)
+                    if (mCFFormat == MCFFormat.Wrapped)
                     {
                         for (j = 0; j < nNumofMode; j++)
                         {
@@ -3334,7 +3334,7 @@ namespace Motion.Durability
                         xarray = durability.OriginalTimes.ToArray();
                         nNumofResult = xarray.Length;
 
-                        if (mCFFormat == MCFFormat.Unwrapped)
+                        if (mCFFormat == MCFFormat.Wrapped)
                         {
                             for (j = 0; j < nNumofResult; j++)
                             {
@@ -3345,7 +3345,7 @@ namespace Motion.Durability
                                     if (k < 6)
                                         dvalue = 0.0;
                                     else
-                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j];
+                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j] * durability.Scale_Length;
 
                                     if (dvalue >= 0.0)
                                     {
@@ -3389,7 +3389,7 @@ namespace Motion.Durability
                                     if (k < 6)
                                         dvalue = 0.0;
                                     else
-                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j];
+                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j] * durability.Scale_Length; 
 
                                     if (dvalue >= 0.0)
                                     {
@@ -3409,7 +3409,7 @@ namespace Motion.Durability
                         xarray = durability.FixedTimes.ToArray();
                         nNumofResult = xarray.Length;
 
-                        if (mCFFormat == MCFFormat.Unwrapped)
+                        if (mCFFormat == MCFFormat.Wrapped)
                         {
                             for (j = 0; j < nNumofResult; j++)
                             {
@@ -3420,7 +3420,7 @@ namespace Motion.Durability
                                     if (k < 6)
                                         dvalue = 0.0;
                                     else
-                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j];
+                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j] * durability.Scale_Length;
 
                                     if (dvalue >= 0.0)
                                     {
@@ -3466,7 +3466,7 @@ namespace Motion.Durability
                                     if (k < 6)
                                         dvalue = 0.0;
                                     else
-                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j];
+                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j] * durability.Scale_Length;
 
                                     if (dvalue >= 0.0)
                                     {
