@@ -12,6 +12,8 @@ using PostAPI;
 using VM.Post.API.OutputReader;
 using VM.Enums.Post;
 using VM.Models;
+using VM;
+using VM.Models.Post;
 
 namespace Motion.Durability
 {
@@ -136,8 +138,8 @@ namespace Motion.Durability
             string str_type = "";
             PlotParameters parameters = null;
             List<string> str_curve_path = new List<string>();
-            IList<Point> curve_point = null;
-            IDictionary<string, IList<Point>> curve = null;
+            IList<Point2D> curve_point = null;
+            IDictionary<string, IList<Point2D>> curve = null;
             double[] xarray = null;
             double[] yarray = null;
             List<double[]> lst_arry = new List<double[]>();
@@ -1118,23 +1120,25 @@ namespace Motion.Durability
 
         private bool GetBodyCMInfo(PostAPI.PostAPI postAPI, string str_Target_body, List<string> path, int nStartIndexOfPath, ref List<double[]> lst_arry)
         {
-            int i, j, k;
-            IList<(BodyType, string)> bodies = postAPI.GetBodies(VM.Enums.Post.BodyType.RIGID);
+            int j, k;
+            IEnumerable<(BodyType, string)> bodies = postAPI.GetBodies(VM.Models.Post.BodyType.RIGID);
             IList<double[]> bodyCMinfo = null;
             //List<string> str_curve_path = new List<string>();
-            IDictionary<string, IList<Point>> curve = null;
-            IList<Point> curve_point = null;
+            IDictionary<string, IList<Point2D>> curve = null;
+            IList<Point2D> curve_point = null;
             double[] yarray = null;
 
-            for (i = 0; i < bodies.Count; i++)
+            //for (i = 0; i < bodies.Count(); i++)
+            foreach((BodyType, string) body in bodies)
             {
-                if (bodies[i].Item2.Contains(str_Target_body) == true)
+                //if (bodies[i].Item2.Contains(str_Target_body) == true)
+                if (body.Item2.Contains(str_Target_body) == true)
                 {
-                    bodyCMinfo = postAPI.GetMarkerInfo(bodies[i].Item2 + "/CM");
+                    bodyCMinfo = postAPI.GetMarkerInfo(body.Item2 + "/CM");
 
 
                     PlotParameters parameters = new PlotParameters();
-                    parameters.Target = bodies[i].Item2;
+                    parameters.Target = body.Item2;
 
                     for (j = nStartIndexOfPath; j < nStartIndexOfPath + 3; j++)
                         parameters.Paths.Add(path[j]);
@@ -1174,12 +1178,12 @@ namespace Motion.Durability
 
         private bool GetChassisInfo(PostAPI.PostAPI postAPI, ref DurabilityData durability)
         {
-            int i, j, k;
-            IList<(BodyType, string)> bodies = postAPI.GetBodies(VM.Enums.Post.BodyType.RIGID);
+            int j, k;
+            IEnumerable<(BodyType, string)> bodies = postAPI.GetBodies(VM.Models.Post.BodyType.RIGID);
             IList<double[]> chassisCMinfo = null;
             List<string> str_curve_path = new List<string>();
-            IDictionary<string, IList<Point>> curve = null;
-            IList<Point> curve_point = null;
+            IDictionary<string, IList<Point2D>> curve = null;
+            IList<Point2D> curve_point = null;
             double[] yarray = null;
 
             str_curve_path.Add("Velocity/X");
@@ -1198,12 +1202,13 @@ namespace Motion.Durability
             str_curve_path.Add("Angular Acceleration/Y");
             str_curve_path.Add("Angular Acceleration/Z");
 
-            for (i = 0; i < bodies.Count; i++)
+            //for (i = 0; i < bodies.Count; i++)
+            foreach((BodyType, string)body in bodies)
             {
-                if (bodies[i].Item2.Contains("chassis") == true)
+                if (body.Item2.Contains("chassis") == true)
                 {
                     durability.ExistChassis = true;
-                    chassisCMinfo = postAPI.GetMarkerInfo(bodies[i].Item2 + "/CM");
+                    chassisCMinfo = postAPI.GetMarkerInfo(body.Item2 + "/CM");
                     foreach (double[] tmp in chassisCMinfo)
                     {
                         durability.PositionOfChassis.Add(new double[3] { tmp[0], tmp[1], tmp[2] });
@@ -1211,7 +1216,7 @@ namespace Motion.Durability
                     }
 
                     PlotParameters parameters = new PlotParameters();
-                    parameters.Target = bodies[i].Item2;
+                    parameters.Target = body.Item2;
 
                     for (j = 0; j < str_curve_path.Count; j++)
                         parameters.Paths.Add(str_curve_path[j]);
@@ -1222,7 +1227,7 @@ namespace Motion.Durability
                         return false;
 
                     str_curve_path.Clear();
-                    string bd_name = bodies[i].Item2;
+                    string bd_name = body.Item2;
 
                     str_curve_path.Add(bd_name + "/Velocity/X");
                     str_curve_path.Add(bd_name + "/Velocity/Y");
@@ -1342,14 +1347,14 @@ namespace Motion.Durability
             Force force_data = null;
             EntityForForce entity = null;
 
-            IList<Point> curve_point = null;
-            IDictionary<string, IList<Point>> curve = null;
+            IList<Point2D> curve_point = null;
+            IDictionary<string, IList<Point2D>> curve = null;
 
 
             List<Force> lst_data_force = durability.Forces;
             XmlNodeList lst_node_force = _node_Item.SelectNodes("Force");
 
-            IList<(BodyType, string)> bodies = _postAPI.GetBodies(BodyType.RIGID);
+            IEnumerable<(BodyType, string)> bodies = _postAPI.GetBodies(BodyType.RIGID);
             //IList<(BodyType, string)> ground = _postAPI.GetBodies(BodyType.GROUND);
             //var temp = _postAPI.GetConnectors(ground[0].Item2);
 
@@ -1384,9 +1389,10 @@ namespace Motion.Durability
                 #region Find Body
 
                 bool bFindBodies = false;
-                for (i = 0; i < bodies.Count; i++)
+                //for (i = 0; i < bodies.Count; i++)
+                foreach((BodyType, string)body in bodies)
                 {
-                    var connectors = _postAPI.GetConnectors(bodies[i].Item2);
+                    var connectors = _postAPI.GetConnectors(body.Item2);
 
                     for (j = 0; j < connectors.Count; j++)
                     {
@@ -1395,9 +1401,9 @@ namespace Motion.Durability
                             if (force_data.BaseBody == "" || force_data.ActionBody == "")
                             {
                                 if (connectors[j].Item2 == VM.Enums.Post.ActionType.Base)
-                                    force_data.BaseBody = bodies[i].Item2;
+                                    force_data.BaseBody = body.Item2;
                                 else
-                                    force_data.ActionBody = bodies[i].Item2;
+                                    force_data.ActionBody = body.Item2;
 
                                 if (connectors[j].Item1 == ConnectorType.Tire)
                                 {
@@ -2750,8 +2756,8 @@ namespace Motion.Durability
             string str_bd_name, str_mcf_format;
             MCFFormat mCFFormat;
 
-            IList<(BodyType, string)> Mbodies = _postAPI.GetBodies(VM.Enums.Post.BodyType.MODAL);
-            IList<(BodyType, string)> EF_Mbodies = _postAPI.GetBodies(VM.Enums.Post.BodyType.EF_MODAL);
+            IEnumerable<(BodyType, string)> Mbodies = _postAPI.GetBodies(VM.Models.Post.BodyType.MODAL);
+            IEnumerable<(BodyType, string)> EF_Mbodies = _postAPI.GetBodies(VM.Models.Post.BodyType.EF_MODAL);
 
             XmlNodeList lst_Node = _node_Item.SelectNodes("Body");
 
@@ -2775,9 +2781,10 @@ namespace Motion.Durability
             {
                 str_bd_name = n.Attributes.GetNamedItem("name").Value;
 
-                for (i = 0; i < Mbodies.Count; i++)
+                //for (i = 0; i < Mbodies.Count; i++)
+                foreach((BodyType, string)mbody in Mbodies)
                 {
-                    if (Mbodies[i].Item2.Contains(str_bd_name) == true)
+                    if (mbody.Item2.Contains(str_bd_name) == true)
                     {
                         FEBody body = new FEBody();
                         body.Name = str_bd_name;
@@ -2789,9 +2796,10 @@ namespace Motion.Durability
 
                 if (nFindCount < nBody)
                 {
-                    for (i = 0; i < EF_Mbodies.Count; i++)
+                    //for (i = 0; i < EF_Mbodies.Count; i++)
+                    foreach ((BodyType, string) efbody in EF_Mbodies)
                     {
-                        if (EF_Mbodies[i].Item2.Contains(str_bd_name) == true)
+                        if (efbody.Item2.Contains(str_bd_name) == true)
                         {
                             FEBody body = new FEBody();
                             body.Name = str_bd_name;
@@ -2823,9 +2831,9 @@ namespace Motion.Durability
             }
 
             PlotParameters parameters = null;
-            IDictionary<string, IList<Point>> curve = null;
+            IDictionary<string, IList<Point2D>> curve = null;
             List<string> str_curve_path = new List<string>();
-            IList<Point> curve_point = null;
+            IList<Point2D> curve_point = null;
             double[] xarray = null;
             double[] yarray = null;
 
@@ -2889,7 +2897,7 @@ namespace Motion.Durability
             double[] yarray;
             double y_value = 0.0, y_max = 0.0;
             double err_tol = 1.0e-10;
-            bool bChangeStep;
+            //bool bChangeStep;
 
             if (false == Determine_Result_Step(ref durability, ref errMessage))
                 return false;
@@ -2900,11 +2908,11 @@ namespace Motion.Durability
             yarray = new double[durability.ResultStep];
             nSize_list = xarray.Length;
 
-            if (nSize_list != durability.ResultStep)
-            {
-                bChangeStep = true;
-            }
-            else bChangeStep = false;
+            //if (nSize_list != durability.ResultStep)
+            //{
+            //    bChangeStep = true;
+            //}
+            //else bChangeStep = false;
 
             for (i = 0; i < nBody; i++)
             {
@@ -3259,7 +3267,7 @@ namespace Motion.Durability
 
                     str_temp = str_seperator1 + "Mode:        ";
 
-                    if (mCFFormat == MCFFormat.Unwrapped)
+                    if (mCFFormat == MCFFormat.Wrapped)
                     {
                         for (j = 0; j < nNumofMode; j++)
                         {
@@ -3293,7 +3301,7 @@ namespace Motion.Durability
 
                     str_temp = str_seperator1 + "Frequency:   ";
                     nLineChanger = 50;
-                    if (mCFFormat == MCFFormat.Unwrapped)
+                    if (mCFFormat == MCFFormat.Wrapped)
                     {
                         for (j = 0; j < nNumofMode; j++)
                         {
@@ -3334,7 +3342,7 @@ namespace Motion.Durability
                         xarray = durability.OriginalTimes.ToArray();
                         nNumofResult = xarray.Length;
 
-                        if (mCFFormat == MCFFormat.Unwrapped)
+                        if (mCFFormat == MCFFormat.Wrapped)
                         {
                             for (j = 0; j < nNumofResult; j++)
                             {
@@ -3345,7 +3353,7 @@ namespace Motion.Durability
                                     if (k < 6)
                                         dvalue = 0.0;
                                     else
-                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j];
+                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j] * durability.Scale_Length;
 
                                     if (dvalue >= 0.0)
                                     {
@@ -3389,7 +3397,7 @@ namespace Motion.Durability
                                     if (k < 6)
                                         dvalue = 0.0;
                                     else
-                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j];
+                                        dvalue = durability.FEBodies[i].OriginalTime_Modal_Coordinates[k - 6][j] * durability.Scale_Length; 
 
                                     if (dvalue >= 0.0)
                                     {
@@ -3409,7 +3417,7 @@ namespace Motion.Durability
                         xarray = durability.FixedTimes.ToArray();
                         nNumofResult = xarray.Length;
 
-                        if (mCFFormat == MCFFormat.Unwrapped)
+                        if (mCFFormat == MCFFormat.Wrapped)
                         {
                             for (j = 0; j < nNumofResult; j++)
                             {
@@ -3420,7 +3428,7 @@ namespace Motion.Durability
                                     if (k < 6)
                                         dvalue = 0.0;
                                     else
-                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j];
+                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j] * durability.Scale_Length;
 
                                     if (dvalue >= 0.0)
                                     {
@@ -3466,7 +3474,7 @@ namespace Motion.Durability
                                     if (k < 6)
                                         dvalue = 0.0;
                                     else
-                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j];
+                                        dvalue = durability.FEBodies[i].FixedTime_Modal_Coordinates[k - 6][j] * durability.Scale_Length;
 
                                     if (dvalue >= 0.0)
                                     {
@@ -3977,7 +3985,7 @@ namespace Motion.Durability
 
         private bool Get_RPC_Header_FE(DurabilityData durability, Int32 nIndex, ref List<string> lst_key, ref List<string> lst_value, ref int nCount, ref string errMessage)
         {
-            int i, j;
+            int i;
             int nchannels, nResultStep;
             int pts_per_frame = 0, frames = 0;
             int num_params, num_header_blocks;
@@ -4582,7 +4590,7 @@ namespace Motion.Durability
 
         public XmlDocument CreateXMLFromPost(string _path_dfr, ref string errMessage)
         {
-            int i, j, count_Rbody, count_connector, count_FModal;
+            int j, count_Rbody, count_connector, count_FModal;
             XmlDocument dom = CreateDurabilityXML();
             string str_result_Name = Path.GetFileNameWithoutExtension(_path_dfr);
             string str_res = Path.Combine(Path.GetDirectoryName(_path_dfr), str_result_Name + ".res");
@@ -4600,11 +4608,11 @@ namespace Motion.Durability
                 return null;
             }
 
-            IList<(BodyType, string)> Rbodies = postAPI.GetBodies(BodyType.RIGID);
-            IList<(BodyType, string)> Fbodies = postAPI.GetBodies(BodyType.MODAL);
+            IEnumerable<(BodyType, string)> Rbodies = postAPI.GetBodies(BodyType.RIGID);
+            IEnumerable<(BodyType, string)> Fbodies = postAPI.GetBodies(BodyType.MODAL);
 
-            count_Rbody = Rbodies.Count;
-            count_FModal = Fbodies.Count;
+            count_Rbody = Rbodies.Count();
+            count_FModal = Fbodies.Count();
 
             if (count_Rbody == 0 && count_FModal == 0)
             {
@@ -4636,14 +4644,15 @@ namespace Motion.Durability
 
             // For Rigid body
             //bool isExistChassis = false;
-            for (i = 0; i < count_Rbody; i++)
+            //for (i = 0; i < count_Rbody; i++)
+            foreach((BodyType, string)rbody in Rbodies)
             {
-                XmlNode node_body = CreateNodeAndAttribute(dom, "Body", "name", Rbodies[i].Item2);
+                XmlNode node_body = CreateNodeAndAttribute(dom, "Body", "name", rbody.Item2);
 
                 //if (Rbodies[i].Item2.Contains("chassis"))
                 //    isExistChassis = true;
 
-                var connectors = postAPI.GetConnectors(Rbodies[i].Item2);
+                var connectors = postAPI.GetConnectors(rbody.Item2);
                 count_connector = connectors.Count;
 
                 for(j = 0; j < count_connector; j++)
@@ -4741,9 +4750,10 @@ namespace Motion.Durability
             }
 
             // For Modal body
-            for(i = 0; i < count_FModal; i++)
+            //for(i = 0; i < count_FModal; i++)
+            foreach((BodyType, string)fbody in Fbodies)
             {
-                XmlNode node_Fbody = CreateNodeAndAttribute(dom, "FBody", "name", Fbodies[i].Item2);
+                XmlNode node_Fbody = CreateNodeAndAttribute(dom, "FBody", "name", fbody.Item2);
                 CreateAttributeXML(dom, ref node_Fbody, "mcf_format", "0");
                 node_FEs.AppendChild(node_Fbody);
             }
