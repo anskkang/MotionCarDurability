@@ -20,31 +20,31 @@
 
 	<ItemGroup>
 		<Reference Include="VM">
-		  <HintPath>$(SolutionDir)RPC\v23r2\VM.dll</HintPath>
+		  <HintPath>..\RPC\v23r2\VM.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Enums.Post">
-		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Enums.Post.dll</HintPath>
+		  <HintPath>..\RPC\v23r2\VM.Enums.Post.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Extensions">
-		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Extensions.dll</HintPath>
+		  <HintPath>..\RPC\v23r2\VM.Extensions.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Localization">
-		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Localization.dll</HintPath>
+		  <HintPath>..\RPC\v23r2\VM.Localization.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models">
-		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Models.dll</HintPath>
+		  <HintPath>..\RPC\v23r2\VM.Models.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models.OutputReader">
-		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Models.OutputReader.dll</HintPath>
+		  <HintPath>..\RPC\v23r2\VM.Models.OutputReader.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models.Post">
-		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Models.Post.dll</HintPath>
+		  <HintPath>..\RPC\v23r2\VM.Models.Post.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Models.Post.DataSource">
@@ -52,7 +52,7 @@
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="VM.Post.API.OutputReader">
-		  <HintPath>$(SolutionDir)RPC\v23r2\VM.Post.API.OutputReader.dll</HintPath>
+		  <HintPath>..\RPC\v23r2\VM.Post.API.OutputReader.dll</HintPath>
 		  <Private>false</Private>
 		</Reference>
 		<Reference Include="WindowsBase">
