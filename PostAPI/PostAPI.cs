@@ -21,7 +21,7 @@ namespace PostAPI
 
         public PostAPI(string filepath)
         {
-            OutputReader = new OutputReader(filepath);
+            OutputReader = new OutputReader(filepath); 
         }
 
         private OutputReader OutputReader { get; set; }
