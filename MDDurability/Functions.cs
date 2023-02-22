@@ -4675,7 +4675,7 @@ namespace Motion.Durability
                         CreateAttributeXML(dom, ref node_B_entity, "type", "force");
                         node_body.AppendChild(node_B_entity);
 
-                        if (connectors[j].Item1 == ConnectorType.TSpringDamper || connectors[j].Item1 == ConnectorType.Bush || connectors[j].Item1 == ConnectorType.Tire)
+                        if (connectors[j].Item1 == ConnectorType.TSpringDamper || connectors[j].Item1 == ConnectorType.TScalar || connectors[j].Item1 == ConnectorType.Bush || connectors[j].Item1 == ConnectorType.Tire)
                         {
                             XmlNode node_force = CreateNodeAndAttribute(dom, "Force", "name", connectors[j].Item3);
                             XmlNode node_E_force = CreateNodeAndAttribute(dom, "Entity", "name", "Force");
