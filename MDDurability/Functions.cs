@@ -2628,7 +2628,8 @@ namespace Motion.Durability
                             }
                         }
 
-                        nDiffer = nRow - durability.ResultStep;
+                        nDiffer = entity.FixedStepValue.Count - durability.ResultStep;
+                        //nDiffer = nRow - durability.ResultStep;
                         if (nDiffer > 0)
                         {
                             for (i = 0; i < nDiffer; i++)
