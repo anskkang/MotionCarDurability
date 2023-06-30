@@ -5086,6 +5086,10 @@ namespace Motion.Durability
                                         {
                                             _rpc_data.Pts_Per_Frame = Convert.ToInt32(s_value_header);
                                         }
+                                        else if (s_key_header.Contains("PTS_PER_GROUP"))
+                                        {
+                                            _rpc_data.Pts_Per_Group = Convert.ToInt32(s_value_header);
+                                        }
                                         else if (s_key_header.Trim(char_trim1) == "FRAMES")
                                         {
                                             _rpc_data.Frames = Convert.ToInt32(s_value_header);
@@ -5127,6 +5131,16 @@ namespace Motion.Durability
                             }
 
                             numdatas = _rpc_data.Pts_Per_Frame * _rpc_data.Frames;
+                            if(0 != _rpc_data.Pts_Per_Group)
+                            {
+                                double temp_value = Convert.ToDouble(((double)numdatas) / ((double)_rpc_data.Pts_Per_Group));
+                                double quotient = System.Math.Truncate(temp_value);
+                                double remainder = ((double)numdatas) % ((double)_rpc_data.Pts_Per_Group);
+                                if (remainder > 0.0)
+                                    numdatas = ((Int32)(quotient + 1)) * _rpc_data.Pts_Per_Group;
+
+                            }
+
                             for (i = 0; i < _rpc_data.Channels; i++)
                             {
                                 nCount = 0;
