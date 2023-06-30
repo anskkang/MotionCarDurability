@@ -81,6 +81,7 @@
     <Compile Include="Functions.cs" />
     <Compile Include="lib_math.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RPCReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PostAPI\PostAPI.csproj">

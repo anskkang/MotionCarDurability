@@ -3543,6 +3543,7 @@ namespace Motion.Durability
 
             string str_temp, str_dir, str_filename, str_FEbodyname;
             string[] ar_str_tmp;
+            Int16 short_zero = 0;
 
             if (durability.Type != Category.FEBodies)
             {
@@ -3627,7 +3628,8 @@ namespace Motion.Durability
 
                     for (j = 0; j < nRemain; j++)
                     {
-                        bw.Write("\0");
+                        bw.Write(short_zero);
+                        //bw.Write("\0");
                     }
                 }
 
@@ -3746,7 +3748,8 @@ namespace Motion.Durability
 
                         for (j = 0; j < nRemain; j++)
                         {
-                            bw.Write("\0");
+                            bw.Write(short_zero);
+                            //bw.Write("\0");
                         }
                     }
 
@@ -4843,6 +4846,407 @@ namespace Motion.Durability
         }
 
 
+
+        #endregion
+
+
+        #region Read
+        
+        public bool ReadFile(string _str_input_path, string _str_export_path, ref string errMessage)
+        {
+            string extension_input = Path.GetExtension(_str_input_path);
+            string name_input = Path.GetFileNameWithoutExtension(_str_input_path);
+
+            string extension_output = "";
+
+            if (extension_input.Contains("rsp"))
+            {
+                RPCReader.RPCReader rpc_reader = new RPCReader.RPCReader(name_input);
+
+                if (false == Read_RPC(_str_input_path, rpc_reader, ref errMessage))
+                {
+                    errMessage += "Error : Failed to read RPC file\n";
+                    return false;
+                }
+
+                if (null != _str_export_path && "" != _str_export_path)
+                {
+                    extension_output = Path.GetExtension(_str_export_path);
+
+                    if (extension_output.Contains("csv"))
+                    {
+                        if (false == ReadRPC_WriteCSV(_str_export_path, rpc_reader, ref errMessage))
+                        {
+                            errMessage += "Error : Failed to write CSV file\n";
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        errMessage += string.Format("The {0} format is not supported! Please check file format", extension_output);
+                        return false;
+                    }
+
+                }
+            }
+            else
+            {
+                errMessage += string.Format("The {0} format is not supported! Please check file format", extension_input);
+                return false;
+            }
+
+
+            return true;
+        }
+
+        private bool Read_RPC(string _str_input_path, RPCReader.RPCReader _rpc_data, ref string errMessage)
+        {
+            try
+            {
+                string s_key_header;
+                string s_value_header;
+                string[] tmp_split;
+
+                char[] char_split = { '_' };
+                char[] char_trim1 = { '\0'};
+                char[] key_header = new char[32];
+                char[] value_header = new char[96];
+
+                double dMax;
+                Int32 i,j, nCount = 0, nHeaderLines, numChan = 0, numdatas = 0, nInt_Full_Scale = _rpc_data.INT_FULL_SCALE;
+                short raw_data_int16;
+                //byte raw_data_byte;
+
+                if (File.Exists(_str_input_path))
+                {
+                    #region Read Binary
+                    
+                    using (FileStream stream = new FileStream(_str_input_path, FileMode.Open, FileAccess.Read))
+                    {
+                        using (BinaryReader br = new BinaryReader(stream,Encoding.UTF8))
+                        {
+                            #region Header Block
+                            for (i = 0; i < 3; i++)
+                            {
+                                nCount++;
+
+                                key_header = br.ReadChars(32);
+                                value_header = br.ReadChars(96);
+
+                                s_key_header = new string(key_header);
+                                s_value_header = new string(value_header);
+
+                                if (s_key_header.Contains("FORMAT"))
+                                {
+                                    if (s_value_header.Contains("BINARY"))
+                                        _rpc_data.Format = RPCReader.RPC_FORMAT.BINARY;
+                                    else if (s_value_header.Contains("BINARY_IEEE_LITTLE_END"))
+                                        _rpc_data.Format = RPCReader.RPC_FORMAT.BINARY_IEEE_LITTLE_END;
+                                    else if (s_value_header.Contains("BINARY_IEEE_BIG_END"))
+                                        _rpc_data.Format = RPCReader.RPC_FORMAT.BINARY_IEEE_BIG_END;
+                                    else if (s_value_header.Contains("ASCII"))
+                                        _rpc_data.Format = RPCReader.RPC_FORMAT.ASCII;
+
+                                }
+                                else if (s_key_header.Contains("NUM_HEADER_BLOCKS"))
+                                {
+                                    _rpc_data.Num_Header_Blocks = Convert.ToInt32(s_value_header);
+                                }
+                                else if (s_key_header.Contains("NUM_PARAMS"))
+                                {
+                                    _rpc_data.Num_Params = Convert.ToInt32(s_value_header);
+                                }
+
+
+                            }
+
+                            if(_rpc_data.Num_Header_Blocks == 0)
+                            {
+                                errMessage += "The value of NUM_HEADER_BLOCKS isn`t defined\n";
+                                return false;
+                            }
+                            else
+                            {
+                                nHeaderLines = _rpc_data.Num_Header_Blocks * 4 - 3;
+
+                                for (i = 0; i < nHeaderLines; i++)
+                                {
+                                    nCount++;
+
+                                    key_header = br.ReadChars(32);
+                                    value_header = br.ReadChars(96);
+
+                                    if (key_header[0] != '\0')
+                                    {
+                                        s_key_header = new string(key_header);
+                                        s_value_header = new string(value_header);
+
+
+                                        if (s_key_header.Contains("CHAN_"))
+                                        {
+                                            tmp_split = s_key_header.Trim(char_trim1).Split(char_split, StringSplitOptions.RemoveEmptyEntries);
+                                            numChan = Convert.ToInt32(tmp_split[tmp_split.Length - 1]);
+
+                                            if(s_key_header.Contains("DESC"))
+                                            {
+                                                _rpc_data.Datas[numChan - 1].DESC_CHAN = s_value_header.Trim(char_trim1);
+                                            }
+                                            else if (s_key_header.Contains("UNITS"))
+                                            {
+                                                _rpc_data.Datas[numChan - 1].UNITS = s_value_header.Trim(char_trim1);
+                                            }
+                                            else if (s_key_header.Contains("SCALE"))
+                                            {
+                                                _rpc_data.Datas[numChan - 1].SCALE_CHAN = Convert.ToDouble(s_value_header);
+                                            }
+                                            else if (s_key_header.Contains("UPPER_LIMIT"))
+                                            {
+                                                _rpc_data.Datas[numChan - 1].UPPER_LIMIT = Convert.ToDouble(s_value_header);
+                                            }
+                                            else if (s_key_header.Contains("LOWER_LIMIT"))
+                                            {
+                                                _rpc_data.Datas[numChan - 1].LOWER_LIMIT = Convert.ToDouble(s_value_header);
+                                            }
+                                            else if (s_key_header.Contains("MAP"))
+                                            {
+                                                _rpc_data.Datas[numChan - 1].MAP_CHAN = Convert.ToInt32(s_value_header);
+                                            }
+
+                                        }
+                                        else if (s_key_header.Contains("FILE_TYPE"))
+                                        {
+                                            if (s_value_header.Contains("TIME_HISTRY"))
+                                                _rpc_data.File_Type = RPCReader.RPC_FILE_TYPE.TIME_HISTRY;
+                                            else if (s_value_header.Contains("CONFIGURATION"))
+                                                _rpc_data.File_Type = RPCReader.RPC_FILE_TYPE.CONFIGURATION;
+                                            else if (s_value_header.Contains("MATRIX"))
+                                                _rpc_data.File_Type = RPCReader.RPC_FILE_TYPE.MATRIX;
+                                            else if (s_value_header.Contains("FATIGUE"))
+                                                _rpc_data.File_Type = RPCReader.RPC_FILE_TYPE.FATIGUE;
+                                            else if (s_value_header.Contains("ROAD_SURFACE"))
+                                                _rpc_data.File_Type = RPCReader.RPC_FILE_TYPE.ROAD_SURFACE;
+                                            else if (s_value_header.Contains("SPECTRAL"))
+                                                _rpc_data.File_Type = RPCReader.RPC_FILE_TYPE.SPECTRAL;
+                                            else if (s_value_header.Contains("START"))
+                                                _rpc_data.File_Type = RPCReader.RPC_FILE_TYPE.START;
+                                        }
+                                        else if (s_key_header.Contains("TIME_TYPE"))
+                                        {
+                                            if (s_value_header.Contains("DRIVE"))
+                                                _rpc_data.Time_Type = RPCReader.TIME_TYPE.DRIVE;
+                                            else if (s_value_header.Contains("RESPONSE"))
+                                                _rpc_data.Time_Type = RPCReader.TIME_TYPE.RESPONSE;
+                                            else if (s_value_header.Contains("MULT_DRIVE"))
+                                                _rpc_data.Time_Type = RPCReader.TIME_TYPE.MULT_DRIVE;
+                                            else if (s_value_header.Contains("MULT_RESP"))
+                                                _rpc_data.Time_Type = RPCReader.TIME_TYPE.MULT_RESP;
+                                            else if (s_value_header.Contains("CONFIG_DRIVE"))
+                                                _rpc_data.Time_Type = RPCReader.TIME_TYPE.CONFIG_DRIVE;
+                                            else if (s_value_header.Contains("CONFIG_RESP"))
+                                                _rpc_data.Time_Type = RPCReader.TIME_TYPE.CONFIG_RESP;
+                                            else if (s_value_header.Contains("PEAK_PICK"))
+                                                _rpc_data.Time_Type = RPCReader.TIME_TYPE.PEAK_PICK;
+                                        }
+                                        else if (s_key_header.Contains("OPERATION"))
+                                        {
+                                            _rpc_data.OPERATION = s_value_header;
+                                        }
+                                        else if (s_key_header.Contains("BYPASS_FILTER"))
+                                        {
+                                            if (Convert.ToInt32(s_value_header) == 0)
+                                                _rpc_data.Bypass_Filter = RPCReader.BYPASS_FILTER.Off;
+                                            else
+                                                _rpc_data.Bypass_Filter = RPCReader.BYPASS_FILTER.On;
+                                        }
+                                        else if (s_key_header.Contains("CHANNELS"))
+                                        {
+                                            _rpc_data.Channels = Convert.ToInt32(s_value_header);
+                                            
+                                            for(j = 0; j < _rpc_data.Channels; j++)
+                                            {
+                                                _rpc_data.Datas.Add(new RPCReader.RPCData());
+                                            }
+                                        }
+                                        else if (s_key_header.Contains("DATA_TYPE"))
+                                        {
+                                            if (s_value_header.Contains("SHORT_INTEGER"))
+                                                _rpc_data.Data_Type = RPCReader.DATA_TYPE.SHORT_INTEGER;
+                                            else
+                                                _rpc_data.Data_Type = RPCReader.DATA_TYPE.FLOATING_POINT;
+                                        }
+                                        else if (s_key_header.Contains("DELTA_T"))
+                                        {
+                                            _rpc_data.Delta_T = Convert.ToDouble(s_value_header);
+                                        }
+                                        else if (s_key_header.Contains("REPEATS"))
+                                        {
+                                            _rpc_data.Repeats = Convert.ToInt32(s_value_header);
+                                        }
+                                        else if (s_key_header.Contains("PTS_PER_FRAME"))
+                                        {
+                                            _rpc_data.Pts_Per_Frame = Convert.ToInt32(s_value_header);
+                                        }
+                                        else if (s_key_header.Trim(char_trim1) == "FRAMES")
+                                        {
+                                            _rpc_data.Frames = Convert.ToInt32(s_value_header);
+                                        }
+                                        else if (s_key_header.Trim(char_trim1) == "HALF_FRAMES")
+                                        {
+                                            _rpc_data.Half_Frames = Convert.ToInt32(s_value_header);
+                                        }
+
+                                    }
+
+
+
+                                }
+                            }
+
+                            #endregion
+
+                            #region DATA Blocks
+                            if(0 == _rpc_data.Pts_Per_Frame)
+                            {
+                                errMessage += "There is no information about 'PTS_PER_FRAME' in the rpc file. So please review.\n";
+                                return false;
+                            }
+                            else if(0 == _rpc_data.Frames)
+                            {
+                                errMessage += "There is no information about 'FRAMES' in the rpc file. So please review.\n";
+                                return false;
+                            }
+                            else if (0 == _rpc_data.Channels)
+                            {
+                                errMessage += "There is no information about 'CHANNELS' in the rpc file. So please review.\n";
+                                return false;
+                            }
+                            else if (0.0 == _rpc_data.Delta_T)
+                            {
+                                errMessage += "There is no information about 'DELTA_T' in the rpc file. So please review.\n";
+                                return false;
+                            }
+
+                            numdatas = _rpc_data.Pts_Per_Frame * _rpc_data.Frames;
+                            for (i = 0; i < _rpc_data.Channels; i++)
+                            {
+                                nCount = 0;
+
+                                for (j = 0; j < numdatas; j++)
+                                {
+                                    raw_data_int16 = br.ReadInt16();
+                                    if (raw_data_int16.ToString() == "\0")
+                                    {
+                                        if (i == 0)
+                                            numdatas = nCount + 1;
+
+                                        continue;
+                                    }
+                                    else
+                                        _rpc_data.Datas[i].Orifinal_Data.Add(raw_data_int16);
+
+                                    nCount++;
+                                }
+                            }
+
+                            #endregion
+
+                        }
+                    }
+
+                    #endregion
+
+                    #region Recovery datas
+
+                    for(i = 0; i < _rpc_data.Channels; i++)
+                    {
+                        numdatas = _rpc_data.Datas[i].Orifinal_Data.Count;
+                        dMax = _rpc_data.Datas[i].SCALE_CHAN;
+
+                        for(j = 0; j < numdatas; j++)
+                        {
+                            //_rpc_data.Datas[i].Export_Data.Add((_rpc_data.Datas[i].Orifinal_Data[j] / nInt_Full_Scale) * dMax);
+                            _rpc_data.Datas[i].Export_Data.Add(_rpc_data.Datas[i].Orifinal_Data[j]  * dMax);
+                        }
+                    }
+
+                    #endregion
+
+                    #region Generation Time series
+
+                    numdatas = _rpc_data.Datas[0].Orifinal_Data.Count;
+
+                    for (j = 0; j < numdatas; j++)
+                        _rpc_data.Times.Add( j * _rpc_data.Delta_T );
+
+                    #endregion
+
+                }
+                else
+                {
+                    errMessage += "RPC file not found.\n";
+                    return false;
+                }
+                return true;
+            }
+            catch(System.Exception e)
+            {
+                errMessage += e.Message + "\n";
+                //MessageBox.Show(e.Message);
+                return false;
+            }
+        }
+
+        private bool ReadRPC_WriteCSV(string _str_export_path, RPCReader.RPCReader _rpc_data, ref string errMessage)
+        {
+            StringBuilder sb = new StringBuilder();
+           
+            string str_Header = "";
+            string seperator = " , ";
+            string str_precision = "e6";
+            
+            int i, j;
+            int nRow = _rpc_data.Times.Count;
+            int nColumn = _rpc_data.Channels;
+
+            for(i = 0; i < nColumn; i++)
+            {
+                if (i == 0)
+                    str_Header = "time" + seperator + _rpc_data.Datas[i].DESC_CHAN + "(" + _rpc_data.Datas[i].UNITS + ")";
+                else
+                {
+                    //str_Header += seperator + "time" + seperator + _rpc_data.Datas[i].DESC_CHAN;
+
+                    str_Header += seperator  + _rpc_data.Datas[i].DESC_CHAN + "(" + _rpc_data.Datas[i].UNITS + ")";
+                }
+            }
+            sb.AppendLine(str_Header);
+
+            for (i = 0; i < nRow; i++)
+            {
+                str_Header = "";
+                str_Header = _rpc_data.Times[i].ToString("F6");
+
+                for (j = 0; j < nColumn; j++)
+                {
+                    if (j == 0)
+                        str_Header = _rpc_data.Times[i].ToString("F6") + seperator + _rpc_data.Datas[j].Export_Data[i].ToString(str_precision);
+                    else
+                    {
+                        //str_Header += seperator + _rpc_data.Times[i].ToString("F6") + seperator + _rpc_data.Datas[i].Export_Data[j].ToString(str_precision);
+
+                        str_Header += seperator + _rpc_data.Datas[j].Export_Data[i].ToString(str_precision);
+                    }
+
+                }
+
+                sb.AppendLine(str_Header);
+            }
+
+            File.WriteAllText(_str_export_path, sb.ToString());
+
+
+            return true;
+        }
 
         #endregion
 
