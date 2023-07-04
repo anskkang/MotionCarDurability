@@ -4913,7 +4913,7 @@ namespace Motion.Durability
                 char[] value_header = new char[96];
 
                 double dMax;
-                Int32 i,j, nCount = 0, nHeaderLines, numChan = 0, numdatas = 0, nInt_Full_Scale = _rpc_data.INT_FULL_SCALE;
+                Int32 i,j, k, nCount = 0, nHeaderLines, numChan = 0, numdatas = 0, nInt_Full_Scale = _rpc_data.INT_FULL_SCALE, numofgroup = 1;
                 short raw_data_int16;
                 //byte raw_data_byte;
 
@@ -5131,36 +5131,67 @@ namespace Motion.Durability
                             }
 
                             numdatas = _rpc_data.Pts_Per_Frame * _rpc_data.Frames;
-                            if(0 != _rpc_data.Pts_Per_Group)
+                            if (0 == _rpc_data.Pts_Per_Group)
                             {
-                                double temp_value = Convert.ToDouble(((double)numdatas) / ((double)_rpc_data.Pts_Per_Group));
-                                double quotient = System.Math.Truncate(temp_value);
-                                double remainder = ((double)numdatas) % ((double)_rpc_data.Pts_Per_Group);
-                                if (remainder > 0.0)
-                                    numdatas = ((Int32)(quotient + 1)) * _rpc_data.Pts_Per_Group;
-
+                                _rpc_data.Pts_Per_Group = _rpc_data.Pts_Per_Frame;
                             }
 
-                            for (i = 0; i < _rpc_data.Channels; i++)
+                            
+
+                            double temp_value = Convert.ToDouble(((double)numdatas) / ((double)_rpc_data.Pts_Per_Group));
+                            double quotient = System.Math.Truncate(temp_value);
+                            double remainder = ((double)numdatas) % ((double)_rpc_data.Pts_Per_Group);
+                            if (remainder != 0)
+                                numofgroup = ((Int32)(quotient + 1));
+                            else
+                                numofgroup = ((Int32)(quotient));
+
+                            //if (remainder > 0.0)
+                            //    numdatas = ((Int32)(quotient + 1)) * _rpc_data.Pts_Per_Group;
+
+                            numdatas = _rpc_data.Pts_Per_Group;
+                            for (i = 0; i < numofgroup; i++)
                             {
-                                nCount = 0;
-
-                                for (j = 0; j < numdatas; j++)
+                                for (j = 0; j < _rpc_data.Channels; j++)
                                 {
-                                    raw_data_int16 = br.ReadInt16();
-                                    if (raw_data_int16.ToString() == "\0")
+                                    for (k = 0; k < numdatas; k++)
                                     {
-                                        if (i == 0)
-                                            numdatas = nCount + 1;
+                                        raw_data_int16 = br.ReadInt16();
 
-                                        continue;
+                                        _rpc_data.Datas[j].Orifinal_Data.Add(raw_data_int16);
+
                                     }
-                                    else
-                                        _rpc_data.Datas[i].Orifinal_Data.Add(raw_data_int16);
-
-                                    nCount++;
                                 }
                             }
+
+
+                            //for (i = 0; i < _rpc_data.Channels; i++)
+                            //{
+                            //    nCount = 0;
+
+                            //    for (k = 0; k < numdatas; k++)
+                            //    {
+                            //        raw_data_int16 = br.ReadInt16();
+                            //        //if (raw_data_int16.ToString() == "0")
+                            //        //{
+                            //        //    if (i == 0)
+                            //        //        numdatas = nCount + 1;
+
+                            //        //    continue;
+                            //        //}
+                            //        //else
+                            //        _rpc_data.Datas[i].Orifinal_Data.Add(raw_data_int16);
+
+                            //        nCount++;
+                            //    }
+                            //}
+
+                            //while (stream.Position != stream.Length)
+                            //{
+                            //    raw_data_int16 = br.ReadInt16();
+                            //    _rpc_data.Datas[0].Orifinal_Data.Add(raw_data_int16);
+                            //}
+
 
                             #endregion
 
@@ -5171,15 +5202,15 @@ namespace Motion.Durability
 
                     #region Recovery datas
 
-                    for(i = 0; i < _rpc_data.Channels; i++)
+                    for (i = 0; i < _rpc_data.Channels; i++)
                     {
                         numdatas = _rpc_data.Datas[i].Orifinal_Data.Count;
                         dMax = _rpc_data.Datas[i].SCALE_CHAN;
 
-                        for(j = 0; j < numdatas; j++)
+                        for (j = 0; j < numdatas; j++)
                         {
                             //_rpc_data.Datas[i].Export_Data.Add((_rpc_data.Datas[i].Orifinal_Data[j] / nInt_Full_Scale) * dMax);
-                            _rpc_data.Datas[i].Export_Data.Add(_rpc_data.Datas[i].Orifinal_Data[j]  * dMax);
+                            _rpc_data.Datas[i].Export_Data.Add(_rpc_data.Datas[i].Orifinal_Data[j] * dMax);
                         }
                     }
 
